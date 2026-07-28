@@ -1,0 +1,28 @@
+id: "example-work-item"
+title: "示例研发事项"
+status: "draft"
+created_at: "YYYY-MM-DD"
+updated_at: "YYYY-MM-DD"
+scope:
+  - "src/example"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  validation_report: "./validation-report.md"
+freshness:
+  status: "current"
+  last_reviewed_at: "YYYY-MM-DD"
+  refresh_triggers:
+    - "影响范围内的代码入口变化"
+    - "依赖的契约或 Schema 变化"
+active_context:
+  summary: "只描述当前事项范围，不保存聊天摘要"
+  next_task_id: "T-01"
+authorization:
+  terminal_transition_confirmed: false

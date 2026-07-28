@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/agent-foundation/checkpoint.schema.example.json",
+  "title": "Checkpoint run example",
+  "description": "An illustrative schema for discussing resumable agent runs. It is not a stable public API.",
+  "type": "object",
+  "required": ["run", "stages", "events", "decisions", "externalRefs"],
+  "properties": {
+    "run": {
+      "$ref": "#/$defs/run"
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/stage"
+      },
+      "minItems": 1
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/event"
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    },
+    "externalRefs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/externalRef"
+      }
+    },
+    "resumePlan": {
+      "$ref": "#/$defs/resumePlan"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "run": {
+      "type": "object",
+      "required": ["id", "taskType", "status", "currentStageId", "updatedAt"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "taskType": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": ["active", "paused", "blocked", "completed", "cancelled"]
+        },
+        "currentStageId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "stage": {
+      "type": "object",
+      "required": ["id", "status", "exitGate"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "status": {
+          "enum": ["pending", "active", "paused", "blocked", "completed", "skipped"]
+        },
+        "exitGate": {
+          "type": "object",
+          "required": ["status", "reasons"],
+          "properties": {
+            "status": {
+              "enum": ["unknown", "allowed", "denied"]
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "required": ["id", "type", "occurredAt"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stageId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "summary": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "decision": {
+      "type": "object",
+      "required": ["id", "actorType", "decision", "decidedAt"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "actorType": {
+          "enum": ["human", "policy"]
+        },
+        "decision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "externalRef": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "enum": ["evidence", "claim", "file", "external-artifact", "other"]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string"
+        },
+        "contentHash": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "resumePlan": {
+      "type": "object",
+      "required": ["action", "stageId", "reason"],
+      "properties": {
+        "action": {
+          "enum": ["continue", "skip", "revalidate", "confirm-manually"]
+        },
+        "stageId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

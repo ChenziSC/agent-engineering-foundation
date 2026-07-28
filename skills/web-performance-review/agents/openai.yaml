@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web 性能评审"
+  short_description: "基于浏览器性能证据定位 Web 瓶颈并输出可验证的改造建议"
+  default_prompt: "使用 $web-performance-review 分析这份 Web 性能证据，定位主要瓶颈并给出按收益和风险排序的建议。"

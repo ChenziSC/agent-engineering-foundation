@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web 首屏预请求"
+  short_description: "分析 Web 首屏请求瀑布，设计并验证安全的预请求优化方案"
+  default_prompt: "使用 $web-first-screen-prefetch 分析这个页面的首屏请求，并给出证据充分、行为安全的预请求方案。"

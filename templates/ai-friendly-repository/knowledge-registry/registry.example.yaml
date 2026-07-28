@@ -1,0 +1,20 @@
+version: 1
+entries:
+  - id: "example-routing-architecture"
+    title: "示例路由架构"
+    path: "../knowledge/example-routing-architecture.md"
+    status: "current"
+    scope:
+      - "src/app/"
+    topics:
+      - "routing"
+      - "initialization"
+    last_reviewed_at: "YYYY-MM-DD"
+    authoritative_sources:
+      - "src/app/router.ts"
+    refresh_triggers:
+      - "路由入口移动"
+      - "初始化顺序变化"
+    load_when:
+      - "修改路由"
+      - "分析页面初始化"

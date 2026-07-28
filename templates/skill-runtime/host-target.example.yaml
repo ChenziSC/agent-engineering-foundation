@@ -1,0 +1,26 @@
+version: 1
+host:
+  id: "example-agent-host"
+  display_name: "示例 Agent 宿主"
+targets:
+  project:
+    relative_path: ".agent/skills"
+    requires_explicit_authorization: false
+  user:
+    relative_path_from_user_home: ".agent/skills"
+    requires_explicit_authorization: true
+supported_entries:
+  - "SKILL.md"
+  - "agents"
+  - "references"
+  - "assets"
+  - "evals"
+  - "scripts"
+  - "tests"
+symlink_policy:
+  allow_create: false
+  follow_on_update: false
+conflict_policy:
+  unknown_file: "block"
+  user_modified_file: "block"
+  unmanaged_skill: "preserve"

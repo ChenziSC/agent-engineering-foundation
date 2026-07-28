@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/agent-foundation/evidence.schema.example.json",
+  "title": "Evidence bundle example",
+  "description": "An illustrative schema for discussing evidence and claim boundaries. It is not a stable public API.",
+  "type": "object",
+  "required": ["evidence", "claims", "blockers", "verifications"],
+  "properties": {
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/claim"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/blocker"
+      }
+    },
+    "verifications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/verification"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["id", "sourceType", "observedAt", "scope", "summary", "contentHash", "status"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "sourceType": {
+          "enum": ["browser", "file", "repository", "measurement", "human-confirmation", "other"]
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentHash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": ["valid", "conflicted", "stale"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "claim": {
+      "type": "object",
+      "required": ["id", "kind", "statement", "evidenceRefs", "status"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": ["observation", "derived", "inference"]
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "status": {
+          "enum": ["supported", "partial", "blocked", "refuted", "stale"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "blocker": {
+      "type": "object",
+      "required": ["id", "reason", "affectedClaimRefs"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affectedClaimRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "verification": {
+      "type": "object",
+      "required": ["id", "claimRef", "action", "expectedObservation", "status"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "claimRef": {
+          "$ref": "#/$defs/identifier"
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expectedObservation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "actualObservation": {
+          "type": "string"
+        },
+        "status": {
+          "enum": ["planned", "passed", "failed", "inconclusive"]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

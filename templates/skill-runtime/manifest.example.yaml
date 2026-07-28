@@ -1,0 +1,15 @@
+version: 1
+skills:
+  - name: "example-review"
+    source: "skills/example-review"
+    version:
+      type: "content-hash"
+      value: "sha256:example"
+    distributable: true
+    required_files:
+      - "SKILL.md"
+    optional_resources:
+      - "agents"
+      - "references"
+      - "assets"
+      - "evals"

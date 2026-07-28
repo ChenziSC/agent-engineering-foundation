@@ -1,0 +1,19 @@
+version: 1
+entries:
+  - task_type: "修改页面路由"
+    start_paths:
+      - "src/app/router.ts"
+    module_rules:
+      - "src/app/AGENTS.md"
+    knowledge:
+      - "example-routing-architecture"
+    exclude_by_default:
+      - "src/domain/"
+  - task_type: "修改领域规则"
+    start_paths:
+      - "src/domain/index.ts"
+    module_rules:
+      - "src/domain/AGENTS.md"
+    knowledge: []
+    exclude_by_default:
+      - "src/app/"
