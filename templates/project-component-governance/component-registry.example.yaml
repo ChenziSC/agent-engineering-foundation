@@ -1,0 +1,41 @@
+version: 1
+components:
+  - id: "async-data-table"
+    display_name: "AsyncDataTable"
+    purpose: "展示具有加载、空态、错误和重试状态的数据列表"
+    location: "packages/ui/src/standard/AsyncDataTable"
+    source: "project-ui"
+    level: "project-standard"
+    status: "active"
+    keywords:
+      - "table"
+      - "loading"
+      - "empty"
+      - "retry"
+    contract: "packages/ui/src/standard/AsyncDataTable/AsyncDataTable.md"
+    public_entry: "@example/ui"
+    alternatives:
+      - "basic-table"
+    known_consumers:
+      - "apps/operations"
+      - "apps/reporting"
+    validation:
+      - "story"
+      - "behavior-test"
+  - id: "checkout-summary-panel"
+    display_name: "CheckoutSummaryPanel"
+    purpose: "编排结算页数据与提交动作"
+    location: "apps/storefront/src/pages/checkout/components/CheckoutSummaryPanel"
+    source: "storefront"
+    level: "page-local"
+    status: "active"
+    keywords:
+      - "checkout"
+      - "summary"
+    contract: null
+    public_entry: null
+    alternatives: []
+    known_consumers:
+      - "apps/storefront/src/pages/checkout"
+    validation:
+      - "page-behavior-test"

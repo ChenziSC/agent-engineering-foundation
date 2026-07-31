@@ -1,0 +1,4 @@
+interface:
+  display_name: "项目组件治理与维护"
+  short_description: "基于仓库证据评估组件复用、放置层级、标准准入、迁移与废弃方案"
+  default_prompt: "使用 $project-component-governance 评估当前项目的组件复用、放置层级和维护方案。"

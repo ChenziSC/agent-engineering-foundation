@@ -52,6 +52,10 @@ GitHub 仓库与本地根目录统一使用以下标识：
 - [Skill 行为评估方法与模板](frameworks/skill-eval/README.md)
 - [AI 友好仓库模板](templates/ai-friendly-repository/README.md)
 - [`web-performance-review` Skill](skills/web-performance-review/SKILL.md)
+- [项目组件治理与维护框架](frameworks/project-component-governance/README.md)
+- [`project-component-governance` Skill](skills/project-component-governance/SKILL.md)
+- [项目组件治理模板](templates/project-component-governance/README.md)
+- [项目组件治理接入 Blueprint](blueprints/project-component-governance/README.md)
 
 ## 文档入口
 
@@ -63,7 +67,7 @@ GitHub 仓库与本地根目录统一使用以下标识：
 - [交付形态与成熟度](docs/05-交付形态与成熟度.md)
 - [公开发布检查清单](docs/06-公开发布检查清单.md)
 - [公开内容来源说明](docs/07-公开内容来源说明.md)
-- [P0 能力说明](docs/能力说明/)
+- [P0/P1 能力说明](docs/能力说明/)
 
 ## 附加资源
 

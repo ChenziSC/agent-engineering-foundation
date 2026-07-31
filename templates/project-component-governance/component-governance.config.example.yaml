@@ -1,0 +1,29 @@
+version: 1
+registry: ".component-governance/registry.yaml"
+sources:
+  - id: "app-components"
+    roots:
+      - "apps/*/src/components"
+    default_level: "app-shared"
+  - id: "project-ui"
+    roots:
+      - "packages/ui/src"
+    default_level: "project-shared"
+standard:
+  roots:
+    - "packages/ui/src/standard"
+  contract_pattern: "<component-dir>/<component-name>.md"
+  stable_entries:
+    - "packages/ui/src/index.ts"
+deep_imports:
+  forbidden:
+    - "@example/ui/src/**"
+validation:
+  require_registry_entry: true
+  require_contract_for_levels:
+    - "project-standard"
+  require_public_entry_for_levels:
+    - "project-shared"
+    - "project-standard"
+  deprecation_requires_replacement: true
+  test_policy: "risk-based"
