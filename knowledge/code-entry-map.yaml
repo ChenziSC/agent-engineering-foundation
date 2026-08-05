@@ -1,0 +1,67 @@
+version: 1
+entries:
+  - task_type: "修改仓库定位或顶层结构"
+    start_paths:
+      - "README.md"
+      - "docs/01-能力地图.md"
+      - "docs/02-目标仓库设计.md"
+    module_rules:
+      - "AGENTS.md"
+    knowledge:
+      - "repository-positioning"
+      - "public-generalization-policy"
+      - "self-hosted-governance"
+    exclude_by_default:
+      - "pets/"
+  - task_type: "新增或修改 Skill"
+    start_paths:
+      - "skills/"
+      - "frameworks/skill-eval/README.md"
+      - "templates/skill-eval/"
+    module_rules:
+      - "AGENTS.md"
+    knowledge:
+      - "self-hosted-governance"
+      - "public-generalization-policy"
+    exclude_by_default:
+      - "pets/"
+  - task_type: "修改 Specflow、归档或 Knowledge"
+    start_paths:
+      - "skills/specflow/"
+      - "blueprints/specflow/"
+      - "specs/"
+      - "knowledge/"
+    module_rules:
+      - "AGENTS.md"
+    knowledge:
+      - "repository-positioning"
+      - "self-hosted-governance"
+      - "public-generalization-policy"
+    exclude_by_default:
+      - "pets/"
+  - task_type: "新增或修改 Adapter"
+    start_paths:
+      - "adapters/"
+      - "blueprints/infrastructure-adapters/"
+      - "templates/infrastructure-adapters/"
+      - "packages/harness/"
+    module_rules:
+      - "AGENTS.md"
+    knowledge:
+      - "repository-positioning"
+      - "public-generalization-policy"
+    exclude_by_default:
+      - "pets/"
+  - task_type: "公开发布或敏感信息检查"
+    start_paths:
+      - "docs/03-脱敏与独立重写规范.md"
+      - "docs/06-公开发布检查清单.md"
+      - "docs/07-公开内容来源说明.md"
+      - "packages/harness/src/harness.mjs"
+      - ".github/workflows/quality.yml"
+    module_rules:
+      - "AGENTS.md"
+    knowledge:
+      - "repository-positioning"
+      - "public-generalization-policy"
+    exclude_by_default: []

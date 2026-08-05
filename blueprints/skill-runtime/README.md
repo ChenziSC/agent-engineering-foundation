@@ -1,8 +1,18 @@
 # Skill 运行时与分发 Blueprint
 
-成熟度：`designed`
+成熟度：Blueprint `designed`；项目级 Host 注册子集 `reference-implemented`
 
-这个 Blueprint 描述如何发现、校验、计划安装和更新仓库内的 Agent Skill，并为不同宿主生成统一能力清单。首期只提供协议与模板，不提供 CLI 或安装器。
+这个 Blueprint 描述如何发现、校验、计划安装和更新仓库内的 Agent Skill，并为不同宿主生成统一能力清单。仓库已提供最小 CLI、项目级开放 Host 和可注入 Adapter Registry；采用方可以显式组装自己的 Host。分发 Manifest、用户级安装和能力注册表仍是设计契约。
+
+## 当前参考实现
+
+- 入口：[`packages/harness/bin/agent-foundation.mjs`](../../packages/harness/bin/agent-foundation.mjs)；
+- Host：[`adapters/open-agent/index.mjs`](../../adapters/open-agent/index.mjs)；
+- Registry：[`adapters/registry.mjs`](../../adapters/registry.mjs)；
+- 范围：项目级 `.agents/skills`；
+- 命令：`skill list`、`skill check`、`skill plan`、`skill install`、`skill update`；
+- 安全性：内容摘要、受管状态、冲突阻断、Symlink 阻断、临时目录替换和失败回滚；
+- 限制：默认 CLI 只打包开放 Host；自定义 Host 由采用方组合入口注入；Skill 只从当前仓库真实 `skills/` 目录发现，不解析下述可选分发 Manifest。
 
 ## 配套模板
 
@@ -39,9 +49,13 @@ skill-name/
 
 Skill 源目录是内容的唯一事实来源。安装目录是派生副本，不能反向静默修改源目录。
 
-### Manifest
+### Integration Manifest
 
-Manifest 声明哪些 Skill 允许分发、源路径和版本标识。Manifest 与实际目录不一致时阻断操作。
+项目 `agent-foundation.json` 声明能力类别、Adapter ID 和可选的不透明 `configRef`。当前 Harness 实际解析该 Manifest，并要求一个项目级 Host。完整扩展边界见[项目基建 Adapter Blueprint](../infrastructure-adapters/README.md)。
+
+### Distribution Manifest
+
+Manifest 可用于声明哪些 Skill 允许分发、源路径和版本标识。需要显式发布白名单或版本目录的实现应在不一致时阻断操作；当前最小参考实现以仓库真实 `skills/` 目录为来源，不声称执行该可选契约。
 
 ### Host Target
 
@@ -66,7 +80,7 @@ check
 ### Check
 
 - 发现 Skill；
-- 校验目录、Frontmatter 和 Manifest；
+- 校验目录、Frontmatter 和 Integration Manifest；
 - 检查目标 Host 是否已知；
 - 不产生文件写入。
 
@@ -95,7 +109,7 @@ check
 
 ## 更新规则
 
-1. 只更新 Manifest 声明且此前由工具管理的 Skill。
+1. 只更新此前由工具管理的 Skill；启用 Distribution Manifest 后还必须位于其分发白名单。
 2. 不静默安装新出现的 Skill。
 3. 不删除无法确认归属的文件。
 4. 目标目录存在用户修改时报告冲突，不覆盖。
@@ -141,11 +155,11 @@ Plan 显示用户级目标目录，但没有明确授权。状态保持 `planned
 
 Manifest 声明一个不存在的 Skill。Check 返回 `blocked`，目标目录保持不变。
 
-## 首期不包含
+## 当前参考实现不包含
 
-- CLI；
-- 具体 Host Adapter；
-- 自动安装或更新；
+- 分发 Manifest 解析和白名单执行；
+- 默认 CLI 内置多个 Host、动态插件加载与用户级安装；
+- 未经显式命令触发的自动安装或更新；
 - npm、编辑器插件或 Marketplace 发布；
 - 使用遥测；
 - 远端能力服务。

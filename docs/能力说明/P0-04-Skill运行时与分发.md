@@ -6,12 +6,12 @@
 
 ## 交付形态
 
-- 首期：Skill 运行时与分发 Blueprint；
-- 成熟度目标：`designed`；
-- 首期不要求：CLI、Package、安装器或 Host Adapter；
-- 未来可选：可运行的发现、校验、安装和更新工具。
+- Blueprint：`designed`；
+- 项目级参考子集：`reference-implemented`；
+- 已提供：CLI、发现、校验、计划、安装、安全更新、开放 Host 和可注入 Adapter Registry；
+- 尚未提供：Distribution Manifest 执行、用户级安装、动态插件加载和远端能力服务。
 
-当前产物：[Skill 运行时与分发 Blueprint 与模板](../../blueprints/skill-runtime/README.md)。
+当前产物：[Skill 运行时与分发 Blueprint 与模板](../../blueprints/skill-runtime/README.md)、[项目基建 Adapter Blueprint](../../blueprints/infrastructure-adapters/README.md)和 `packages/harness/` 参考实现。
 
 ## 调用与不调用条件
 
@@ -35,7 +35,7 @@
 必需输入：
 
 - Skill 源目录；
-- Skill Manifest；
+- 项目 Integration Manifest；
 - 目标 Host；
 - 安装范围：项目级或用户级；
 - 操作模式：检查、安装或更新。
@@ -80,7 +80,7 @@ Agent 负责：
 ## 依赖与状态所有权
 
 - Skill 源目录是 Skill 内容的唯一事实来源；
-- Manifest 是分发清单的权威输入，但必须和实际目录一致；
+- Integration Manifest 是项目 Adapter 选择的权威输入；Distribution Manifest 启用后必须和实际 Skill 目录一致；
 - 已安装目录是派生副本，不允许反向静默修改 Skill 源码；
 - Host Target Adapter 只描述目标目录和宿主差异；
 - Runtime 不执行 Skill，也不依赖具体业务 Skill。
@@ -95,12 +95,12 @@ Agent 负责：
 - 不处理 npm、编辑器插件或远端 Marketplace 的完整发布流程；
 - 不把用户级安装默认为已授权。
 
-## 首期资源
+## 当前资源
 
 - Blueprint：开放目录、Host 差异、安全更新和兼容规则；
 - 模板：Manifest、Host Target、安装计划和能力注册表；
 - 合成案例：项目级安装、用户级授权、Symlink 和 Manifest 冲突；
-- `scripts/`、`evals/` 和 `tests/`：首期不需要。
+- 自动化测试：覆盖默认 Host、自定义注入 Host、冲突、Symlink、用户修改和失败安全。
 
 ## 合成应用案例
 
@@ -109,7 +109,7 @@ Agent 负责：
 3. 合成目标路径是指向源目录的 Symlink，更新不得沿链接修改源文件。
 4. 合成 Manifest 声明了不存在的 Skill，必须阻断并报告一致性错误。
 
-## Blueprint 首版验收
+## 当前验收
 
 - 描述至少一种开放目录规范和自定义 Host 的扩展方式；
 - 明确检查模式、Dry-run 和执行模式的边界；
@@ -118,10 +118,8 @@ Agent 负责：
 - Manifest 与实际目录的一致性要求明确；
 - 四个合成案例可以按 Blueprint 走查。
 
-## 未来可选工程化
+## 后续可选工程化
 
-- Skill 发现和结构校验 CLI；
-- 安装、更新和差异计划器；
-- Host Target Adapter；
-- Symlink 与文件归属保护；
 - Manifest 一致性测试。
+- 用户级安装授权；
+- 能力注册表投影与版本迁移；

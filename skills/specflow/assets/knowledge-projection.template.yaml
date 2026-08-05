@@ -1,0 +1,13 @@
+impact: "reviewed"
+decisions:
+  - action: "create | update | still-valid | supersede | retire"
+    knowledge_id: "stable-knowledge-id"
+    target_knowledge_id: null
+    reason: "说明为什么需要该动作"
+    evidence_refs:
+      - "repository-relative-or-opaque-reference"
+
+# 没有任何长期 Knowledge 影响时，改用：
+# impact: "none"
+# reason: "说明检查过哪些范围，以及为什么没有长期知识变化"
+# decisions: []

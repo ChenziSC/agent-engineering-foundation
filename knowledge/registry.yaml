@@ -1,0 +1,88 @@
+version: 1
+entries:
+  - id: "repository-positioning"
+    title: "仓库定位与产物分层"
+    path: "./repository-positioning.md"
+    status: "current"
+    scope:
+      - "README.md"
+      - "docs/"
+      - "frameworks/"
+      - "skills/"
+      - "templates/"
+      - "blueprints/"
+      - "starter/"
+      - "packages/"
+      - "adapters/"
+    topics:
+      - "repository-positioning"
+      - "agent-harness"
+      - "content-layering"
+    last_reviewed_at: "2026-08-05"
+    authoritative_sources:
+      - "README.md"
+      - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
+    refresh_triggers:
+      - "公开定位或主要使用方变化"
+      - "顶层目录职责变化"
+      - "Starter 或 Harness 的最小交付定义变化"
+    load_when:
+      - "修改仓库定位或 README"
+      - "新增顶层能力或目录"
+      - "规划 Starter、Harness 或 Adapter"
+  - id: "self-hosted-governance"
+    title: "仓库自举治理"
+    path: "./self-hosted-governance.md"
+    status: "current"
+    scope:
+      - "AGENTS.md"
+      - "specs/"
+      - "knowledge/"
+      - "skills/specflow/"
+    topics:
+      - "specflow"
+      - "knowledge-governance"
+      - "traceability"
+    last_reviewed_at: "2026-08-05"
+    authoritative_sources:
+      - "AGENTS.md"
+      - "specs/README.md"
+      - "skills/specflow/SKILL.md"
+    refresh_triggers:
+      - "Specflow 生命周期或产物职责变化"
+      - "Knowledge 准入或投影规则变化"
+      - "根级 Agent 工作流变化"
+    load_when:
+      - "新建、继续或归档研发事项"
+      - "修改 Specflow 或 Knowledge 规则"
+      - "恢复跨会话工作上下文"
+  - id: "public-generalization-policy"
+    title: "通用能力的公开与独立重建"
+    path: "./public-generalization-policy.md"
+    status: "current"
+    scope:
+      - "README.md"
+      - "AGENTS.md"
+      - "docs/"
+      - "frameworks/"
+      - "skills/"
+      - "templates/"
+      - "blueprints/"
+    topics:
+      - "capability-inventory"
+      - "public-generalization"
+      - "independent-rebuild"
+      - "release-safety"
+    last_reviewed_at: "2026-08-05"
+    authoritative_sources:
+      - "docs/00-迁移总览.md"
+      - "docs/03-脱敏与独立重写规范.md"
+      - "docs/07-公开内容来源说明.md"
+    refresh_triggers:
+      - "公开处理等级或准入规则变化"
+      - "能力说明模板或覆盖台账字段变化"
+      - "发布权属与敏感信息门禁变化"
+    load_when:
+      - "盘点或迁移受限来源能力"
+      - "决定公开资产的交付深度"
+      - "执行公开发布或敏感信息检查"

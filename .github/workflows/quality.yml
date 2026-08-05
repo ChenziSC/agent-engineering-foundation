@@ -1,0 +1,25 @@
+name: quality
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 运行 Harness 测试
+        run: npm test
+      - name: 运行仓库级只读检查
+        run: npm run check
+      - name: 检查空白错误
+        run: git diff --check

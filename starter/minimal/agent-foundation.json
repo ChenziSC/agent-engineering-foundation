@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 2,
+  "preset": "minimal",
+  "directories": {
+    "specs": "specs",
+    "knowledge": "knowledge"
+  },
+  "integrations": [
+    {
+      "capability": "host",
+      "adapterId": "open-agent",
+      "configRef": null
+    }
+  ],
+  "safety": {
+    "scope": "project",
+    "onConflict": "block",
+    "followSymlinks": false
+  }
+}

@@ -1,0 +1,61 @@
+schema_version: 1
+receipt_id: "example-work-item:first-terminal"
+spec_id: "example-work-item"
+created_at: "YYYY-MM-DDTHH:mm:ssZ"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "YYYY-MM-DDTHH:mm:ssZ"
+  authority: "maintainer"
+  evidence_ref: "opaque-local-reference"
+snapshot:
+  source_revision: "immutable-source-revision"
+  base_revision: "immutable-base-revision"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:<computed-value>"
+    excludes:
+      - "archive-receipt.yaml"
+      - "lifecycle/"
+      - "meta.yaml terminal-only fields"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:<computed-value>"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:<computed-value>"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:<computed-value>"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:<computed-value>"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+  unresolved_blockers: []
+  evidence_refs:
+    - "test:example"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "still-valid"
+      knowledge_id: "example-knowledge"
+      target_knowledge_id: null
+      reason: "本次实现没有改变该长期契约"
+      evidence_refs:
+        - "source:example"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "future-validator-defined"
+  payload_digest: "sha256:<computed-value>"

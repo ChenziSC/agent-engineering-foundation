@@ -6,12 +6,12 @@
 
 ## 交付形态
 
-- 首期：Blueprint + Spec、Plan、Tasks、Meta 的 Markdown 模板；
+- 首期：可使用 Skill + Blueprint + Spec、Plan、Tasks、Meta、Research 和 Validation Report 模板；
 - 成熟度目标：`usable`；
-- 首期不要求：Package、CI 插件、自动 Validator 或可运行 Skill；
-- 未来可选：结构检查器、CI 集成和专用 Skill。
+- 首期不要求：Package、CI 插件或自动 Validator；
+- 未来可选：结构检查器和 CI 集成。
 
-当前产物：[Specflow Blueprint 与模板](../../blueprints/specflow/README.md)。
+当前产物：[`specflow` Skill](../../skills/specflow/SKILL.md)与[项目接入 Blueprint](../../blueprints/specflow/README.md)。
 
 ## 触发与不触发条件
 
@@ -41,6 +41,7 @@
 
 可选输入：
 
+- PRD、Figma 设计稿、Issue、评审纪要或自然语言需求；
 - 已有 Spec、Plan、Tasks、Meta；
 - 公开 Issue 或工作项引用；
 - 架构约束、测试要求和风险；
@@ -55,6 +56,7 @@
 | `plan` | 如何实现、依据是什么、风险是什么 |
 | `tasks` | 先做什么、如何验证 |
 | `meta` | 业务生命周期状态、关系和影响范围 |
+| `research` | 重大技术未知的限时实验与结论，按需创建 |
 | `validation-report` | Schema、关系、终态和新鲜度检查结果 |
 
 生命周期为：
@@ -107,10 +109,12 @@ Agent 负责：
 
 ## 首期资源
 
-- Blueprint：生命周期规则、状态所有权、关系语义和失败模式；
-- 模板：Spec、Plan、Tasks、Meta 和检查报告；
+- Skill：输入整理、事项发现、Spec、Plan、Tasks、实施验证和授权收口流程；
+- Blueprint：项目目录、生命周期规则、状态所有权和接入边界；
+- 模板：Spec、Plan、Tasks、Meta、Research 和 Validation Report；
 - 合成案例：继续开发、归档过期、取代关系和无 Active 工作；
-- `scripts/`、`evals/` 和 `tests/`：首期不需要。
+- Eval：完全合成的行为 Case 和 Rubric；
+- `scripts/` 和 `tests/`：首期不需要。
 
 ## 合成应用案例
 
@@ -126,12 +130,11 @@ Agent 负责：
 - Blueprint 说明 Active 上下文发现和大文档 Section Index；
 - 生命周期、关系和新鲜度规则可以人工走查；
 - 模板不依赖 Checkpoint 即可采用；
-- 四个合成案例能够验证边界和状态所有权。
+- 行为 Eval Case 能够验证触发、证据、生命周期、授权和 Provider-neutral 边界。
 
 ## 未来可选工程化
 
 - Schema、Parser 和 Validator；
 - Active Context 与 Section Index 生成器；
 - 新鲜度检查和 CI 报告；
-- Specflow Skill 及行为 Eval；
 - 确定性程序测试。

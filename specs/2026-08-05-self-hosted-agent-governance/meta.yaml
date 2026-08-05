@@ -1,0 +1,43 @@
+id: "2026-08-05-self-hosted-agent-governance"
+title: "将仓库升级为可快速接入的 Agent 工程治理骨架"
+status: "in-progress"
+created_at: "2026-08-05"
+updated_at: "2026-08-05"
+scope:
+  - "AGENTS.md"
+  - "README.md"
+  - "docs/"
+  - "skills/specflow/"
+  - "blueprints/specflow/"
+  - "specs/"
+  - "knowledge/"
+  - "starter/"
+  - "packages/"
+  - "adapters/"
+  - "blueprints/infrastructure-adapters/"
+  - "templates/infrastructure-adapters/"
+  - ".github/workflows/"
+  - "package.json"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-05"
+  refresh_triggers:
+    - "仓库公开定位或目标使用方变化"
+    - "Specflow 生命周期或产物契约变化"
+    - "Harness、Starter 或 Host Adapter 的边界变化"
+active_context:
+  summary: "把现有能力沉淀仓库升级为可由任意项目快速接入并可自我治理的 Agent 工程骨架。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false

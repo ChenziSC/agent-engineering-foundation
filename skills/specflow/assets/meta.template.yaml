@@ -14,7 +14,10 @@ artifacts:
   spec: "./spec.md"
   plan: "./plan.md"
   tasks: "./tasks.md"
+  research: null
   validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
   last_reviewed_at: "YYYY-MM-DD"

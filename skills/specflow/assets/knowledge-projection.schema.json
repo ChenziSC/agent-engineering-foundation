@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/specflow/knowledge-projection.schema.json",
+  "title": "Specflow Knowledge Projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["impact", "decisions"],
+  "properties": {
+    "impact": { "enum": ["reviewed", "none"] },
+    "reason": { "type": "string", "minLength": 1 },
+    "decisions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/decision" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "impact": { "const": "none" } }, "required": ["impact"] },
+      "then": {
+        "required": ["reason"],
+        "properties": { "decisions": { "maxItems": 0 } }
+      }
+    },
+    {
+      "if": { "properties": { "impact": { "const": "reviewed" } }, "required": ["impact"] },
+      "then": { "properties": { "decisions": { "minItems": 1 } } }
+    }
+  ],
+  "$defs": {
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "knowledge_id", "reason", "evidence_refs"],
+      "properties": {
+        "action": { "enum": ["create", "update", "still-valid", "supersede", "retire"] },
+        "knowledge_id": { "type": "string", "minLength": 1 },
+        "target_knowledge_id": { "type": ["string", "null"] },
+        "reason": { "type": "string", "minLength": 1 },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "action": { "const": "supersede" } }, "required": ["action"] },
+          "then": {
+            "required": ["target_knowledge_id"],
+            "properties": { "target_knowledge_id": { "type": "string", "minLength": 1 } }
+          }
+        }
+      ]
+    }
+  }
+}

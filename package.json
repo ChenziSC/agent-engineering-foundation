@@ -1,0 +1,14 @@
+{
+  "name": "agent-engineering-foundation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "harness": "node packages/harness/bin/agent-foundation.mjs",
+    "check": "node packages/harness/bin/agent-foundation.mjs repository check",
+    "test": "node --test packages/harness/test/*.test.mjs"
+  }
+}

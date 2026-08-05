@@ -1,0 +1,26 @@
+schema_version: 1
+event_id: "example-work-item:0001"
+spec_id: "example-work-item"
+sequence: 1
+event_type: "superseded"
+created_at: "YYYY-MM-DDTHH:mm:ssZ"
+transition:
+  from: "archived"
+  to: "superseded"
+authorization:
+  confirmed: true
+  confirmed_at: "YYYY-MM-DDTHH:mm:ssZ"
+  authority: "maintainer"
+  evidence_ref: "opaque-local-reference"
+reason: "由后续事项替代"
+relation_changes:
+  superseded_by:
+    from: null
+    to: "replacement-work-item"
+evidence_refs:
+  - "spec:replacement-work-item"
+integrity:
+  algorithm: "sha256"
+  canonicalization: "future-validator-defined"
+  previous_digest: "sha256:<receipt-or-previous-event-digest>"
+  event_digest: "sha256:<computed-value>"

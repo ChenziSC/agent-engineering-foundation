@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "preset": "minimal",
+  "directories": {
+    "specs": "specs",
+    "knowledge": "knowledge"
+  },
+  "integrations": [
+    {
+      "capability": "host",
+      "adapterId": "example-project-host",
+      "configRef": null
+    },
+    {
+      "capability": "source-control",
+      "adapterId": "example-source-control",
+      "configRef": "env://SYNTHETIC_SOURCE_CONTROL_CONFIG"
+    },
+    {
+      "capability": "work-item",
+      "adapterId": "example-work-item",
+      "configRef": "env://SYNTHETIC_WORK_ITEM_CONFIG"
+    }
+  ],
+  "safety": {
+    "scope": "project",
+    "onConflict": "block",
+    "followSymlinks": false
+  }
+}
