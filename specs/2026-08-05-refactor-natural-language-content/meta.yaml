@@ -1,6 +1,6 @@
 id: "2026-08-05-refactor-natural-language-content"
 title: "建立自然语言工程内容一致性重构 Skill"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-05"
 updated_at: "2026-08-05"
 scope:
@@ -23,7 +23,7 @@ artifacts:
   tasks: "./tasks.md"
   research: null
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -33,7 +33,7 @@ freshness:
     - "支持的自然语言工程内容类型变化"
     - "全文扫描和增量门禁策略变化"
 active_context:
-  summary: "建立一个按风险扩大扫描范围、仅在明确授权后重构自然语言工程内容的可使用 Skill。"
+  summary: "自然语言工程内容一致性重构 Skill 已交付并完成归档。"
   next_task_id: null
 authorization:
   terminal_transition_confirmed: true

@@ -1,0 +1,85 @@
+schema_version: 1
+receipt_id: "2026-08-05-refactor-natural-language-content:first-terminal"
+spec_id: "2026-08-05-refactor-natural-language-content"
+created_at: "2026-08-05T08:32:08Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-05T08:32:08Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-05-skill-archive-authorization"
+snapshot:
+  source_revision: "ea726ad8a9cb62f6ae0a2f7f5c46f6806c1db30b"
+  base_revision: "333f7836f72794dbc04b1d2e16988aea08f6b342"
+  change:
+    algorithm: "sha256"
+    scope: "committed-range"
+    digest: "sha256:078c480284fa26a6909efa7d16d0fe34f36eace20f66a22bf9841ae8ad4f6f1f"
+    excludes:
+      - "archive-receipt.yaml"
+      - "lifecycle/"
+      - "meta.yaml terminal-only fields written after source revision"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:403d444ad7d6bbecf0455b0d8e63f1ea014edc817064d0c2af1d13224baec2b1"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:6f86e86be9212ea82001cadf19b02f1fecd9e51149603c449ceb153fdfc56502"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:eea882cfc41fb8afca83767f9a20123a225c140b505e0a99dd0265273aea48a4"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:a21056885670456858132903433c6028999d4654befff7178d7f674794f4a068"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:ea726ad8a9cb62f6ae0a2f7f5c46f6806c1db30b"
+    - "check:skill-creator-quick-validate"
+    - "check:npm-run-check"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "新 Skill 保持可选能力定位，不改变核心 Harness 依赖和三层产物模型。"
+      evidence_refs:
+        - "knowledge/repository-positioning.md"
+        - "docs/01-能力地图.md"
+    - action: "still-valid"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "事项使用独立 Spec、Tasks、Validation 和显式终态授权，没有改变生命周期或状态所有权。"
+      evidence_refs:
+        - "knowledge/self-hosted-governance.md"
+        - "specs/2026-08-05-refactor-natural-language-content/validation-report.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "Skill 使用独立设计和完全合成案例，不包含受限来源实现或私有平台依赖。"
+      evidence_refs:
+        - "knowledge/public-generalization-policy.md"
+        - "skills/refactor-natural-language-content/evals/"
+relations_snapshot:
+  parent: "2026-08-05-self-hosted-agent-governance"
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1:recursive-key-sort:utf8"
+  payload_digest: "sha256:d2564cd9f99faad2e2076fc30d093e8b395774b1b37e0f1707493c8206500eb5"
