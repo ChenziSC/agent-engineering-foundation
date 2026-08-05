@@ -1,0 +1,6 @@
+interface:
+  display_name: "自然语言工程内容重构"
+  short_description: "审计并重构反复修改后出现冲突与重复的自然语言工程内容"
+  default_prompt: "使用 $refactor-natural-language-content 审计并重构这份经过多轮修改的工程文档。"
+policy:
+  allow_implicit_invocation: true

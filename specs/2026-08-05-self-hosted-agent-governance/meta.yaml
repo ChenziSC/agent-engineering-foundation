@@ -8,6 +8,9 @@ scope:
   - "README.md"
   - "docs/"
   - "skills/specflow/"
+  - "skills/web-first-screen-prefetch/"
+  - "skills/web-performance-review/"
+  - "frameworks/checkpoint/"
   - "blueprints/specflow/"
   - "specs/"
   - "knowledge/"
@@ -20,7 +23,8 @@ scope:
   - "package.json"
 relations:
   parent: null
-  children: []
+  children:
+    - "2026-08-05-refactor-natural-language-content"
   supersedes: []
   superseded_by: null
 artifacts:

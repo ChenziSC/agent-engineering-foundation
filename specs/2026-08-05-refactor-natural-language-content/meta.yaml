@@ -1,0 +1,39 @@
+id: "2026-08-05-refactor-natural-language-content"
+title: "建立自然语言工程内容一致性重构 Skill"
+status: "in-progress"
+created_at: "2026-08-05"
+updated_at: "2026-08-05"
+scope:
+  - "skills/refactor-natural-language-content/"
+  - "specs/2026-08-05-refactor-natural-language-content/"
+  - "README.md"
+  - "docs/01-能力地图.md"
+  - "docs/02-目标仓库设计.md"
+  - "docs/05-交付形态与成熟度.md"
+  - "docs/06-公开发布检查清单.md"
+  - "docs/08-能力问题图谱.md"
+relations:
+  parent: "2026-08-05-self-hosted-agent-governance"
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-05"
+  refresh_triggers:
+    - "Skill 的触发或授权边界变化"
+    - "支持的自然语言工程内容类型变化"
+    - "全文扫描和增量门禁策略变化"
+active_context:
+  summary: "建立一个按风险扩大扫描范围、仅在明确授权后重构自然语言工程内容的可使用 Skill。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: true

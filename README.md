@@ -94,6 +94,7 @@ node packages/harness/bin/agent-foundation.mjs repository check --deny-file /pat
 - [Web 首屏预请求框架](frameworks/web-prefetch/README.md)
 - [`web-first-screen-prefetch` Skill](skills/web-first-screen-prefetch/SKILL.md)
 - [`specflow` Skill](skills/specflow/SKILL.md)
+- [`refactor-natural-language-content` Skill](skills/refactor-natural-language-content/SKILL.md)
 - [Specflow 项目接入 Blueprint](blueprints/specflow/README.md)
 - [Skill 运行时与分发 Blueprint](blueprints/skill-runtime/README.md)
 - [项目基建 Adapter Blueprint](blueprints/infrastructure-adapters/README.md)
