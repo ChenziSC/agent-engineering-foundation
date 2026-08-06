@@ -1,0 +1,54 @@
+id: "2026-08-06-docs-layer-consolidation"
+title: "收敛 Docs 与仓库结构分层"
+status: "in-progress"
+created_at: "2026-08-06"
+updated_at: "2026-08-06"
+scope:
+  - "AGENTS.md"
+  - "README.md"
+  - "docs/"
+  - "knowledge/repository-positioning.md"
+  - "knowledge/public-generalization-policy.md"
+  - "knowledge/registry.yaml"
+  - "knowledge/code-entry-map.yaml"
+  - "knowledge/deterministic-core-boundary.md"
+  - "frameworks/context-contract/"
+  - "skills/project-context-bootstrap/"
+  - "templates/ai-friendly-repository/"
+  - "templates/skill-runtime/"
+  - "blueprints/skill-runtime/"
+  - "packages/harness/"
+  - "adapters/"
+  - "frameworks/web-evidence/"
+  - "frameworks/web-prefetch/"
+  - "skills/web-first-screen-prefetch/"
+  - "skills/web-performance-review/"
+  - "distribution/"
+  - "pets/"
+  - "specs/2026-08-06-docs-layer-consolidation/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-06"
+  refresh_triggers:
+    - "docs 目录职责或文件集合变化"
+    - "能力导航、成熟度或问题图谱的所有权变化"
+    - "公开泛化政策的权威来源变化"
+    - "主流 Agent Host 原生能力或仓库能力准入边界变化"
+active_context:
+  summary: "目录与内容重构、Pet 迁移、依赖边界收敛、Bootstrap 职责修正和全量验证均已完成；事项等待用户决定是否归档。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false

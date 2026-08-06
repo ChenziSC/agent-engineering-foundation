@@ -32,7 +32,8 @@ import { deriveResumePlan, validateCheckpoint } from '../../../frameworks/checkp
 import { evaluateChangeValidation } from '../../../frameworks/change-validation/scripts/change-validation.mjs';
 import { validateDesignContract } from '../../../frameworks/design-to-code/scripts/design-contract.mjs';
 import { validateEventCatalog } from '../../../frameworks/tracking-governance/scripts/event-catalog.mjs';
-import { evaluatePrefetchCandidate, summarizeWebEvidence } from '../../../frameworks/web-prefetch/scripts/web-evidence.mjs';
+import { summarizeWebEvidence } from '../../../frameworks/web-evidence/scripts/web-evidence.mjs';
+import { evaluatePrefetchCandidate } from '../../../frameworks/web-prefetch/scripts/prefetch-candidate.mjs';
 
 function parseArgs(argv) {
   const positional = [];

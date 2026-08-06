@@ -31,6 +31,17 @@
 
 具体分级和公开边界见 [`knowledge/public-generalization-policy.md`](knowledge/public-generalization-policy.md)。
 
+## 能力准入与宿主边界
+
+- 新增或实质扩展 Skill、Framework、Blueprint、Harness、Adapter、Validator 前，必须在相关 Spec 或 Plan 记录：目标问题、主流 Harness Agent 已有基线、仍未解决的增量缺口、仓库新增产物及其直接消费者、验证方式和删除条件。无法指出增量缺口或直接消费者时，不进入实现。
+- 不得把通用 Agent 基础行为包装成仓库能力，包括但不限于：阅读规则和相关代码、搜索定义与引用、使用工具、制定计划、谨慎推理、询问必要问题、修改后运行测试、遵守权限、报告结果。这些内容只有在绑定仓库专有触发条件、输入输出契约、确定性门禁或领域 Eval 时，才能作为既有能力的一部分出现，不能单独成立 Skill、Framework 或 Blueprint。
+- Skill 或工作流进入本仓，至少满足一项：提供宿主没有的领域不变量与可验证流程；连接外部系统并隔离 Provider 差异；形成跨宿主稳定的数据契约；提供可重复的解析、校验、比较、事务或安全门禁；经对照评估证明比宿主原生行为有稳定增益。
+- Skill/Plugin 的发现、安装、更新、权限、沙箱、通用 Hook、MCP 调用、会话恢复、工作树和通用代码检索编辑由 Agent Host 负责。本仓优先声明内容、契约、Eval 和项目级确定性检查，不建设平行的通用 Runtime；现有兼容实现不得自动扩张为新的宿主抽象层。
+- 需要跨宿主时，优先提供遵循公开标准的同一份 Skill 内容；只有真实且无法由内容兼容解决的差异才增加薄 Adapter。不得为假设中的 Host、Capability Registry、统一 Hook 或用户级安装提前建设实现。
+- 自然语言编排通过 Eval 只能证明所测行为；若能力名称或成熟度声称 AST、数据流、运行态、完整消费者集合或其他确定性语义，必须存在对应程序、Adapter 和覆盖该语义的测试。提示词驱动的代码调研不得冒充确定性语义分析。
+
+详细准入、依赖方向和清理规则见 [`knowledge/deterministic-core-boundary.md`](knowledge/deterministic-core-boundary.md)。
+
 ## 仓库地图
 
 | 目录 | 职责 |
@@ -43,15 +54,15 @@
 | `blueprints/` | 项目接入、扩展点和未来确定性实现边界 |
 | `starter/` | 可复制的最小项目接入骨架与 Integration Manifest |
 | `packages/` | Harness、Doctor 和其他确定性参考实现 |
-| `adapters/` | 显式注册的开放 Host 与下游基建扩展契约 |
-| `docs/` | 能力地图、成熟度、公开规范和总体说明 |
-| `pets/` | 与 Agent 工程主体隔离的可选附加资源 |
+| `adapters/` | 真实 Provider、版本控制、语言工具链和项目级兼容接入契约 |
+| `docs/` | 能力地图、目标结构、成熟度投影、发布检查和来源声明 |
 
 目录只有存在真实产物时才创建；公司或项目专有 Adapter 保留在采用方仓库，通过公开 Registry 显式注入，不进入本仓。
 
 ## Specflow 自举
 
-- 每次仓库相关请求先读取 `specs/` 中全部 `meta.yaml`，按状态和影响范围选择相关 Active 事项；没有相关事项时不要虚构上下文。
+- 当前会话第一次收到与本仓库有关的请求时，先读取 `specs/` 中全部 `meta.yaml`，按状态和影响范围选择相关 Active 事项；没有相关事项时不要虚构上下文。
+- 同一会话、同一分支和同一任务范围内复用已解析结果，不因后续追问、继续实施、验证或状态查询机械重复自举。切换分支、Active 事项集合变化、任务目标或相关路径明显变化、用户明确要求刷新时，重新解析上下文。
 - 改变仓库定位、公开契约、目录职责、治理规则，或新增/实质修改 Skill、Framework、Blueprint、Harness、Adapter、Validator 时，建立或继续一个 Spec。
 - 不改变语义的错别字、链接、格式修正和单一低风险维护动作通常不要求 Spec，除非现有事项或规则另有要求。
 - 范围与完成条件变化写 Spec，技术路径和关键决策变化写 Plan，执行拆分、状态和验证结果写 Tasks。
@@ -63,7 +74,7 @@
 
 ## Knowledge 治理
 
-- 执行任务前优先使用 `context resolve` 生成 Active Spec 与 Knowledge 的最小加载计划；不可用时再按 [`knowledge/registry.yaml`](knowledge/registry.yaml) 和 [`knowledge/code-entry-map.yaml`](knowledge/code-entry-map.yaml) 人工解析，不无差别加载全部正文。
+- 新会话首次恢复或命中上述刷新条件时，优先使用 `context resolve` 生成 Active Spec 与 Knowledge 的最小加载计划；不可用时再按 [`knowledge/registry.yaml`](knowledge/registry.yaml) 和 [`knowledge/code-entry-map.yaml`](knowledge/code-entry-map.yaml) 人工解析，不无差别加载全部正文。
 - Knowledge 只记录跨任务稳定的事实、设计原因、契约、失败模式和刷新条件，不保存当前任务进度和聊天摘要。
 - Specflow 管理当前写模型，Knowledge 管理长期读模型；两者不能复制相同状态。
 - 归档前判断是否产生需要 `create`、`update`、`still-valid`、`supersede` 或 `retire` 的长期知识；自动化尚未实现时在 Validation Report 中明确记录结论和证据。
@@ -74,7 +85,7 @@ Knowledge 准入与状态规则见 [`knowledge/README.md`](knowledge/README.md)�
 ## 工作入口
 
 1. 读取根 `AGENTS.md`。
-2. 运行 `node packages/harness/bin/agent-foundation.mjs context resolve --task-type "<任务类型>" --paths <相关路径>`；没有 Harness 时人工读取索引。
+2. 当前会话尚未完成本仓上下文恢复，或分支、Active 事项、任务范围、相关路径发生上述变化时，运行 `node packages/harness/bin/agent-foundation.mjs context resolve --task-type "<任务类型>" --paths <相关路径>`；否则复用本会话已有结果。没有 Harness 时人工读取索引。
 3. 按结果加载相关 Active Spec、长期 Knowledge 和代码入口；空结果不生成虚构上下文。
 4. 执行范围内工作并同步 Spec、Plan、Tasks 和验证证据。
 5. 只有用户明确要求收口时才进入归档；提交、推送和外部操作分别遵循用户授权。

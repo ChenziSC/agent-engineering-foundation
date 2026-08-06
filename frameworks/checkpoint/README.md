@@ -1,10 +1,10 @@
-# 长任务 Checkpoint 框架
+# 外部副作用恢复回执框架
 
 成熟度：`reference-implemented`
 
-这个框架用于记录多阶段 Agent 任务的执行位置、状态变化和人工决策，使任务中断后能够恢复，同时避免重复执行非幂等动作。
+这个框架只用于采用方确实需要跨进程恢复、且包含非幂等外部副作用的领域流程。它记录执行位置、状态变化和人工决策，重点避免结果未知时重复执行外部动作；普通 Agent 会话、代码编辑和无外部副作用的长任务直接使用 Host 原生恢复能力。
 
-它不是任务队列或业务状态持久化服务。仓库提供了稳定的 [v1 Schema](checkpoint.schema.json)、[模板](checkpoint.template.json) 和最小[参考实现](scripts/checkpoint.mjs)，用于确定性校验完整性、事件顺序、引用状态与恢复策略；存储、锁和外部动作确认由采用方 Adapter 负责。原 [Schema 示例](checkpoint.schema.example.json) 继续保留为早期设计记录，不属于稳定 API。
+它不是任务队列、业务状态持久化服务或通用 Session Checkpoint。仓库提供 [v1 Schema](checkpoint.schema.json)、[模板](checkpoint.template.json) 和最小[参考实现](scripts/checkpoint.mjs)，用于确定性校验完整性、事件顺序、引用状态与恢复策略；存储、锁和外部动作确认由采用方负责。没有真实跨进程副作用消费者时，不应接入本框架。
 
 ## 核心对象
 

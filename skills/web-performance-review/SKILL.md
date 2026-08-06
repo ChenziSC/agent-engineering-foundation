@@ -90,4 +90,4 @@ description: 基于 URL、Lighthouse、Performance Trace 或 HAR 评审 Web 性�
 
 ## 资源决策
 
-本 Skill 自身不复制共享 Parser。HAR/Trace 的确定性 Observation 子集位于仓库的 `frameworks/web-prefetch/`；浏览器采集、Source Map 映射和语义判断仍依赖采用方 Adapter、现有工具或人工输入。
+本 Skill 自身不复制共享 Parser。HAR/Trace 的确定性 Observation 子集位于仓库的 `frameworks/web-evidence/`；浏览器采集、Source Map 映射和语义判断仍依赖采用方 Adapter、现有工具或人工输入。

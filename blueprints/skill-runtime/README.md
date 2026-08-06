@@ -1,28 +1,23 @@
-# Skill 运行时与分发 Blueprint
+# Skill 发布与宿主接入 Blueprint
 
-成熟度：Blueprint `designed`；项目级 Host 注册与 Distribution Manifest 子集 `reference-implemented`
+成熟度：发布内容白名单与项目级兼容安装子集 `reference-implemented`
 
-这个 Blueprint 描述如何发现、校验、计划安装和更新仓库内的 Agent Skill，并为不同宿主生成统一能力清单。仓库已提供最小 CLI、项目级开放 Host、可注入 Adapter Registry 和仓库级 Distribution Manifest；采用方可以显式组装自己的 Host。用户级安装和能力注册表仍是设计契约。
+本 Blueprint 只定义本仓 Skill 如何形成可复核发布内容，以及如何交给 Agent Host 的原生 Skill/Plugin 机制消费。它不建设独立 Agent Runtime，也不把不同宿主已经提供的安装、权限、Hook、Sandbox、MCP 和会话能力重新统一一遍。
 
-## 当前参考实现
+## 职责边界
 
-- 入口：[`packages/harness/bin/agent-foundation.mjs`](../../packages/harness/bin/agent-foundation.mjs)；
-- Host：[`adapters/open-agent/index.mjs`](../../adapters/open-agent/index.mjs)；
-- Registry：[`adapters/registry.mjs`](../../adapters/registry.mjs)；
-- 范围：项目级 `.agents/skills`；
-- 命令：`skill list`、`skill check`、`skill plan`、`skill install`、`skill update`，以及 `distribution plan/apply/verify`；
-- 安全性：内容摘要、受管状态、冲突阻断、Symlink 阻断、临时目录替换和失败回滚；
-- 限制：默认 CLI 只打包开放 Host；自定义 Host 由采用方组合入口注入；Distribution 只允许项目级安装，不支持用户级或远端动态来源。
+| 所有者 | 负责 | 不由其负责 |
+| --- | --- | --- |
+| Skill 源目录 | 触发描述、领域工作流、References、Assets、Evals 和必要的自包含脚本 | 安装状态、权限和宿主生命周期 |
+| `distribution/manifest.yaml` | 发布白名单、源路径、必需文件、资源集合和内容摘要 | 运行时能力协商和用户环境配置 |
+| Agent Host | Skill/Plugin 的发现、安装、更新、权限、Sandbox、Hook、MCP 和会话行为 | 本仓领域契约的正确性 |
+| Harness | 本仓内容检查、项目级兼容安装与摘要验证 | 通用多宿主 Runtime |
 
-## 配套模板
+Skill 源目录是内容唯一事实来源；安装目录只是派生副本。修改源内容后重新计算发布摘要，不反向从安装目录合并未知修改。
 
-- [Manifest 示例](../../templates/skill-runtime/manifest.example.yaml)
-- [Host Target 示例](../../templates/skill-runtime/host-target.example.yaml)
-- [安装计划模板](../../templates/skill-runtime/install-plan.template.md)
-- [能力注册表示例](../../templates/skill-runtime/capability-registry.example.yaml)
-- [安全报告模板](../../templates/skill-runtime/safety-report.template.md)
+## 发布内容
 
-## 开放 Skill 目录
+开放 Skill 目录按需包含：
 
 ```text
 skill-name/
@@ -31,31 +26,33 @@ skill-name/
 ├── references/
 ├── assets/
 ├── evals/
-├── scripts/    # 按需
-└── tests/      # 仅在存在 scripts 时按需
+├── scripts/
+└── tests/
 ```
 
-最低要求：
+- 不创建空的可选目录；
+- 生成、分析、评审或规划类 Skill 必须有领域行为 Eval；
+- 脚本必须自包含，或通过目标 Host 的原生机制声明外部命令、MCP、Package 或 Plugin 依赖；
+- 可分发内容不能通过相对路径读取本仓未发布目录；
+- 不为通用 Agent 基础行为单独创建 Skill，准入规则见[能力准入、宿主边界与确定性代码依赖](../../knowledge/deterministic-core-boundary.md)。
 
-- 目录名与 Skill `name` 一致；
-- `SKILL.md` Frontmatter 只包含必要元数据；
-- `description` 同时说明能力和触发场景；
-- 生成、评审、规划类 Skill 具有行为 Eval；
-- 不要求空的可选目录。
+Manifest 示例见[模板](../../templates/skill-runtime/manifest.example.yaml)。
 
-## 核心输入
+## 宿主接入
 
-### Skill Source
+优先使用目标 Host 的原生项目级 Skill 目录或 Plugin 包。多宿主发布时尽量复用同一份开放 Skill 内容；仅当真实验证证明元数据、工具声明或打包布局无法兼容时，才增加薄转换层。
 
-Skill 源目录是内容的唯一事实来源。安装目录是派生副本，不能反向静默修改源目录。
+宿主接入需要验证：
 
-### Integration Manifest
+1. Host 能发现 Skill，且触发描述没有依赖本仓私有路径；
+2. References、Assets、脚本和外部依赖在安装后可达；
+3. 领域 Eval 在目标 Host 上保留相同阻塞条件；
+4. Host 原生权限和 Sandbox 没有被脚本绕过；
+5. 卸载或更新由 Host 原生机制处理，不建立第二份用户级状态。
 
-项目 `agent-foundation.json` 声明能力类别、Adapter ID 和可选的不透明 `configRef`。当前 Harness 实际解析该 Manifest，并要求一个项目级 Host。完整扩展边界见[项目基建 Adapter Blueprint](../infrastructure-adapters/README.md)。
+## 当前兼容实现
 
-### Distribution Manifest
-
-仓库根目录的 [`distribution/manifest.yaml`](../../distribution/manifest.yaml) 声明允许分发的 Skill、固定源路径、内容摘要、必需文件和可选资源。参考实现会在摘要漂移、缺少文件、未知资源、目标冲突或用户修改时阻断。
+仓库已有 `skill list/check/plan/install/update` 和 `distribution plan/apply/verify`，用于合成项目和不具备原生发布流程的项目级兼容场景。它们提供内容摘要、冲突与 Symlink 阻断、受管副本校验和失败回滚。
 
 ```bash
 node packages/harness/bin/agent-foundation.mjs distribution plan --target <project-root>
@@ -63,110 +60,20 @@ node packages/harness/bin/agent-foundation.mjs distribution apply --target <proj
 node packages/harness/bin/agent-foundation.mjs distribution verify --target <project-root>
 ```
 
-`plan` 与 `verify` 只读；`apply` 会逐项使用已有安全安装/更新原语，成功项保持幂等。若进程在多项之间中断，重跑同一 Manifest 会从已记录状态继续，不宣称跨 Skill 文件系统事务绝对原子。
+`plan` 与 `verify` 只读；`apply` 只处理明确目标项目中的受管副本。该实现可以修复安全缺陷并保持回归兼容，但不继续扩展为：
 
-### Host Target
+- 用户级或全局 Skill 安装器；
+- Marketplace、远端动态来源或通用 Plugin 管理器；
+- Host Capability Registry 或 Manifest v2 协商协议；
+- 通用 Hook、权限、Sandbox、MCP 或会话 Runtime；
+- 自动选择或下载可执行依赖。
 
-Host Target 描述：
+当目标 Host 原生发布机制能够覆盖采用场景时，优先停用兼容安装入口，只保留发布白名单、内容摘要和仓库检查。
 
-- 宿主 ID；
-- 项目级和用户级目标目录；
-- 支持的文件；
-- Symlink 策略；
-- 路径冲突策略。
+## 验证门禁
 
-Host Target 不包含凭证，也不执行 Skill。
-
-## 操作模式
-
-```text
-check
-→ plan
-→ apply
-```
-
-### Check
-
-- 发现 Skill；
-- 校验目录、Frontmatter 和 Integration Manifest；
-- 检查目标 Host 是否已知；
-- 不产生文件写入。
-
-### Plan
-
-- 比较源目录与目标目录；
-- 列出新增、更新、保留、冲突和拒绝处理的路径；
-- 检查 Symlink 和文件归属；
-- 不产生文件写入。
-
-### Apply
-
-- 只执行已经展示且获得授权的计划；
-- 操作后生成结果和安全报告；
-- 遇到计划外变化时停止，不扩大范围。
-
-## 安装范围
-
-### 项目级
-
-只影响当前项目目录。用户明确要求安装到项目时，可以生成项目级计划。
-
-### 用户级
-
-影响多个项目，属于更高影响范围的外部写操作。必须获得明确授权，不能从“安装这个 Skill”自动推断。
-
-## 更新规则
-
-1. 只更新此前由工具管理且位于 Distribution Manifest 白名单中的 Skill。
-2. 不静默安装新出现的 Skill。
-3. 不删除无法确认归属的文件。
-4. 目标目录存在用户修改时报告冲突，不覆盖。
-5. 源目录内容变化后重新生成计划。
-6. Apply 前后的计划摘要和内容摘要必须一致。
-
-## Symlink 安全
-
-- 比较路径时先识别链接本身和链接目标；
-- 替换 Symlink 时只处理目标目录中的链接节点；
-- 不沿链接修改源目录；
-- 链接目标未知或越出允许范围时阻断；
-- Blueprint 不规定必须使用复制还是 Symlink，由 Host Target 明确。
-
-## 能力注册表
-
-能力注册表用于让宿主或用户查看：
-
-- Skill 名称；
-- 触发描述；
-- 当前版本；
-- 安装范围；
-- 资源能力；
-- 是否存在行为 Eval。
-
-注册表是安装结果的派生产物，不是 Skill 内容的事实来源。
-
-## 合成走查
-
-### 无冲突的项目级安装
-
-Check 通过，Plan 只包含新增文件。用户确认后才能进入 Apply。
-
-### 未授权用户级安装
-
-Plan 显示用户级目标目录，但没有明确授权。状态保持 `planned`，不执行写入。
-
-### Symlink 指向源目录
-
-目标项是 Symlink。更新只能替换链接节点或按策略停止，不能沿链接修改源目录。
-
-### Manifest 漂移
-
-Manifest 声明一个不存在的 Skill。Check 返回 `blocked`，目标目录保持不变。
-
-## 当前参考实现不包含
-
-- 默认 CLI 内置多个 Host、动态插件加载与用户级安装；
-- 未经显式命令触发的自动安装或更新；
-- npm、编辑器插件或 Marketplace 发布；
-- 使用遥测；
-- 远端能力服务。
+- Manifest 条目必须对应真实 Skill 目录和完整内容摘要；
+- 必需文件和声明资源必须存在，未知资源阻断发布；
+- Skill 脚本的本地导入不得越出发布根目录；
+- 项目级兼容安装不得覆盖用户修改或沿 Symlink 写出目标目录；
+- 行为 Eval 证明领域工作流，安装测试只证明内容可达；两类证据不能相互替代。

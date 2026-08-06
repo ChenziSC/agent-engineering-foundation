@@ -3,16 +3,16 @@ entries:
   - task_type: "修改仓库定位或顶层结构"
     start_paths:
       - "README.md"
-      - "docs/01-能力地图.md"
-      - "docs/02-目标仓库设计.md"
+      - "docs/能力地图.md"
+      - "docs/目标仓库设计.md"
     module_rules:
       - "AGENTS.md"
     knowledge:
       - "repository-positioning"
+      - "deterministic-core-boundary"
       - "public-generalization-policy"
       - "self-hosted-governance"
-    exclude_by_default:
-      - "pets/"
+    exclude_by_default: []
   - task_type: "新增或修改 Skill"
     start_paths:
       - "skills/"
@@ -22,10 +22,10 @@ entries:
       - "AGENTS.md"
     knowledge:
       - "self-hosted-governance"
+      - "deterministic-core-boundary"
       - "public-generalization-policy"
-    exclude_by_default:
-      - "pets/"
-  - task_type: "建立项目上下文或任务切片"
+    exclude_by_default: []
+  - task_type: "接入存量项目或重建长期上下文候选"
     start_paths:
       - "frameworks/context-contract/"
       - "skills/project-context-bootstrap/"
@@ -35,10 +35,10 @@ entries:
       - "AGENTS.md"
     knowledge:
       - "repository-positioning"
+      - "deterministic-core-boundary"
       - "self-hosted-governance"
       - "public-generalization-policy"
-    exclude_by_default:
-      - "pets/"
+    exclude_by_default: []
   - task_type: "实现或验证安全变更"
     start_paths:
       - "frameworks/change-validation/"
@@ -48,9 +48,9 @@ entries:
       - "AGENTS.md"
     knowledge:
       - "repository-positioning"
+      - "deterministic-core-boundary"
       - "self-hosted-governance"
-    exclude_by_default:
-      - "pets/"
+    exclude_by_default: []
   - task_type: "实现 Design-to-Code 或埋点治理"
     start_paths:
       - "frameworks/design-to-code/"
@@ -62,8 +62,7 @@ entries:
     knowledge:
       - "repository-positioning"
       - "public-generalization-policy"
-    exclude_by_default:
-      - "pets/"
+    exclude_by_default: []
   - task_type: "修改 Specflow、归档或 Knowledge"
     start_paths:
       - "skills/specflow/"
@@ -74,10 +73,10 @@ entries:
       - "AGENTS.md"
     knowledge:
       - "repository-positioning"
+      - "deterministic-core-boundary"
       - "self-hosted-governance"
       - "public-generalization-policy"
-    exclude_by_default:
-      - "pets/"
+    exclude_by_default: []
   - task_type: "新增或修改 Adapter"
     start_paths:
       - "adapters/"
@@ -88,14 +87,14 @@ entries:
       - "AGENTS.md"
     knowledge:
       - "repository-positioning"
+      - "deterministic-core-boundary"
       - "public-generalization-policy"
-    exclude_by_default:
-      - "pets/"
+    exclude_by_default: []
   - task_type: "公开发布或敏感信息检查"
     start_paths:
-      - "docs/03-公开化与权属规范.md"
-      - "docs/06-公开发布检查清单.md"
-      - "docs/07-公开内容来源说明.md"
+      - "knowledge/public-generalization-policy.md"
+      - "docs/公开发布检查清单.md"
+      - "docs/公开内容来源说明.md"
       - "packages/harness/src/harness.mjs"
       - ".github/workflows/quality.yml"
     module_rules:

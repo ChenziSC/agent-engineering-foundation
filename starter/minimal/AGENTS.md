@@ -5,7 +5,7 @@
 ## 工作入口
 
 1. 先读取本文件；
-2. Harness 可用时先运行 `context resolve` 生成最小加载计划；标记为 `sectioned` 的事项按返回的 Section Index 读取相关章节，不直接加载全部正文；否则从 `specs/*/meta.yaml` 人工选择相关 Active 事项；
+2. 当前会话首次处理本仓请求时，Harness 可用则运行 `context resolve` 生成最小加载计划；标记为 `sectioned` 的事项按返回的 Section Index 读取相关章节，不直接加载全部正文；否则从 `specs/*/meta.yaml` 人工选择相关 Active 事项。同一会话、分支和任务范围内复用结果；切换分支、Active 事项集合变化、任务目标或相关路径明显变化、用户明确要求刷新时重新解析；
 3. 根据加载计划或 `knowledge/registry.json` 和 `knowledge/code-entry-map.json` 加载相关长期知识；
 4. 范围变化更新 Spec，技术路径变化更新 Plan，执行状态和验证更新 Tasks；
 5. 只有用户明确要求终态时才归档；提交、推送和外部写入分别需要明确授权。

@@ -34,7 +34,7 @@
 | --- | --- | --- |
 |  |  |  |
 
-## 动态切片边界
+## 任务调研边界
 
 - 建议锚点：`<entrypoint / symbol / data_element>`
 - 动态视图保存位置：`<当前 Spec 的 Plan、Research 或 Evidence>`

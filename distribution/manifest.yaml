@@ -32,7 +32,7 @@ skills:
     source: skills/project-context-bootstrap
     version:
       type: content-hash
-      value: sha256:b44aa58d1203608deed52031bc233ac550b863ed1ba734217958f531bb38c4d4
+      value: sha256:a987f035ba41a7b57d0dcdb341323235c609cd2a14ba8bdb4c12eba74c7eeb4f
     distributable: true
     required_files:
       - SKILL.md
@@ -70,7 +70,7 @@ skills:
     source: skills/specflow
     version:
       type: content-hash
-      value: sha256:ef0c6b2a2eb2990e05be495cdc3628f902827c4afba56da110ff06e0584acadb
+      value: sha256:8843db6b5eba008d3c07bd9fce6a14b41855328a0c22a1e78e98e6119b511972
     distributable: true
     required_files:
       - SKILL.md
@@ -98,7 +98,7 @@ skills:
     source: skills/web-first-screen-prefetch
     version:
       type: content-hash
-      value: sha256:e05048c1aa961210688b1a0f9006747a08f69d1399655cb19fa74490f4d4243b
+      value: sha256:726386b0cf98b8e9ba0c7b3747bf4181e3dbb42db73eef2705af5c8cf0f46d33
     distributable: true
     required_files:
       - SKILL.md
@@ -111,7 +111,7 @@ skills:
     source: skills/web-performance-review
     version:
       type: content-hash
-      value: sha256:eddd017b4143720127e8e90be511efb20c9f5418a8bf3658928721eae616ee10
+      value: sha256:aee7fc1ca7796ac2f2624762d0f56de6aef1d09035aa9388d50eeedc6def2492
     distributable: true
     required_files:
       - SKILL.md

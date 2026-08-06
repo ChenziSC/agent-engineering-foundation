@@ -75,7 +75,7 @@ await planSkill({ target: '/path/to/project', name: 'specflow', adapterRegistry 
 
 | Capability | 主要职责 | 当前成熟度 |
 | --- | --- | --- |
-| `host` | 解析项目级 Skill 目标目录和宿主约束 | Registry 与开放 Host 已参考实现 |
+| `host` | 仅支持现有项目级兼容 Skill 目录 | Registry 与兼容目录 Adapter 已参考实现；不扩展为通用 Runtime |
 | `source-control` | 提供版本、差异、候选变更和合并证据 | 本地 Git Merge Candidate 摘要子集已参考实现；其他 Provider `designed` |
 | `work-item` | 查询或写入外部研发事项，处理去重和回读 | `designed` |
 | `design-input` | 获取稳定设计标识、资源和能力信息 | `designed` |
@@ -114,7 +114,7 @@ await planSkill({ target: '/path/to/project', name: 'specflow', adapterRegistry 
 
 - 只读 Provider 通常实现 `inspect` 或 `collect`；
 - 外部写入能力遵循 `inspect → plan → confirm → apply → verify`；
-- Host 实现项目目录解析，不执行 Skill；
+- 兼容 Host Adapter 只解析项目目录，不执行 Skill；新的安装与更新优先使用目标 Host 原生机制；
 - Source Control 返回版本和差异证据，不自动提交或推送；
 - Release Adapter 不把测试环境成功推断为生产发布成功。
 
@@ -133,5 +133,5 @@ await planSkill({ target: '/path/to/project', name: 'specflow', adapterRegistry 
 - 任何真实公司或供应商 Adapter；
 - 动态插件发现、远端代码下载或任意模块加载；
 - 统一认证 SDK、密钥存储或凭证代理；
-- 用户级安装和生产发布授权；
+- 用户级 Skill 安装和生产发布授权；
 - 把所有能力压缩成同一个通用请求对象。

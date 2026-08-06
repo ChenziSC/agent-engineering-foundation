@@ -1,0 +1,35 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "Docs 取消无语义编号，README 内容下沉，Pet 迁出，Harness 与 Web Evidence 结构调整，仓库产物分层的稳定事实需要同步。"
+    evidence_refs:
+      - "AGENTS.md"
+      - "README.md"
+      - "docs/能力地图.md"
+      - "docs/目标仓库设计.md"
+  - action: "update"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "新增能力需要统一的宿主基线、增量准入、确定性依赖方向和清理条件，避免重复建设 Host Runtime 或把基础 Agent 行为包装为能力。"
+    evidence_refs:
+      - "knowledge/deterministic-core-boundary.md"
+      - "AGENTS.md"
+      - "blueprints/skill-runtime/README.md"
+      - "distribution/README.md"
+  - action: "update"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "删除迁移期与重复权属文档后，公开处理等级、迁移映射和日志边界集中到正式 Knowledge。"
+    evidence_refs:
+      - "knowledge/public-generalization-policy.md"
+      - "docs/公开发布检查清单.md"
+      - "docs/公开内容来源说明.md"
+  - action: "still-valid"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "本次调整 Knowledge 的来源和路由，不改变 Specflow、Projection 或生命周期治理契约。"
+    evidence_refs:
+      - "knowledge/registry.yaml"
+      - "knowledge/code-entry-map.yaml"

@@ -8,8 +8,9 @@
 - [代码入口映射](code-entry-map.yaml)
 - [仓库定位与产物分层](repository-positioning.md)
 - [仓库自举治理](self-hosted-governance.md)
+- [能力准入、宿主边界与确定性代码依赖](deterministic-core-boundary.md)
 - [契约化上下文框架](../frameworks/context-contract/README.md)
-- [项目上下文 Bootstrap/Slice Skill](../skills/project-context-bootstrap/SKILL.md)
+- [存量项目上下文与知识候选引导 Skill](../skills/project-context-bootstrap/SKILL.md)
 
 ## 准入条件
 
@@ -25,9 +26,10 @@
 
 - 项目规则保存全仓或模块必须遵守的稳定边界，通常进入根级或模块级 `AGENTS.md`；
 - 稳定契约保存 Agent 不能自行猜测的 API、Schema、状态、不变量、兼容边界和关键流程，满足上述准入条件并经维护者批准后进入 Knowledge；
-- 动态切片只描述当前任务相关的入口、符号、数据元素、调用路径和异常分支，进入当前 Spec 的 Plan、Research 或 Evidence，不进入长期 Knowledge；
+- 任务调研视图只描述当前任务相关的入口、符号、数据元素、调用路径和异常分支，按需进入当前 Spec 的 Plan、Research 或 Evidence，不进入长期 Knowledge；它由 Agent Host 的任务工作流生成，不是 `project-context-bootstrap` 的公开模式；
+- 字段级 AST 正反向切片需要独立语言 Adapter、消费者和收益证据，当前仓尚未提供；
 - Agent 可以生成或刷新稳定契约候选，但人工批准状态、来源范围和未确认项必须显式保留；
-- 三层结构、所有权与合成数据契约见[契约化上下文框架](../frameworks/context-contract/README.md)。
+- 三层结构与所有权边界见[契约化上下文框架](../frameworks/context-contract/README.md)；当前不为这组原则维护无人消费的通用 Schema。
 
 ## 状态
 

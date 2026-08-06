@@ -1,37 +1,40 @@
-# 项目上下文 Bootstrap 报告
+# 项目上下文 Bootstrap 审核报告
 
 ## 基本信息
 
-- 状态：`complete | partial | blocked`
+- 状态：`ready-for-review | partial | blocked`
 - 项目根目录：
-- 候选版本或快照：
-- 接入目标：
+- 候选 revision 或快照：
+- 接入或知识审计目标：
+- 当前治理状态：`pre-harness | harnessed | unknown`
+- `init plan` 或等价结构盘点：
 - 实际检查范围：
 - 明确排除范围：
+- 已复用的现有导航：
 
 ## 项目规则候选
 
-| 规则 | 范围 | Evidence | 状态 | 建议位置 |
+| 候选 | 建议动作 | 范围 | Evidence | 观察状态 | 建议位置 | 审核责任人 |
+| --- | --- | --- | --- | --- | --- | --- |
+|  | `create | update | still-valid | review-required | no-admission` |  |  | `observed | inferred | unresolved` |  |  |
+
+## 稳定契约与 Knowledge 候选
+
+| 候选 | 建议动作 | 范围 | 权威来源 | 候选状态 | 刷新条件 | 审核责任人 |
+| --- | --- | --- | --- | --- | --- | --- |
+|  | `create | update | still-valid | review-required | no-admission` |  |  | `draft | existing-approved | review-required` |  |  |
+
+## 代码与验证入口候选
+
+| 路径或符号 | 职责 | 适用任务 | Evidence | 建议动作 |
 | --- | --- | --- | --- | --- |
-|  |  |  | `observed | inferred | unresolved` |  |
+|  |  |  |  | `create | update | still-valid | review-required | no-admission` |
 
-## 稳定契约候选
+## 不进入长期层的内容
 
-| 契约或不变量 | 范围 | 权威来源 | 批准状态 | 刷新条件 |
-| --- | --- | --- | --- | --- |
-|  |  |  | `draft | approved | review-required` |  |
-
-## 动态视图锚点
-
-| 锚点类型 | 值 | 适用任务 | Evidence |
-| --- | --- | --- | --- |
-| `entrypoint | symbol | data_element` |  |  |  |
-
-## 代码与验证入口
-
-| 路径或符号 | 职责 | 何时读取 | Evidence |
-| --- | --- | --- | --- |
-|  |  |  |  |
+| 内容 | 原因 | 临时保留位置 |
+| --- | --- | --- |
+|  |  |  |
 
 ## 未确认项
 
@@ -41,7 +44,10 @@
 
 ## 采用建议
 
-- 建议新增或调整的规则：
-- 建议建立的 Knowledge 草稿：
-- 不应长期保存的动态内容：
-- 本次未执行的写入或外部动作：
+- 建议新增或调整的规则草稿：
+- 建议新增或更新的 Knowledge 草稿：
+- 建议调整的代码入口索引：
+- 需要维护者逐项裁决的内容：
+- 供后续 Harness 化使用的已审核输入：
+- 建议的下一阶段：`review | authorized-init | manual-merge | no-harness-change`
+- 本次未执行的写入、批准或外部动作：

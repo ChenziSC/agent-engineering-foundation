@@ -94,4 +94,4 @@ description: 分析并设计 Web 首屏关键只读请求的安全预请求方�
 
 ## 资源决策
 
-本 Skill 自身不复制共享 Parser。确定性 HAR/Trace Observation 与预请求资格子集位于仓库的 `frameworks/web-prefetch/`，真实 Browser、缓存实现和行为判断仍依赖采用方工具、Agent 与人工确认。
+本 Skill 自身不复制共享 Parser。确定性 HAR/Trace Observation 位于 `frameworks/web-evidence/`，预请求资格子集位于 `frameworks/web-prefetch/`；真实 Browser、缓存实现和行为判断仍依赖采用方工具、Agent 与人工确认。

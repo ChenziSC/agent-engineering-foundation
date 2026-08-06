@@ -21,11 +21,14 @@ entries:
       - "content-layering"
     last_reviewed_at: "2026-08-06"
     authoritative_sources:
+      - "AGENTS.md"
       - "README.md"
       - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
     source_evidence:
+      - path: "AGENTS.md"
+        digest: "sha256:6e0b75a996d79e6c8f4e57a69d22672851441ca998b4afe3cb29668ab25b585b"
       - path: "README.md"
-        digest: "sha256:52ca95730341497ba40326d233f3ca92f922a35ddf1c0ccf50dd53435f717f18"
+        digest: "sha256:b42bba31d0512d4f7335a0772bdbc832854bbc38698e18f446211bc7ca51123d"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
         digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
     refresh_triggers:
@@ -39,10 +42,53 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-project-harness-scaffold-positioning"
-      action: "still-valid"
+      spec_id: "2026-08-06-docs-layer-consolidation"
+      action: "update"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:3960cec3cf7ca12436c35e89ddb4db66c9d45882356b1a184907a2860f2337a6"
+      decision_digest: "sha256:e7acc842ceb7732ccb6ab2da6be156e3eddb0fbb0b7c164ddc20d8f073a014b1"
+  - id: "deterministic-core-boundary"
+    title: "能力准入、宿主边界与确定性代码依赖"
+    path: "./deterministic-core-boundary.md"
+    status: "current"
+    scope:
+      - "frameworks/"
+      - "skills/"
+      - "packages/"
+      - "adapters/"
+      - "distribution/"
+    topics:
+      - "deterministic-core"
+      - "capability-admission"
+      - "host-boundary"
+      - "skill-publication"
+      - "dependency-direction"
+    last_reviewed_at: "2026-08-06"
+    authoritative_sources:
+      - "AGENTS.md"
+      - "blueprints/skill-runtime/README.md"
+      - "distribution/README.md"
+    source_evidence:
+      - path: "AGENTS.md"
+        digest: "sha256:6e0b75a996d79e6c8f4e57a69d22672851441ca998b4afe3cb29668ab25b585b"
+      - path: "blueprints/skill-runtime/README.md"
+        digest: "sha256:d6af9c65590f8f726d0885493453cea492c9c29d2d732b7fd1d54c7a711f6736"
+      - path: "distribution/README.md"
+        digest: "sha256:8cdd2afc727ea96dd6e86788c6801dcf68be1bbfe1183758cc486a367b1e17e9"
+    refresh_triggers:
+      - "主流 Agent Host 原生能力边界变化"
+      - "Harness、Framework、Skill、Package 或 Adapter 依赖方向变化"
+      - "新增共享 Validator、Parser、事务原语或跨宿主能力"
+    load_when:
+      - "新增或移动确定性实现"
+      - "修改 Skill 发布或宿主接入契约"
+      - "新增 Harness、Framework、Skill 或 Adapter 跨层依赖"
+    status_reason: null
+    superseded_by: null
+    last_projection:
+      spec_id: "2026-08-06-docs-layer-consolidation"
+      action: "update"
+      reviewed_at: "2026-08-06"
+      decision_digest: "sha256:7a8fbbeaf79a861a0585c8270037e4eab1a9b11e61d5377e3b4925d9162135bb"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -64,7 +110,7 @@ entries:
       - "skills/specflow/scripts/archive-receipt.mjs"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:1a482b3e216ae6fc60fb14c387c714984f94ae32a13e8a35cafb8aad25c21390"
+        digest: "sha256:6e0b75a996d79e6c8f4e57a69d22672851441ca998b4afe3cb29668ab25b585b"
       - path: "specs/README.md"
         digest: "sha256:79f9ac67d1365a6397dd928adf5dbbef7d233498408e91c70687b8795d784b8b"
       - path: "skills/specflow/SKILL.md"
@@ -82,10 +128,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-repository-content-consistency-repair"
-      action: "update"
+      spec_id: "2026-08-06-docs-layer-consolidation"
+      action: "still-valid"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:4945520614dcc8d83b0a398dc87b6401bb1899bb8cef7ff641143279c03c4924"
+      decision_digest: "sha256:902636918537f5688e2f912234d20e951e6d7a94b43bcfaeb3cf1cb3d4497237"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -105,19 +151,19 @@ entries:
       - "release-safety"
     last_reviewed_at: "2026-08-06"
     authoritative_sources:
-      - "docs/00-迁移总览.md"
-      - "docs/03-公开化与权属规范.md"
-      - "docs/07-公开内容来源说明.md"
+      - "AGENTS.md"
+      - "docs/公开发布检查清单.md"
+      - "docs/公开内容来源说明.md"
     source_evidence:
-      - path: "docs/00-迁移总览.md"
-        digest: "sha256:f73fd45428f6d94941d425a4accd44edf44d89c94dcaf5c478d709389cf9d8f2"
-      - path: "docs/03-公开化与权属规范.md"
-        digest: "sha256:79b5faa4335e99aeb782032ad912ce56b60efde49b1deff12dfebb3a5ec4a3bb"
-      - path: "docs/07-公开内容来源说明.md"
-        digest: "sha256:ef28d969afde55f715b0fcd00a45e2a904471e79f80f58747667d296441b3a1b"
+      - path: "AGENTS.md"
+        digest: "sha256:6e0b75a996d79e6c8f4e57a69d22672851441ca998b4afe3cb29668ab25b585b"
+      - path: "docs/公开发布检查清单.md"
+        digest: "sha256:a65d24e7ed2922be3881e0329d9b01a202270fba492fe502052cb3aafc98954c"
+      - path: "docs/公开内容来源说明.md"
+        digest: "sha256:b1d4d73cd56360312eb07bf6e8988e4a05b6fe73d239f91b63eb33050d6899bf"
     refresh_triggers:
       - "公开处理等级或准入规则变化"
-      - "能力说明模板或覆盖台账字段变化"
+      - "能力盘点或覆盖台账字段变化"
       - "发布权属与敏感信息门禁变化"
     load_when:
       - "盘点或迁移受限来源能力"
@@ -126,7 +172,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-project-harness-scaffold-positioning"
-      action: "still-valid"
+      spec_id: "2026-08-06-docs-layer-consolidation"
+      action: "update"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:54781a01140decc5d1b6959f56e5ed2741da1f05c199424c514c96338aa27ba2"
+      decision_digest: "sha256:974083e736c20f6c9ff0dddc15bf597431fb292c906019fced69fbb8efe8a408"

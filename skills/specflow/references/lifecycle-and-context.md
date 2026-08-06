@@ -25,6 +25,8 @@ Draft → Planned → In Progress → Archived → Superseded
 
 ## 新会话恢复
 
+当前会话第一次收到仓库相关请求时：
+
 1. 读取可访问的 `meta.yaml`；
 2. 找出非终态事项；
 3. 根据影响范围和当前请求选取相关事项；
@@ -32,6 +34,8 @@ Draft → Planned → In Progress → Archived → Superseded
 5. 大文档先读取 Section Index，再按需展开。
 
 没有 Active 事项时返回空结果，不虚构上下文，也不机械创建新事项。
+
+同一会话、同一分支和同一任务范围内复用恢复结果。切换分支、Active 事项集合变化、任务目标或相关路径明显变化、用户明确要求刷新时重新恢复；后续追问、继续实施、验证和状态查询不单独触发。
 
 ## 新鲜度
 
