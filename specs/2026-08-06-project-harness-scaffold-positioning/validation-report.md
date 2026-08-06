@@ -37,12 +37,13 @@
 ## 生命周期检查
 
 - [x] 事项由用户要求继续后进入执行，未把 Draft 当作可执行计划。
-- [x] 未获得终态授权，Meta 保持 `in-progress`。
-- [x] 未生成 Receipt，也未尝试终态状态写入。
+- [x] 用户于 2026-08-06 明确授权只归档本事项改动范围。
+- [x] 实现候选 `a0f8fd54c6f70958d588068376fb169741fec0d6` 已通过工作态 Change Gate。
+- [x] Archive Receipt 由确定性脚本生成、回读并验证，Meta 状态最后写。
 - [x] Knowledge 来源 Digest 由确定性 Projection 机制计算，没有 Agent 伪造值。
 - [x] Receipt 和既有 Lifecycle Event 没有被覆盖、删除或重排。
 - [x] 本事项无 Superseded 关系。
-- [x] 没有执行 Commit、Push 或 PR/MR，也没有据此推断归档。
+- [x] 归档授权独立于 Commit、Push 或 PR/MR；实现提交没有被用来推断终态。
 
 ## Knowledge Projection
 
@@ -63,8 +64,8 @@ Knowledge 判断：`repository-positioning` 和 `public-generalization-policy` �
 ## 尚未证明
 
 - 本事项不证明仓库已经具备完整 Agent Runtime 或企业研发平台能力。
-- 当前验证针对包含两个 Active 事项改动的同一工作树；其中非本事项文件的正确性归属 `2026-08-06-repository-content-consistency-repair`。
+- 独立临时 Worktree 只包含本事项候选；并行事项 `2026-08-06-repository-content-consistency-repair` 的改动未进入本事项实现提交或归档摘要。
 
 ## 下一步
 
-- 等待人工 Review；只有获得明确终态授权后才进入归档，不自动 Commit 或 Push。
+- 归档回执验证后提交归档产物，并按本次授权执行一次 Push；不创建 PR/MR。

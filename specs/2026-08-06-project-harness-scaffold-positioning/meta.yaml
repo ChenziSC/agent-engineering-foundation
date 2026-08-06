@@ -1,6 +1,6 @@
 id: "2026-08-06-project-harness-scaffold-positioning"
 title: "澄清通用项目 Harness 化脚手架定位"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-06"
 updated_at: "2026-08-06"
 scope:
@@ -22,7 +22,7 @@ artifacts:
   tasks: "./tasks.md"
   research: null
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -32,7 +32,7 @@ freshness:
     - "Starter、Harness、Doctor 或 Adapter 的职责边界变化"
     - "完整 Agent Runtime 的能力边界变化"
 active_context:
-  summary: "通用项目级 Agent Harness 化脚手架定位、接入边界和成熟度说明已完成，Knowledge、Specflow、整仓检查与 81 项测试通过，等待人工 Review 或终态授权。"
+  summary: "通用项目级 Agent Harness 化脚手架定位、接入边界和成熟度说明已完成，独立候选通过 Knowledge、Specflow、整仓检查与 81 项测试，并已按用户授权完成归档。"
   next_task_id: null
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true

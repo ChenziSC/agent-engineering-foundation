@@ -1,0 +1,78 @@
+schema_version: 1
+receipt_id: "2026-08-06-project-harness-scaffold-positioning:first-terminal"
+spec_id: "2026-08-06-project-harness-scaffold-positioning"
+created_at: "2026-08-06T07:52:39Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-06T07:52:39Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-06:archive-own-scope"
+snapshot:
+  source_revision: "a0f8fd54c6f70958d588068376fb169741fec0d6"
+  base_revision: "1886921db5fa4c519416a24bb0de2ae1ef49eb5b"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:abd436bc0539380dfa3dd5ce56e757fc834db645108b97a5652624cd2256a812"
+    excludes:
+      - "specs/2026-08-06-project-harness-scaffold-positioning"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:dbcb8ea1c9e926e4362b42bcd6f4db9dd13c17f7edb439b706da405ea22cf7dc"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:2eaf9718374433728c1c8156184eb536fec0ecc1e7b7005b8dac6fc8aca0f68d"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:60a153abba114eea29e6a609f98656d4f788222cc8fae1a36660a0741d1d13bc"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:859ab0614c4ac464dd35575251464c573da33155d7b76d8389bd50931bc04668"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:a0f8fd54c6f70958d588068376fb169741fec0d6"
+    - "gate:work:sha256:b986c02a9e92c2e7ce59b46a34a96af1ce653786dba7abb8a8b6897e78ca1e3d"
+    - "test:npm-test-81-pass"
+    - "check:npm-run-check"
+    - "check:specflow"
+    - "check:knowledge"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "README 新增 Harness 化脚手架定位，但仍遵守面向任意项目、三层资产和 Adapter 隔离的既有稳定事实。"
+      evidence_refs:
+        - "README.md"
+        - "docs/01-能力地图.md"
+        - "docs/02-目标仓库设计.md"
+        - "docs/05-交付形态与成熟度.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "新增表述只描述已公开的通用能力和采用方扩展边界，没有引入内部标识、真实平台事实或受限实现。"
+      evidence_refs:
+        - "README.md"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:0634fb0a8ed8c2b15a086a9b433706806b24656b9773d92f04b1e4fff81e58b2"
