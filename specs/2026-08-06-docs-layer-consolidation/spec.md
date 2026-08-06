@@ -81,7 +81,7 @@
 - [x] **AC-024** Active Spec Scope 覆盖最终 Merge Candidate 的全部实现路径，工作态 Change Gate 不再返回范围遗漏。
 - [x] **AC-025** `context resolve --paths .` 将项目根视为全仓范围并加载相关 Active Spec、Knowledge 与根规则；具体路径行为保持兼容并有回归测试。
 - [x] **AC-026** 修改根 `AGENTS.md` 时，仓库定位任务路由能够加载 `repository-positioning`、`deterministic-core-boundary`、`self-hosted-governance` 和 `public-generalization-policy`。
-- [ ] **AC-027** 能力地图和问题图谱明确区分 Host 原生任务调研、仓库 Context Resolver 与尚未实现的语义切片候选；Projection、全量测试、深度扫描和 Change Gate 通过。
+- [x] **AC-027** 能力地图和问题图谱明确区分 Host 原生任务调研、仓库 Context Resolver 与尚未实现的语义切片候选；Projection、全量测试、深度扫描和 Change Gate 通过。
 
 ## 风险与约束
 

@@ -54,7 +54,7 @@ freshness:
     - "公开泛化政策的权威来源变化"
     - "主流 Agent Host 原生能力或仓库能力准入边界变化"
 active_context:
-  summary: "用户已明确授权 Commit、Push 和归档；正在形成不可变实现候选并执行两阶段 Change Gate 与 Receipt 收口。"
-  next_task_id: "T-26"
+  summary: "不可变实现提交与工作态 Change Gate 已通过；正在复核 Knowledge Projection、生成 Archive Receipt 并执行交付门禁。"
+  next_task_id: "T-27"
 authorization:
   terminal_transition_confirmed: false

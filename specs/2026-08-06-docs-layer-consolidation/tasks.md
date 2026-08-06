@@ -219,7 +219,7 @@
 
 ### T-26 形成不可变实现候选并执行工作态门禁
 
-- 状态：`in-progress`
+- 状态：`done`
 - 依赖：`T-25`
 - 对应：`AC-027`
 - 动作：根据用户明确授权提交 Review 修复，以 `5df7338` 为 Base 对最终不可变实现候选执行工作态 Change Gate。
@@ -227,7 +227,7 @@
 
 ### T-27 生成归档证据并执行交付门禁
 
-- 状态：`pending`
+- 状态：`in-progress`
 - 依赖：`T-26`
 - 对应：全部完成条件与 Specflow 终态契约
 - 动作：复核 Knowledge Projection，生成不可覆盖 Archive Receipt，最后投影 Meta 为 `archived`，提交归档证据并执行 Delivery Change Gate。
