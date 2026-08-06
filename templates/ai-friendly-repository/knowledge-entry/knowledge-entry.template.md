@@ -5,6 +5,8 @@
 - ID：`<knowledge-id>`
 - 状态：`current | review-required | retired`
 - 适用范围：`<目录、模块或契约>`
+- 信息层级：`stable-contract | project-knowledge`
+- 批准角色：`<负责批准稳定契约的维护角色>`
 - 最后复核：`YYYY-MM-DD`
 - 权威来源：`<代码、公开规范或架构决策>`
 
@@ -31,6 +33,12 @@
 | 路径 | 作用 | 何时读取 |
 | --- | --- | --- |
 |  |  |  |
+
+## 动态切片边界
+
+- 建议锚点：`<entrypoint / symbol / data-element>`
+- 动态视图保存位置：`<当前 Spec 的 Plan、Research 或 Evidence>`
+- 不提升为长期知识的实现细节：`<局部调用、临时分支或易变字段>`
 
 ## 常见失败
 

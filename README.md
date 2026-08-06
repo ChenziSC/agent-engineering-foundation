@@ -93,6 +93,8 @@ node packages/harness/bin/agent-foundation.mjs tracking check --file /path/to/ev
 
 Context 预算在 `agent-foundation.json` 的 `context` 中配置。单事项或总预算超限时，Resolver 不把该事项的核心 Markdown 加入全文 `loadPlan`，而是返回 H1–H3 行区间、字节数、AC/FR 等规则编号位置和清单完成度；标题与位置来自原文，不生成摘要，也不建立第二份事实源。`maxRuleFileBytes` 限制单个规则文件体量；Resolver 会按请求路径自动加入根级与沿途 `AGENTS.md`，Doctor 阻断失效入口、重复路由值、同路径纳入/排除矛盾和超预算规则，并把 Code Entry Map 已登记父子规则中的精确重复报告为警告。自然语言语义冲突仍由 Agent 或人工判断。
 
+`project-context-bootstrap` 在 Resolver 之上提供 Agent 语义编排：首次接入存量项目时生成项目规则、稳定契约草稿、动态锚点和未确认项；日常任务中围绕入口、符号或数据元素生成有 revision、Evidence 和停止边界的动态切片。它消费 Section Index 进行章节导航，不替代字节预算、宿主上下文窗口或完整调用图分析；任务切片留在当前 Spec，未经批准不进入长期 Knowledge。
+
 `source-control inspect` 解析 Base/Source Commit，在临时 Git 对象库中计算无冲突 Merge Candidate，并对范围内按路径排序的最终对象 ID 生成稳定摘要；变更状态作为复核证据返回，但不参与摘要，避免 Rename 启发式差异改变同一最终快照。范围内存在未提交或未跟踪改动、候选冲突或版本无法解析时直接阻断；命令不执行 Stage、Commit、Push，也不修改工作树、Index 或引用。
 
 `change gate check` 始终使用完整 Merge Candidate 判断事项关联，不允许用 Include/Exclude 隐藏变更。候选必须二选一：显式关联一个 Scope 覆盖完整的 Active Spec，或使用 `docs-only`、`tests-only`、`styles-only`、`assets-only`、`generated-only` 之一，并由全部候选路径机械证明。`--phase delivery` 还会校验 Archived Meta、Receipt、Lifecycle 摘要链以及 Receipt 中的变更摘要是否仍对应最终候选。门禁不创建 Commit、不推断终态授权，也不代表外部 PR/MR、部署或发布成功；完整契约见[事项—变更关联与交付门禁](skills/specflow/references/change-gate.md)。
@@ -138,6 +140,8 @@ node packages/harness/bin/agent-foundation.mjs repository check --deny-file /pat
 - [可注入 Adapter Registry](adapters/registry.mjs)
 - [Skill 行为评估方法与模板](frameworks/skill-eval/README.md)
 - [AI 友好仓库模板](templates/ai-friendly-repository/README.md)
+- [契约化上下文框架](frameworks/context-contract/README.md)
+- [`project-context-bootstrap` Skill](skills/project-context-bootstrap/SKILL.md)
 - [`web-performance-review` Skill](skills/web-performance-review/SKILL.md)
 - [`safe-change` Skill](skills/safe-change/SKILL.md)
 - [Design-to-Code 框架](frameworks/design-to-code/README.md)

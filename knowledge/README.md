@@ -8,6 +8,8 @@
 - [代码入口映射](code-entry-map.yaml)
 - [仓库定位与产物分层](repository-positioning.md)
 - [仓库自举治理](self-hosted-governance.md)
+- [契约化上下文框架](../frameworks/context-contract/README.md)
+- [项目上下文 Bootstrap/Slice Skill](../skills/project-context-bootstrap/SKILL.md)
 
 ## 准入条件
 
@@ -18,6 +20,14 @@
 3. 有可定位的权威来源或明确的维护者决策；
 4. 可以说明适用范围和触发重新复核的变化；
 5. 不包含当前任务进度、未确认猜测、凭证、个人信息或生产数据。
+
+## 信息层级
+
+- 项目规则保存全仓或模块必须遵守的稳定边界，通常进入根级或模块级 `AGENTS.md`；
+- 稳定契约保存 Agent 不能自行猜测的 API、Schema、状态、不变量、兼容边界和关键流程，满足上述准入条件并经维护者批准后进入 Knowledge；
+- 动态切片只描述当前任务相关的入口、符号、数据元素、调用路径和异常分支，进入当前 Spec 的 Plan、Research 或 Evidence，不进入长期 Knowledge；
+- Agent 可以生成或刷新稳定契约候选，但人工批准状态、来源范围和未确认项必须显式保留；
+- 三层结构、所有权与合成数据契约见[契约化上下文框架](../frameworks/context-contract/README.md)。
 
 ## 状态
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "项目上下文引导与任务切片"
+  short_description: "从仓库证据建立稳定上下文候选，并生成任务级语义切片"
+  default_prompt: "使用 $project-context-bootstrap 为当前项目建立上下文，或生成本次任务的代码语义切片。"

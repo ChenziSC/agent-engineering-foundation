@@ -25,6 +25,20 @@ entries:
       - "public-generalization-policy"
     exclude_by_default:
       - "pets/"
+  - task_type: "建立项目上下文或任务切片"
+    start_paths:
+      - "frameworks/context-contract/"
+      - "skills/project-context-bootstrap/"
+      - "templates/ai-friendly-repository/"
+      - "knowledge/"
+    module_rules:
+      - "AGENTS.md"
+    knowledge:
+      - "repository-positioning"
+      - "self-hosted-governance"
+      - "public-generalization-policy"
+    exclude_by_default:
+      - "pets/"
   - task_type: "实现或验证安全变更"
     start_paths:
       - "frameworks/change-validation/"

@@ -1,0 +1,47 @@
+id: "2026-08-06-context-contract-and-design-guardrails"
+title: "补齐契约化上下文与设计验证护栏"
+status: "in-progress"
+created_at: "2026-08-06"
+updated_at: "2026-08-06"
+scope:
+  - "README.md"
+  - "frameworks/context-contract/"
+  - "skills/project-context-bootstrap/"
+  - "frameworks/change-validation/"
+  - "templates/ai-friendly-repository/"
+  - "skills/specflow/"
+  - "skills/safe-change/"
+  - "knowledge/README.md"
+  - "knowledge/code-entry-map.yaml"
+  - "docs/01-能力地图.md"
+  - "docs/02-目标仓库设计.md"
+  - "docs/05-交付形态与成熟度.md"
+  - "docs/06-公开发布检查清单.md"
+  - "docs/08-能力问题图谱.md"
+  - "docs/能力说明/P0-09-契约化上下文与任务切片.md"
+  - "distribution/manifest.yaml"
+  - "specs/2026-08-06-context-contract-and-design-guardrails/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-06"
+  refresh_triggers:
+    - "Context Resolver、Knowledge 或 Specflow 的职责边界变化"
+    - "Context Contract Schema 或设计验证规则变化"
+active_context:
+  summary: "Context Contract、设计验证护栏与 project-context-bootstrap Skill 已完成；当前会话合成、本仓自举和私有参考仓库只读回放均已保存脱敏证据，并完成独立正式 Replay。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false

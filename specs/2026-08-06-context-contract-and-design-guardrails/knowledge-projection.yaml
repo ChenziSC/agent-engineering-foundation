@@ -1,0 +1,25 @@
+impact: "reviewed"
+decisions:
+  - action: "still-valid"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "新增 Context Contract 与 Bootstrap/Slice Skill 继续遵守 Framework 解释问题、Knowledge 保存长期正文、Specflow 保存当前事项、确定性程序只做结构校验的既有分层；没有产生新的顶层状态所有者。"
+    evidence_refs:
+      - "frameworks/context-contract/README.md"
+      - "skills/project-context-bootstrap/SKILL.md"
+      - "docs/01-能力地图.md"
+  - action: "still-valid"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "Specflow 增加变更深度与 Evidence 来源关系后仍遵守范围变化回 Spec、技术路径回 Plan、状态最后写和语义判断由 Agent/人工负责的自举契约；任务切片只引用当前 Spec，不复制其状态。"
+    evidence_refs:
+      - "skills/specflow/SKILL.md"
+      - "skills/specflow/references/workflow.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "新增模型、Skill、模板和案例均为自行编写的通用方案与合成数据，不包含内部标识、真实拓扑、平台行为、配置、数据或专有实现表达。"
+    evidence_refs:
+      - "frameworks/context-contract/context-contract.template.json"
+      - "skills/project-context-bootstrap/evals/cases/03-bounded-task-slice.md"
+      - "specs/2026-08-06-context-contract-and-design-guardrails/spec.md"

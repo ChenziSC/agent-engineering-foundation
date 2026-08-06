@@ -28,6 +28,19 @@ skills:
       - scripts
       - evals
       - tests
+  - name: project-context-bootstrap
+    source: skills/project-context-bootstrap
+    version:
+      type: content-hash
+      value: sha256:b44aa58d1203608deed52031bc233ac550b863ed1ba734217958f531bb38c4d4
+    distributable: true
+    required_files:
+      - SKILL.md
+    optional_resources:
+      - agents
+      - references
+      - assets
+      - evals
   - name: refactor-natural-language-content
     source: skills/refactor-natural-language-content
     version:
@@ -44,7 +57,7 @@ skills:
     source: skills/safe-change
     version:
       type: content-hash
-      value: sha256:2684d27ef3687654fffebe6858aed6e509f068091a61d8a4ffadf7ec617d7a7e
+      value: sha256:e4c0e99418eec73fa5cd878022e0f3a679ddc3da9ac619b86260cbfd62cc33be
     distributable: true
     required_files:
       - SKILL.md
@@ -57,7 +70,7 @@ skills:
     source: skills/specflow
     version:
       type: content-hash
-      value: sha256:eb8d816f6df929bd9a0f435ae49a241b16b87af4da5d8c1d903b384883f8940e
+      value: sha256:63097608b35566d3a70a7a280f34307e6cd817284c20f02382bd169a19670ece
     distributable: true
     required_files:
       - SKILL.md

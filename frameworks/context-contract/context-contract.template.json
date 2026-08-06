@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "contract_id": "synthetic-catalog-module",
+  "scope": {
+    "paths": ["src/catalog/"],
+    "entrypoints": ["route:/catalog/:item-id"]
+  },
+  "ownership": {
+    "owner_role": "module-maintainer",
+    "approval_status": "draft",
+    "approved_at": null
+  },
+  "project_rules": [
+    {
+      "id": "rule-public-entry",
+      "statement": "公共入口只能依赖模块公开导出。",
+      "evidence_refs": ["e-code-entry"]
+    }
+  ],
+  "stable_contracts": [
+    {
+      "id": "contract-item-identity",
+      "kind": "invariant",
+      "statement": "目录项身份由稳定 item-id 标识，展示名称不能作为身份键。",
+      "evidence_refs": ["e-public-schema", "e-contract-test"],
+      "refresh_triggers": ["公开 Schema 的 item-id 定义变化", "身份映射测试变化"]
+    }
+  ],
+  "dynamic_views": [
+    {
+      "id": "view-item-price-flow",
+      "anchor": {
+        "entrypoint": "route:/catalog/:item-id",
+        "symbol": "loadCatalogItem",
+        "data_element": "price"
+      },
+      "status": "planned",
+      "artifact_ref": null,
+      "source_revision": null
+    }
+  ],
+  "evidence": [
+    {
+      "id": "e-code-entry",
+      "kind": "code",
+      "ref": "src/catalog/index.ts",
+      "digest": null,
+      "observed_at": "2026-08-06T00:00:00Z"
+    },
+    {
+      "id": "e-public-schema",
+      "kind": "schema",
+      "ref": "schemas/catalog-item.schema.json",
+      "digest": null,
+      "observed_at": "2026-08-06T00:00:00Z"
+    },
+    {
+      "id": "e-contract-test",
+      "kind": "test",
+      "ref": "tests/catalog-identity.test.ts",
+      "digest": null,
+      "observed_at": "2026-08-06T00:00:00Z"
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "u-price-cache",
+      "question": "价格缓存是否还受区域上下文影响？",
+      "impact": "未确认前不能把 price 动态切片批准为稳定缓存契约。",
+      "blocking": true
+    }
+  ],
+  "refresh_triggers": [
+    "模块公开入口变化",
+    "稳定契约依赖的 Evidence 摘要变化",
+    "维护者要求重新复核"
+  ]
+}

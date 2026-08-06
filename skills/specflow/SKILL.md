@@ -31,11 +31,11 @@ node <foundation-repo>/packages/harness/bin/agent-foundation.mjs specflow check 
 
 1. 搜索目标仓库中的既有 Specflow 事项，判断是新建、继续、修改还是取代；不要为同一事项建立重复目录。
 2. 使用 [spec.md](assets/spec.md) 把输入整理成目标、非目标、场景、行为契约和可判定的完成条件，不逐句搬运 PRD。
-3. 读取相关代码、测试、配置、文档和版本证据，再使用 [plan.md](assets/plan.md) 记录实现方案、关键决策、风险和验证策略。
+3. 读取相关代码、测试、配置、文档和版本证据，再使用 [plan.md](assets/plan.md) 记录实现方案、关键决策、风险和验证策略；同时判断改变的是产品行为、稳定契约、技术路径还是局部实现，列出不能猜测的不变量、允许依赖的事实和相对独立的验证来源。
 4. 只有重大未知需要独立实验时，使用 [research.md](assets/research.md)；普通代码调研直接写入 Plan 的证据部分。
 5. 使用 [tasks.md](assets/tasks.md) 按依赖拆解工作，使每个任务都能追溯到 Spec 或 Plan，并具有验证方式。
-6. 用户明确要求实现时，按 Tasks 修改授权范围内的代码和文档；范围变化先更新 Spec，技术路径变化更新 Plan，新增工作更新 Tasks。
-7. 执行与风险匹配的测试、静态检查或人工验证，并使用 [validation-report.md](assets/validation-report.md) 核对完成条件、产物关系和未解决问题。有不可变 Base/Source 候选时，按 [change-gate.md](references/change-gate.md) 运行工作态关联检查；没有提交授权或候选仍含未提交内容时保持未验证，不能为了通过门禁自行 Commit。
+6. 用户明确要求实现时，按 Tasks 修改授权范围内的代码和文档；目标、范围或用户行为变化返回 Spec，公共契约、不变量、兼容或回滚策略变化返回 Plan 并按需同步 Spec，局部实现和纯验证变化更新 Plan/Tasks。
+7. 执行与风险匹配的测试、静态检查或人工验证，并使用 [validation-report.md](assets/validation-report.md) 核对完成条件、产物关系、Evidence 来源关系和未解决问题。同一设计的复述或自生成清单不能作为该设计正确的唯一证据。有不可变 Base/Source 候选时，按 [change-gate.md](references/change-gate.md) 运行工作态关联检查；没有提交授权或候选仍含未提交内容时保持未验证，不能为了通过门禁自行 Commit。
 8. 只有用户明确要求收口、归档或准备最终交付时，才按 [archive-and-lifecycle.md](references/archive-and-lifecycle.md) 复核最终产物、实现摘要、Knowledge Projection、Receipt 和状态最后写；一般状态与上下文恢复规则见 [lifecycle-and-context.md](references/lifecycle-and-context.md)。提交、推送、PR/MR 和外部工作项变更分别服从用户授权及宿主规则。
 
 各阶段的退出条件和回退规则见 [workflow.md](references/workflow.md)。
@@ -112,6 +112,7 @@ Receipt、Meta 和最终实现已经形成不可变版本后，运行 `change ga
 - 没有仓库证据时，不编造代码入口、接口、影响范围或技术方案。
 - Spec 的范围和关键完成条件未闭合时，保持 Draft。
 - Plan 的关键决策没有证据时，明确标记 Assumption 或 Blocker。
+- 不把同一设计的说明、自生成检查清单或无外部观察的 Agent 复述作为设计正确的唯一 Evidence；高风险契约至少需要测试执行、运行观察、静态契约检查或独立 Review 中与主张匹配的一类真实观察。
 - Task 没有关联目标或验证方式时，不得标记为完成。
 - 不用文档齐全代替代码、测试或行为验证完成。
 - 不从 Commit、Push、Draft PR/MR 或 Agent 自述推断归档授权。

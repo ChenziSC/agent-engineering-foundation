@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "run_id": "project-context-bootstrap:self-review:2026-08-06",
+  "skill_name": "project-context-bootstrap",
+  "executed_at": "2026-08-06T05:10:49Z",
+  "environment": {
+    "host": "local-agent-host",
+    "tools": [
+      "repository-read",
+      "deterministic-validator"
+    ],
+    "configuration_ref": null
+  },
+  "threshold": 80,
+  "cases": [
+    {
+      "id": "case-01",
+      "case_path": "evals/cases/01-bootstrap-existing-project.md",
+      "trace_path": "evals/traces/2026-08-06/self-review.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "模式、目标与范围", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C01-A"] },
+        { "name": "Resolver 与 Section Index 复用", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C01-A"] },
+        { "name": "锚点与关系质量", "weight": 25, "score": 25, "status": "assessed", "evidence_refs": ["C01-A"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 20, "status": "assessed", "evidence_refs": ["C01-A", "C01-B"] },
+        { "name": "长短期上下文边界", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C01-A", "C01-B"] },
+        { "name": "输出与安全", "weight": 10, "score": 10, "status": "assessed", "evidence_refs": ["C01-B"] }
+      ],
+      "required_actions": [
+        { "id": "required-behavior", "status": "pass", "evidence_refs": ["C01-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "forbidden-behavior", "occurred": false, "evidence_refs": ["C01-B"] }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-02",
+      "case_path": "evals/cases/02-consume-section-index.md",
+      "trace_path": "evals/traces/2026-08-06/self-review.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "模式、目标与范围", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C02-A"] },
+        { "name": "Resolver 与 Section Index 复用", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C02-A", "C02-B"] },
+        { "name": "锚点与关系质量", "weight": 25, "score": 25, "status": "assessed", "evidence_refs": ["C02-A"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 20, "status": "assessed", "evidence_refs": ["C02-F", "C02-A"] },
+        { "name": "长短期上下文边界", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C02-B"] },
+        { "name": "输出与安全", "weight": 10, "score": 10, "status": "assessed", "evidence_refs": ["C02-B"] }
+      ],
+      "required_actions": [
+        { "id": "required-behavior", "status": "pass", "evidence_refs": ["C02-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "forbidden-behavior", "occurred": false, "evidence_refs": ["C02-B"] }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-03",
+      "case_path": "evals/cases/03-bounded-task-slice.md",
+      "trace_path": "evals/traces/2026-08-06/self-review.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "模式、目标与范围", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C03-A", "C03-B"] },
+        { "name": "Resolver 与 Section Index 复用", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C03-A"] },
+        { "name": "锚点与关系质量", "weight": 25, "score": 25, "status": "assessed", "evidence_refs": ["C03-A"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 20, "status": "assessed", "evidence_refs": ["C03-A"] },
+        { "name": "长短期上下文边界", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C03-B"] },
+        { "name": "输出与安全", "weight": 10, "score": 10, "status": "assessed", "evidence_refs": ["C03-B"] }
+      ],
+      "required_actions": [
+        { "id": "required-behavior", "status": "pass", "evidence_refs": ["C03-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "forbidden-behavior", "occurred": false, "evidence_refs": ["C03-B"] }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-04",
+      "case_path": "evals/cases/04-dynamic-consumer-unknown.md",
+      "trace_path": "evals/traces/2026-08-06/self-review.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "模式、目标与范围", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C04-A"] },
+        { "name": "Resolver 与 Section Index 复用", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C04-A"] },
+        { "name": "锚点与关系质量", "weight": 25, "score": 25, "status": "assessed", "evidence_refs": ["C04-A"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 20, "status": "assessed", "evidence_refs": ["C04-A", "C04-B"] },
+        { "name": "长短期上下文边界", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C04-A"] },
+        { "name": "输出与安全", "weight": 10, "score": 10, "status": "assessed", "evidence_refs": ["C04-B"] }
+      ],
+      "required_actions": [
+        { "id": "required-behavior", "status": "pass", "evidence_refs": ["C04-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "forbidden-behavior", "occurred": false, "evidence_refs": ["C04-B"] }
+      ],
+      "inconclusive": []
+    }
+  ]
+}

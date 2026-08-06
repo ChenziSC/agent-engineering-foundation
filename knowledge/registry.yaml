@@ -25,7 +25,7 @@ entries:
       - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
     source_evidence:
       - path: "README.md"
-        digest: "sha256:ef1ddd06d5b5858b37fecd3dd49abaa448706e17b4d51179d87ac4362b43b1ee"
+        digest: "sha256:8ee5a78aca0191294eee2a52b7527fddccc2a29e83b09426467f5d42c18007b9"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
         digest: "sha256:7674b296b577ff3f872fa1b8f2cc9226a690b757d0e20987f2032fe6f9c8e170"
     refresh_triggers:
@@ -39,10 +39,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-05-self-hosted-agent-governance"
-      action: "update"
+      spec_id: "2026-08-06-context-contract-and-design-guardrails"
+      action: "still-valid"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:9ace7ed65ad305b82e3a56eae3b9f4a78773cb41995a59724f73f84a87a79cbc"
+      decision_digest: "sha256:668262150f411251a85be897fc484cab60f70dcd4cb83d6cdcced5358641dd31"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -68,7 +68,7 @@ entries:
       - path: "specs/README.md"
         digest: "sha256:79f9ac67d1365a6397dd928adf5dbbef7d233498408e91c70687b8795d784b8b"
       - path: "skills/specflow/SKILL.md"
-        digest: "sha256:b46689cab91686ebf8205949503fdd5cb3d82d5cbaed143f5a6eb2f814e9dcf1"
+        digest: "sha256:d5f2a9114944f5a3e515638aedc3f3de3e84611cd5555aefc985f13d07f4944d"
       - path: "skills/specflow/scripts/archive-receipt.mjs"
         digest: "sha256:d394e322fa802ff2bb6beccfc45af27286d23a0550b2b168b12a633c8e2f48ad"
     refresh_triggers:
@@ -82,10 +82,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-05-self-hosted-agent-governance"
-      action: "update"
+      spec_id: "2026-08-06-context-contract-and-design-guardrails"
+      action: "still-valid"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:ecd81902532762c385563fb37a7c40a6627f5c7953983dccffcdc819d969ed24"
+      decision_digest: "sha256:f4bed071019b760cc64dd06cf8c1026c7b9cf6aaef5bf17dccf532631150853c"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -126,7 +126,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-05-self-hosted-agent-governance"
+      spec_id: "2026-08-06-context-contract-and-design-guardrails"
       action: "still-valid"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:843004cd86243514703c4dc109ba2db17b73e35a8404c93dcdace527c85c96d4"
+      decision_digest: "sha256:079e1e9c07dbd25b5a71a119cb4b28eb6a3d16b58a6ce2c14138b3fde7d90c3e"
