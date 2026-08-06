@@ -250,7 +250,7 @@ test('Context 按路径解析 Active Spec 与 Knowledge，并由来源摘要检�
       entries: [
         {
           task_type: '修改合成模块',
-          start_paths: ['src/demo/'],
+          start_paths: ['src/demo/', 'AGENTS.md'],
           module_rules: ['AGENTS.md'],
           knowledge: ['demo-knowledge'],
           exclude_by_default: [],
@@ -287,6 +287,18 @@ test('Context 按路径解析 Active Spec 与 Knowledge，并由来源摘要检�
   assert.ok(context.loadPlan.includes('AGENTS.md'));
   assert.ok(context.loadPlan.includes('specs/demo-work/spec.md'));
   assert.ok(context.loadPlan.includes('knowledge/demo.md'));
+
+  const rootContext = await resolveProjectContext(target, { paths: ['.'] });
+  assert.deepEqual(rootContext.activeSpecs.map((entry) => entry.id), ['demo-work']);
+  assert.deepEqual(rootContext.knowledge.map((entry) => entry.id), ['demo-knowledge']);
+  assert.ok(rootContext.loadPlan.includes('AGENTS.md'));
+
+  const rootRuleContext = await resolveProjectContext(target, {
+    taskType: '修改合成模块',
+    paths: ['AGENTS.md'],
+  });
+  assert.deepEqual(rootRuleContext.knowledge.map((entry) => entry.id), ['demo-knowledge']);
+  assert.ok(rootRuleContext.loadPlan.includes('AGENTS.md'));
 
   const metaPath = path.join(specRoot, 'meta.json');
   const unsafeMeta = JSON.parse(await readFile(metaPath, 'utf8'));

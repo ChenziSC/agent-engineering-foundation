@@ -4,7 +4,7 @@
 
 - 事项 ID：`2026-08-06-docs-layer-consolidation`
 - 检查日期：`2026-08-06`
-- 结果：`pass`
+- 结果：`partial`；实现与全部可在未提交工作树执行的检查通过，最终不可变候选的 Change Gate 待单独 Commit 授权后复核
 
 ## 完成条件映射
 
@@ -28,6 +28,10 @@
 | AC-021 | Skill/Distribution/Projection/Specflow/Repository Check、81 项测试、自然语言深审和 `git diff --check` 全部通过 | pass |
 | AC-022 | Skill、工作流、失败模式、报告模板、Case 03 和采用入口已将未 Harness 化统一表达为接入前阶段，不再提供长期 fallback | pass |
 | AC-023 | `init plan`、Bootstrap、维护者审核、独立写入授权、Harness 化和后续 Resolver 的职责顺序一致；全量验证通过 | pass |
+| AC-024 | Active Spec 补齐提交 `c9bb70d` 遗漏的 6 个 Scope 路径；按 Change Gate 同一重叠规则复核 `HEAD^..HEAD` 的 95 个候选路径，遗漏为 0；实际 Gate 仅因当前未提交修复返回 `source-control-scope-dirty`，不再返回 `change-gate-spec-scope-mismatch` | pass |
+| AC-025 | 合成回归同时验证具体路径与 `--paths .`；真实仓库根选择器加载 1 个 Active Spec、4 条 Knowledge 和根 `AGENTS.md`；81 项全量测试通过 | pass |
+| AC-026 | `修改仓库定位或顶层结构 + AGENTS.md` 实际加载 `repository-positioning`、`deterministic-core-boundary`、`self-hosted-governance`、`public-generalization-policy` | pass |
+| AC-027 | 两份能力图已移除把 Host 调研与语义切片画成现有能力的节点；Projection、全量测试、深度扫描通过；本轮修复尚未形成不可变提交，最终 Change Gate 待授权后执行 | partial |
 
 ## Pet 迁移证据
 
@@ -50,6 +54,13 @@
 - `specflow` 与 `project-context-bootstrap` 的内容摘要已按真实源目录更新；根规则变化触发的四条 Knowledge 来源摘要经 Projection Apply/Verify 更新并通过。
 - 本轮 Knowledge Projection Plan 为 `unchanged`，Verify 通过；Repository Check、Specflow Check、81 项测试和 `git diff --check` 再次通过。
 - 定向搜索未发现把未 Harness 化当作当前长期 fallback、要求目标项目预装 Harness、审核前写入或让 Bootstrap 承担新会话恢复的有效入口；Archived Spec 中的旧案例路径只作为历史证据保留。
+- `context resolve --paths .` 在真实仓库返回 1 个 Active Spec、根规则和 4 条 Knowledge；`修改仓库定位或顶层结构 + AGENTS.md` 返回相同的 4 条 Knowledge，`--paths README.md` 的具体路径选择保持兼容。
+- `pathsOverlap` 把 `.`、`./` 和规范化后的项目根解释为全仓范围；合成回归覆盖根选择器、具体路径与根规则路由，没有放宽项目路径安全校验。
+- 能力地图和问题图谱的依赖树已移除 `Repository Context Audit`、`Task-scoped Evidence View`、`Semantic Slice Candidate` 等模糊现有节点；保留的正文明确说明任务调研归 Host、字段级切片为未实现候选。
+- Knowledge Projection 以 `--paths .` 匹配全部 4 条长期 Knowledge，Plan 为 `unchanged`、Verify 为 `verified`；Knowledge Check 与 Specflow Check 均通过。
+- Repository Check 覆盖 198 个 Markdown、300 个当前候选文件、9 个 Skill 和 Distribution Manifest；全 Git 扫描检查 1275 个对象、实际扫描 771 个文本对象，均通过。
+- 全量测试 81/81 通过，`git diff --check` 通过；根 Context 定向测试单独通过。
+- 提交 `c9bb70d` 的 95 个候选路径按当前 Meta Scope 与 Change Gate 相同的路径重叠规则复核，遗漏为 0；合并本轮修复后的 96 个唯一路径同样无遗漏。实际工作态 Change Gate 因当前工作树仍有未提交文件而返回 `source-control-scope-dirty`，未返回 Scope 漏项；这不能替代最终不可变候选的 Gate。
 
 ### Agent 语义判断
 
@@ -79,4 +90,5 @@
 
 ## 生命周期
 
-- 实施与验证已完成；事项保持 `in-progress`，本仓尚未获得本轮 Commit、Push 或归档授权。
+- 此前用户授权的提交 `c9bb70d` 已推送至 `origin/main`；用户现已明确授权对本轮 Review 修复执行 Commit、Push 和归档。
+- 四项 Review 实现缺口与全部可执行验证已完成；事项在 Archive Receipt 生成、回读并最后投影 Meta 之前保持 `in-progress`。

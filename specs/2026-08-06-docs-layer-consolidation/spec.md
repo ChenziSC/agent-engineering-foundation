@@ -16,6 +16,9 @@
 | 用户输入 | 要求 Context Resolver 依照原仓聚焦新会话恢复，不在同一任务的每个后续请求中机械重复执行 | 2026-08-06 | Specflow 自举、Starter、Context 与相关 Skill |
 | 用户输入 | 确认 `project-context-bootstrap` 应聚焦存量项目知识候选推导，并同意移除公开 Slice 模式、重新审计当前 Skill | 2026-08-06 | Context Bootstrap Skill、模板、Eval、成熟度和相关 Knowledge |
 | 用户输入 | 明确无 Harness 不是长期降级模式；未 Harness 化项目应先使用本仓只读计划，再生成项目特有候选、审核并完成 Harness 化 | 2026-08-06 | 项目接入顺序、Bootstrap Case 03、Harness 与采用模板 |
+| 用户输入 | 明确要求提交并推送当前实现；提交 `c9bb70d` 已推送至 `origin/main`，但该授权不能推断归档授权 | 2026-08-06 | 当前不可变实现候选与生命周期事实 |
+| 用户输入 | 要求基于本 Spec 主线深入 Review 整个仓库，并按 Review 顺序连续修复 | 2026-08-06 | Spec Scope、Context Resolver、Knowledge 路由、能力投影与最终验证 |
+| 用户输入 | 明确要求对 Review 修复执行 Commit、Push 和归档 | 2026-08-06 | 最终不可变候选、两阶段 Change Gate、Archive Receipt 与终态转换 |
 | 参考材料 | 《人机协作的 AI Native 实践：复杂业务的工程化落地》公开可泛化的问题模型 | 2026-08-06 | 高密度上下文、存量提取、字段级正反向切片和人机边界；不复制内部实现与案例 |
 | 仓库证据 | 22 个 Docs 文件、反向引用、Framework/Skill/Template/Blueprint 权威产物 | 当前工作树 | 文档职责和唯一事实来源 |
 
@@ -28,7 +31,7 @@
 - 不删除仍有直接消费者或独立验证价值的 Framework、Skill、Template、Blueprint、Schema、测试或 Eval；无人消费且只制造完成感的资产可以在保留有效原则后删除。
 - 不改写 Archived Spec、Receipt 或 Lifecycle Event。
 - 不改变已有实现事实；发现名称或成熟度外推超过 Evidence 时必须修正投影。
-- 不执行本仓 Commit、Push 或归档；Pet 独立仓的创建、初始 Commit 和 Push 属于用户明确要求的迁移动作。
+- 未获得对应授权时不执行本仓 Commit、Push 或归档；本事项后续 Commit/Push 已单独获得授权并完成，归档仍未授权。
 - 不在本轮改变既有 CLI 命令和对外数据契约。
 
 ## 输出与行为契约
@@ -75,6 +78,10 @@
 - [x] **AC-021** Skill 校验、Distribution 摘要、Knowledge Projection、仓库检查、全量测试、自然语言复审和差异检查通过。
 - [x] **AC-022** Skill、Case 03、报告模板和采用入口将未 Harness 化项目表达为 Harness 化接入前阶段，不再把“缺少 Harness 时长期降级执行”作为能力或验证目标。
 - [x] **AC-023** `init plan`、Bootstrap、人工审核、授权写入和后续 Resolver 的职责顺序一致；Skill/Distribution/Projection/Repository Check、全量测试和差异检查通过。
+- [x] **AC-024** Active Spec Scope 覆盖最终 Merge Candidate 的全部实现路径，工作态 Change Gate 不再返回范围遗漏。
+- [x] **AC-025** `context resolve --paths .` 将项目根视为全仓范围并加载相关 Active Spec、Knowledge 与根规则；具体路径行为保持兼容并有回归测试。
+- [x] **AC-026** 修改根 `AGENTS.md` 时，仓库定位任务路由能够加载 `repository-positioning`、`deterministic-core-boundary`、`self-hosted-governance` 和 `public-generalization-policy`。
+- [ ] **AC-027** 能力地图和问题图谱明确区分 Host 原生任务调研、仓库 Context Resolver 与尚未实现的语义切片候选；Projection、全量测试、深度扫描和 Change Gate 通过。
 
 ## 风险与约束
 

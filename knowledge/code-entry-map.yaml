@@ -2,6 +2,7 @@ version: 1
 entries:
   - task_type: "修改仓库定位或顶层结构"
     start_paths:
+      - "AGENTS.md"
       - "README.md"
       - "docs/能力地图.md"
       - "docs/目标仓库设计.md"

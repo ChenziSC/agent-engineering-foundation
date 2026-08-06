@@ -81,6 +81,10 @@ Codex、Claude Code 等 Host 已拥有 Skill/Plugin 安装、权限、Sandbox、
 
 `init plan` 负责结构差异，Bootstrap 负责语义候选，写入和批准分别拥有独立授权。目标项目不需要先安装本仓 Harness 才能执行计划，但 Bootstrap 也不能绕过计划直接把通用骨架写入未知项目。
 
+### D-15 深度 Review 缺口按证据层修复
+
+先让 Meta Scope 覆盖真实 Merge Candidate，并同步已经完成的 Commit/Push 事实；再修复 `.` 根路径的确定性匹配和 `AGENTS.md` 的 Knowledge 路由；最后把 Docs 依赖图中的普通任务调研明确标为 Host 原生职责，把字段级语义切片保留为未实现候选。Context 根路径属于公共选择器语义，必须增加与具体路径相互独立的回归测试；文档投影不能继续把 Host 职责画成本仓能力。
+
 ## 验证策略
 
 1. 删除前后分别搜索全部旧文件名和 `docs/能力说明/` 引用。
@@ -94,6 +98,9 @@ Codex、Claude Code 等 Host 已拥有 Skill/Plugin 安装、权限、Sandbox、
 9. 搜索“每次仓库相关请求”“执行任务前先运行”等旧触发表述，确认当前规则只保留新会话首次恢复和明确刷新条件。
 10. 搜索 `project-context-bootstrap` 的 `slice`、任务调研和旧成熟度表述，确认当前入口只描述存量项目候选推导，旧回放不再参与正式验证。
 11. 搜索“无 Harness 降级”“先安装 Harness”等表述，确认当前接入顺序统一为只读计划、候选审核、授权落地和后续 Resolver。
+12. 验证 `context resolve --paths .`、`--paths README.md` 和仓库定位任务配合 `--paths AGENTS.md` 的返回集合。
+13. 对 `HEAD^..HEAD` 及本轮最终不可变候选执行工作态 Change Gate，确认 Scope 覆盖全部实现路径；没有新的 Commit 授权时，只报告未提交候选无法形成最终门禁证据。
+14. 搜索 `Repository Context Audit`、`Task-scoped Evidence View`、`Semantic Slice Candidate` 及中文等价表述，确认当前投影明确标注 Host 与候选边界。
 
 ## 回退策略
 

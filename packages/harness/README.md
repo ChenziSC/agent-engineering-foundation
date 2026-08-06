@@ -36,7 +36,7 @@ node packages/harness/bin/agent-foundation.mjs knowledge projection apply --targ
 node packages/harness/bin/agent-foundation.mjs knowledge projection verify --target /path/to/project --projection /path/to/knowledge-projection.yaml --spec-id example --reviewed-at 2026-08-06 --paths src,packages
 ```
 
-Projection 的 `apply` 只更新已经由人或 Agent 准备好的正文和 Registry 投影，不生成长期知识。Context Resolver 只基于真实文件生成全文加载计划或 Section Index，不生成第二份摘要事实源。
+`context resolve --paths .` 明确表示以整个项目根目录作为选择范围；具体文件或目录路径仍只选择与其范围相交的 Active Spec、Knowledge 和规则文件。Projection 的 `apply` 只更新已经由人或 Agent 准备好的正文和 Registry 投影，不生成长期知识。Context Resolver 只基于真实文件生成全文加载计划或 Section Index，不生成第二份摘要事实源。
 
 ### Skill 与 Distribution
 

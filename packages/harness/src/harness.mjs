@@ -447,6 +447,7 @@ function pathsOverlap(left, right) {
   const normalize = (value) => value.replace(/^\.\//u, '').replace(/\\/gu, '/').replace(/\/$/u, '');
   const a = normalize(left);
   const b = normalize(right);
+  if (a === '.' || b === '.' || a === '' || b === '') return true;
   return a === b || a.startsWith(`${b}/`) || b.startsWith(`${a}/`);
 }
 

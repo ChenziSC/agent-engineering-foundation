@@ -176,3 +176,59 @@
 - 对应：`AC-023`
 - 动作：执行自然语言定向复审、Skill/Distribution/Projection/Repository Check、全量测试和差异检查。
 - 验证：旧 fallback 语义无未解释残留，所有确定性检查通过。
+
+### T-21 修复事项范围与交付事实
+
+- 状态：`done`
+- 依赖：`T-20`
+- 对应：`AC-024`
+- 动作：把提交 `c9bb70d` 中由本事项产生但未登记的六个路径加入 Scope，记录已经完成的 Commit/Push 和仍未授权的归档事实。
+- 验证：对既有不可变提交重新执行工作态 Change Gate 时不再出现 Scope 漏项。
+
+### T-22 修复 Context 根路径选择器
+
+- 状态：`done`
+- 依赖：`T-21`
+- 对应：`AC-025`
+- 动作：把 `.` 规范化为项目根范围，使其与所有安全项目相对路径相交，并增加根路径与具体路径回归测试。
+- 验证：根路径加载 Active Spec、Knowledge 和根规则；既有具体路径测试继续通过。
+
+### T-23 补齐根规则 Knowledge 路由
+
+- 状态：`done`
+- 依赖：`T-22`
+- 对应：`AC-026`
+- 动作：把 `AGENTS.md` 加入仓库定位任务的起始路径，并在 Context 回归中验证四条长期 Knowledge 全部加载。
+- 验证：组合 `task-type + AGENTS.md` 不再漏载仓库定位与确定性边界 Knowledge。
+
+### T-24 收敛能力图投影
+
+- 状态：`done`
+- 依赖：`T-23`
+- 对应：`AC-027`
+- 动作：在能力地图和问题图谱中把普通任务调研标为 Host 原生职责，把语义切片标为未实现候选，不再作为已实现仓库依赖节点。
+- 验证：旧模糊节点零命中，Docs、Knowledge、Context Framework 与 Bootstrap Skill 语义一致。
+
+### T-25 重新审计与验证 Review 修复
+
+- 状态：`done`
+- 依赖：`T-24`
+- 对应：`AC-024` 至 `AC-027`
+- 动作：更新 Validation Report，执行 Context 定向验证、Knowledge Projection、Repository/Knowledge/Specflow Check、全量测试、Git 深度扫描和差异检查。
+- 验证：所有可在未提交工作树中执行的检查通过；需要不可变最终提交的 Change Gate 明确区分已验证基线与待提交候选。
+
+### T-26 形成不可变实现候选并执行工作态门禁
+
+- 状态：`in-progress`
+- 依赖：`T-25`
+- 对应：`AC-027`
+- 动作：根据用户明确授权提交 Review 修复，以 `5df7338` 为 Base 对最终不可变实现候选执行工作态 Change Gate。
+- 验证：Gate 为 `pass`，完整候选由本事项 Scope 覆盖，工作树无未提交变化。
+
+### T-27 生成归档证据并执行交付门禁
+
+- 状态：`pending`
+- 依赖：`T-26`
+- 对应：全部完成条件与 Specflow 终态契约
+- 动作：复核 Knowledge Projection，生成不可覆盖 Archive Receipt，最后投影 Meta 为 `archived`，提交归档证据并执行 Delivery Change Gate。
+- 验证：Receipt、Lifecycle Chain、Specflow Check 和 Delivery Change Gate 均通过，归档提交推送至 `origin/main`。
