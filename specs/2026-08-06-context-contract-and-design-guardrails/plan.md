@@ -63,6 +63,7 @@
 | 不修改 Change Validation Schema | 增加 Evidence 来源枚举并机械判断独立性 | 来源的语义独立不能由枚举可靠证明，避免制造伪确定性 | Agent/人工仍需判断 |
 | 扩充现有 Specflow/Safe Change | 新建技术设计、TDD 和 Review Skill | 现有能力已经拥有相同生命周期和验证职责 | 需要保持 References 简洁 |
 | 不强制 UML | 固定图形表达 | 不同项目的高密度契约形式不同 | 采用方需自行选择表示方式 |
+| 对整仓复核项做最小契约修正 | 新增命令、Schema 或 CI 矩阵 | 问题来自现有文档和校验边界不一致，修正文案、候选检查和确定性测试即可 | 不验证所有 Node.js 主版本，也不扩展 Eval Evidence 类型系统 |
 
 ## Agent、程序与人工分工
 
@@ -87,6 +88,7 @@
 | AC-009～AC-013 | 新 Skill、模板、References 与合成 Cases | Skill Creator 校验、Skill Check、行为边界人工复核 | 结构检查 + 内容复核 |
 | AC-014 | 分发和仓库接入 | Distribution Plan、Repository Check、Eval 结构检查与 `npm test` | 实际命令输出 |
 | AC-015 | 合成、本仓与私有来源自回放；project-context-bootstrap 独立正式回放 | 保存 self-review Evidence，并为 4 个 Case 保存脱敏正式 Trace/Replay；将失败修复与最终重跑分开记录 | 当前工具观察 + 脱敏人工评分 + Eval Runner 重算；正式 Replay 与 self-review 分开 |
+| AC-016 | README、目标仓库设计、CI、Eval Runner 与 Node.js 支持声明 | 文档事实复核、CI 配置检查、Replay 变体摘要回归测试、整仓测试与仓库检查 | 真实 Git 候选 + 确定性测试输出 |
 
 ## 风险
 

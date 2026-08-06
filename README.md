@@ -41,7 +41,7 @@ GitHub 仓库与本地根目录统一使用以下标识：
 
 仓库已经完成第一轮通用能力盘点，并能够使用自身 Specflow 和 Knowledge 管理后续演进。当前已有多组 Skill、Framework、Blueprint 和 Template，以及 Provider-neutral 的 Specflow 归档契约；实际资产以本页“已落地内容”和[成熟度说明](docs/05-交付形态与成熟度.md)为准。
 
-当前已经提供一个 Node.js 18+、零运行时依赖的最小纵向闭环：
+当前已经提供一个 Node.js 20+、零运行时依赖的最小纵向闭环：
 
 1. 提供一个可复制 Starter；
 2. 提供初始化和 Doctor；
@@ -50,7 +50,7 @@ GitHub 仓库与本地根目录统一使用以下标识：
 5. 提供 Meta、Evidence/Claim、Checkpoint、增量验证、Web Evidence、Design Contract、Event Catalog、Skill Eval 和项目组件 Registry 的确定性校验子集；
 6. 用本仓和完全合成的临时项目验证重复执行、冲突和失败保持目标不变。
 
-该实现默认提供项目级 `.agents/skills` 开放 Host，并通过 Adapter Registry 支持采用方注入自己的项目级 Host；Distribution Manifest 以内容摘要锁定全部可分发 Skill，并支持 Plan/Apply/Verify。Specflow Skill 提供完整 Meta Schema、仓库级 Meta/关系检查、单事项目录 Receipt、Lifecycle Event、Meta 状态最后写，以及同一 Specs Root 下双终态事项关系事务。Harness 可以解析 Active Spec 与相关 Knowledge 的最小加载计划，按可配置预算选择全文或 Section Index，并用来源摘要检查 Knowledge 新鲜度。Knowledge Projection 支持确定性的 Plan、Apply 与 Verify。Evidence Bundle、Checkpoint、增量覆盖、Web Evidence、Design Contract 和 Event Catalog 分别提供窄而可测试的本地契约；Skill Eval Runner 动态发现 Case、复核脱敏 Trace、执行阻塞优先评分与版本比较；项目组件 Registry Validator 还可选检查 JavaScript/TypeScript 静态导出、消费者和兼容基线。本地 Git Source Control Adapter 与 Change Gate 继续负责不可变候选关联。当前仍不执行用户级安装，不动态加载插件，不覆盖未知目录或用户修改，也尚未包含真实 Browser、Design、Coverage、Tracking Adapter、Active/多事项/跨仓库关系事务和 npm 发布。因此它是可验证的参考底座，不是已经覆盖所有基建的通用产品。
+该实现默认提供项目级 `.agents/skills` 开放 Host，并通过 Adapter Registry 支持采用方注入自己的项目级 Host；Distribution Manifest 以内容摘要锁定全部可分发 Skill，并支持 Plan/Apply/Verify。Specflow Skill 提供完整 Meta Schema、仓库级 Meta/关系检查、单事项目录 Receipt、Lifecycle Event、Meta 状态最后写，以及同一 Specs Root 下双终态事项关系事务。Harness 可以解析 Active Spec 与相关 Knowledge 的最小加载计划，按可配置预算选择全文或 Section Index，并用来源摘要检查 Knowledge 新鲜度。Knowledge Projection 支持确定性的 Plan、Apply 与 Verify。Evidence Bundle、Checkpoint、增量覆盖、Web Evidence、Design Contract 和 Event Catalog 分别提供窄而可测试的本地契约；Skill Eval Runner 动态发现 Case、复核脱敏 Trace、执行阻塞优先评分与版本比较；项目组件 Registry Validator 还可选检查 JavaScript/TypeScript 静态导出、消费者和兼容基线。本地 Git Source Control Adapter 与 Change Gate 继续负责不可变候选关联。当前仍不执行用户级安装，不动态加载插件，不覆盖未知目录或用户修改，也尚未包含真实 Browser、Design、Coverage、Tracking Adapter、Active 事项关系事务、三个及以上事项关系事务、跨仓库关系事务和 npm 发布。因此它是可验证的参考底座，不是已经覆盖所有基建的通用产品。
 
 ## 快速试用
 
@@ -70,7 +70,7 @@ node packages/harness/bin/agent-foundation.mjs knowledge projection apply --targ
 node packages/harness/bin/agent-foundation.mjs knowledge projection verify --target /path/to/project --projection specs/example/knowledge-projection.yaml --spec-id example --reviewed-at 2026-08-05 --paths src,packages
 node packages/harness/bin/agent-foundation.mjs context resolve --target /path/to/project --task-type "新增或修改 Skill" --paths skills/example
 node packages/harness/bin/agent-foundation.mjs source-control inspect --target /path/to/project --base <base-ref> --source HEAD --include src,packages --exclude specs/example-work
-node packages/harness/bin/agent-foundation.mjs change gate check --target /path/to/project --base <base-ref> --source <immutable-source-ref> --spec-id example --phase work
+node packages/harness/bin/agent-foundation.mjs change gate check --target /path/to/project --base <base-ref> --source <immutable-source-ref> --spec-id product-example --spec-id technical-example --phase work
 node packages/harness/bin/agent-foundation.mjs change gate check --target /path/to/project --base <base-ref> --source <immutable-source-ref> --exemption docs-only --phase delivery
 node packages/harness/bin/agent-foundation.mjs skill plan --name specflow --target /path/to/project
 node packages/harness/bin/agent-foundation.mjs skill install --name specflow --target /path/to/project
@@ -97,7 +97,7 @@ Context 预算在 `agent-foundation.json` 的 `context` 中配置。单事项或
 
 `source-control inspect` 解析 Base/Source Commit，在临时 Git 对象库中计算无冲突 Merge Candidate，并对范围内按路径排序的最终对象 ID 生成稳定摘要；变更状态作为复核证据返回，但不参与摘要，避免 Rename 启发式差异改变同一最终快照。范围内存在未提交或未跟踪改动、候选冲突或版本无法解析时直接阻断；命令不执行 Stage、Commit、Push，也不修改工作树、Index 或引用。
 
-`change gate check` 始终使用完整 Merge Candidate 判断事项关联，不允许用 Include/Exclude 隐藏变更。候选必须二选一：显式关联一个 Scope 覆盖完整的 Active Spec，或使用 `docs-only`、`tests-only`、`styles-only`、`assets-only`、`generated-only` 之一，并由全部候选路径机械证明。`--phase delivery` 还会校验 Archived Meta、Receipt、Lifecycle 摘要链以及 Receipt 中的变更摘要是否仍对应最终候选。门禁不创建 Commit、不推断终态授权，也不代表外部 PR/MR、部署或发布成功；完整契约见[事项—变更关联与交付门禁](skills/specflow/references/change-gate.md)。
+`change gate check` 始终使用完整 Merge Candidate 判断事项关联，不允许用 Include/Exclude 隐藏变更。候选必须二选一：通过重复传入 `--spec-id` 显式关联一个或多个 Active Spec，并由其 Scope 并集覆盖完整候选；或使用 `docs-only`、`tests-only`、`styles-only`、`assets-only`、`generated-only` 之一，并由全部候选路径机械证明。`--phase delivery` 还会逐项校验 Archived Meta、Receipt、Lifecycle 摘要链以及 Receipt 中的变更摘要是否仍对应同一最终候选。门禁不创建 Commit、不推断终态授权，也不代表外部 PR/MR、部署或发布成功；完整契约见[事项—变更关联与交付门禁](skills/specflow/references/change-gate.md)。
 
 Knowledge Projection 文件只记录 `create`、`update`、`still-valid`、`supersede`、`retire` 或明确的 `impact: none` 判断。正文和 Registry 条目必须先由人或 Agent 在项目内准备；`plan` 会按 `--paths` 与 Registry Scope 反向检查遗漏，阻断仍被 Code Entry Map 引用的退役知识和无效取代关系；`apply` 仅在排他锁内原子改写 Registry、刷新权威来源摘要并记录 `last_projection` 指纹；`verify` 可独立检查结果是否漂移。省略 `--paths` 时结果会保留“覆盖范围未提供”警告，不能把它解释为已完成代码反向命中。
 
@@ -120,7 +120,7 @@ node packages/harness/bin/agent-foundation.mjs repository check --deny-file /pat
 - 不为历史提交伪造 SDD 产物，从正式采用时点开始保留真实可追溯记录；
 - 终态、提交、推送、PR/MR 和发布分别需要符合对应授权。
 
-当前 Active 事项是[将仓库升级为可快速接入的 Agent 工程治理骨架](specs/2026-08-05-self-hosted-agent-governance/spec.md)。Starter、最小 Harness、项目级开放 Host、可注入 Adapter Registry、单事项归档生命周期、双终态事项关系事务、Context/Knowledge 检查、Knowledge Projection Registry 更新器、本地 Change Gate、仓库级只读检查和 CI 示例已经落地；Active/多事项/跨仓库关系事务、知识正文的语义生成及正式公开发布前的人工权属复核仍未完成。
+当前在研事项及其状态只以 `specs/*/meta.yaml` 和 `context resolve` 的结果为准，README 不复制动态事项集合或工作区状态。Starter、最小 Harness、项目级开放 Host、可注入 Adapter Registry、单事项归档生命周期、双终态事项关系事务、Context/Knowledge 检查、Knowledge Projection Registry 更新器、支持一个或多个 Spec 的本地 Change Gate、仓库级只读检查和 CI 示例已经落地；Active 事项关系事务、三个及以上事项关系事务、跨仓库关系事务、知识正文的语义生成及正式公开发布前的人工权属复核仍未完成。
 
 ## 已落地内容
 

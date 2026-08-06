@@ -58,7 +58,7 @@ async function collectBehaviorFiles(skillRoot) {
     for (const entry of entries) {
       const child = relative ? `${relative}/${entry.name}` : entry.name;
       if (entry.isSymbolicLink()) throw new Error(`Skill 行为来源包含 Symlink：${child}`);
-      if (child.startsWith('evals/traces/') || child === 'evals/replay.json' || /^evals\/run-report(?:\.|$)/u.test(child)) continue;
+      if (child.startsWith('evals/traces/') || /^evals\/replay(?:\.[a-z0-9_-]+)?\.json$/u.test(child) || /^evals\/run-report(?:\.|$)/u.test(child)) continue;
       const absolute = path.join(directory, entry.name);
       if (entry.isDirectory()) await visit(absolute, child);
       else if (entry.isFile()) files.push(child);

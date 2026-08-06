@@ -1,12 +1,9 @@
 # Knowledge：仓库自举治理
 
-## 元信息
+## 注册信息
 
 - ID：`self-hosted-governance`
-- 状态：`current`
-- 适用范围：AGENTS、Specflow、Knowledge 和仓库演进工作流
-- 最后复核：`2026-08-05`
-- 权威来源：根 AGENTS、`specs/README.md` 和 `skills/specflow/SKILL.md`
+- 状态、适用范围、复核时间、权威来源和刷新条件以 [Knowledge Registry](registry.yaml) 中的同 ID 条目为准。
 
 ## 摘要
 
@@ -60,7 +57,7 @@
 → 将长期稳定 WHY 投影到 Knowledge
 ```
 
-归档失败时保持 Active；Knowledge 更新失败不能伪装成归档完成。语义复核、正文和 Registry 条目先由 Agent/人工准备，再通过 Projection Plan/Apply/Verify 机械校验路径覆盖并刷新状态、来源摘要与取代关系；`last_projection` 指纹只服务于幂等恢复。Receipt 或 Event 已写但 Meta 最后写失败时，保留已验证证据和原 Meta，使用完全相同的候选恢复，不能覆盖重建。两个终态事项的父子或取代关系使用 Relation Transaction：先验证严格互反并写事务意图与双方 Event，再逐侧投影 Meta；跨文件中断可能短暂暴露中间态，但同一候选可幂等补齐，不能声称绝对原子或已回滚。Active/多事项/跨仓库关系仍是显式扩展边界。
+归档失败时保持 Active；Knowledge 更新失败不能伪装成归档完成。语义复核、正文和 Registry 条目先由 Agent/人工准备，再通过 Projection Plan/Apply/Verify 机械校验路径覆盖并刷新状态、来源摘要与取代关系；`last_projection` 指纹只服务于幂等恢复。Receipt 或 Event 已写但 Meta 最后写失败时，保留已验证证据和原 Meta，使用完全相同的候选恢复，不能覆盖重建。两个终态事项的父子或取代关系使用 Relation Transaction：先验证严格互反并写事务意图与双方 Event，再逐侧投影 Meta；跨文件中断可能短暂暴露中间态，但同一候选可幂等补齐，不能声称绝对原子或已回滚。Active 事项关系事务、三个及以上事项关系事务和跨仓库关系事务仍是显式扩展边界。
 
 ## 常见失败
 
@@ -73,10 +70,3 @@
 | Commit 后自动 Archived | 把机械动作当业务授权 | 保持 Active，等待明确收口意图 |
 | 为了运行 Change Gate 自行 Commit | 把验证前置条件误当授权 | 保持未执行，等待有权限的一方形成不可变候选 |
 | 自举规则只约束使用方 | 仓库自身不回归 | 本仓所有实质能力变化遵守同一流程 |
-
-## 刷新条件
-
-- Specflow 生命周期、状态或产物职责变化；
-- Knowledge 准入、Registry 或投影规则变化；
-- 根级 Agent 工作流变化；
-- Context、Knowledge、Archive、Change Gate 或 Doctor 的确定性契约变化。

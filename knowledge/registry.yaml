@@ -25,9 +25,9 @@ entries:
       - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
     source_evidence:
       - path: "README.md"
-        digest: "sha256:8ee5a78aca0191294eee2a52b7527fddccc2a29e83b09426467f5d42c18007b9"
+        digest: "sha256:fcdb04b29e5f5ddf7b1a71e8fc74ad5c0df80c1c447484a6a85f94a19f5760b5"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
-        digest: "sha256:7674b296b577ff3f872fa1b8f2cc9226a690b757d0e20987f2032fe6f9c8e170"
+        digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
     refresh_triggers:
       - "公开定位或主要使用方变化"
       - "顶层目录职责变化"
@@ -39,10 +39,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-context-contract-and-design-guardrails"
-      action: "still-valid"
+      spec_id: "2026-08-05-self-hosted-agent-governance"
+      action: "update"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:668262150f411251a85be897fc484cab60f70dcd4cb83d6cdcced5358641dd31"
+      decision_digest: "sha256:e74d8d5a3a62ea128321e7315ccbcaad9a8eabab22e8aedc7f3b24c5b4efffd6"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -82,10 +82,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-context-contract-and-design-guardrails"
-      action: "still-valid"
+      spec_id: "2026-08-05-self-hosted-agent-governance"
+      action: "update"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:f4bed071019b760cc64dd06cf8c1026c7b9cf6aaef5bf17dccf532631150853c"
+      decision_digest: "sha256:1710a0db89249d47ef029d5d308ba5a4a99e85868066aa2b5f6feffc544bd370"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -110,11 +110,11 @@ entries:
       - "docs/07-公开内容来源说明.md"
     source_evidence:
       - path: "docs/00-迁移总览.md"
-        digest: "sha256:a5d57b5b1289f35349a134fbced36dbb0293d47457cbb4746790ceb3cb96aa54"
+        digest: "sha256:f73fd45428f6d94941d425a4accd44edf44d89c94dcaf5c478d709389cf9d8f2"
       - path: "docs/03-公开化与权属规范.md"
         digest: "sha256:79b5faa4335e99aeb782032ad912ce56b60efde49b1deff12dfebb3a5ec4a3bb"
       - path: "docs/07-公开内容来源说明.md"
-        digest: "sha256:fdd1eed588ecd9dc06487c9a19354d1930c9d9290cac1048093149badc3b29db"
+        digest: "sha256:ef28d969afde55f715b0fcd00a45e2a904471e79f80f58747667d296441b3a1b"
     refresh_triggers:
       - "公开处理等级或准入规则变化"
       - "能力说明模板或覆盖台账字段变化"
@@ -126,7 +126,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-context-contract-and-design-guardrails"
+      spec_id: "2026-08-05-self-hosted-agent-governance"
       action: "still-valid"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:079e1e9c07dbd25b5a71a119cb4b28eb6a3d16b58a6ce2c14138b3fde7d90c3e"
+      decision_digest: "sha256:d57abaacad0ac3e25d0a88f5d93caf058d7efed68c4c559820d14815b7841143"

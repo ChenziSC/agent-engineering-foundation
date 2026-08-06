@@ -18,8 +18,17 @@
 | AC-007 | T-06、V-01 | Skill Check、Eval Runner、Repository Check | pass |
 | AC-008 | T-01、V-01 | Git Diff 范围复核；生命周期、Change Gate、Harness 和 Adapter 未修改 | pass |
 | AC-009～AC-013 | T-07 | `project-context-bootstrap`、两份中文模板、两份 Reference、4 个合成 Case 与 Rubric | pass |
-| AC-014 | T-08、T-09、T-11、V-02 | Skill Check、Distribution Plan/Apply/Verify、Context Resolve、Knowledge Projection、Repository Check、`npm test` 80/80 | pass |
+| AC-014 | T-08、T-09、T-11、V-02 | Skill Check、Distribution Plan/Apply/Verify、Context Resolve、Knowledge Projection、Repository Check、`npm test` 81/81 | pass |
 | AC-015 | T-10、T-11 | 历史 self-review 与本次 4 Case 合成项目/本仓独立正式 Replay、脱敏 Trace、可重算 Replay 和分发摘要修复 | pass |
+| AC-016 | T-12 | 文档事实复核、真实 Git 候选空白检查配置、Replay 变体摘要回归测试、Node.js 支持声明与 CI 对齐、整仓回归 | pass |
+
+## 整仓复核修复
+
+- [x] README 和目标仓库设计不再复制当前 Active 事项集合、终态授权或工作区 Source 状态，动态事实只从 Meta、Resolver 和候选 Evidence 获取。
+- [x] README 与 Specflow Blueprint 明确一个候选可关联一个或多个 Active Spec，并以 Scope 并集覆盖完整变更。
+- [x] Quality Workflow 使用完整 Git 历史，并按 PR Base 或 Push 前置提交对真实候选执行 `git diff --check`；初始推送等 Base 不可用场景回退检查当前提交。
+- [x] Eval Runner 排除 `replay.json`、`replay.self.json` 等约定命名的 Replay JSON Evidence；新增测试同时证明行为文件变化仍会改变摘要。
+- [x] `package.json`、README、设计计划和现有 CI 的最低 Node.js 版本统一为 20，不增加 CI 矩阵或运行时依赖。
 
 ## P1 Skill 行为与边界复核
 
@@ -39,7 +48,8 @@
 | Context Contract 的职责不复制现有状态 | 本事项 Plan | Framework 与 Knowledge/Specflow/Evidence 边界复核 | 同源说明 + 内容复核 | pass |
 | Bootstrap/Slice Skill 可被发现和分发 | Skill 与 Manifest | Skill Check、Distribution Plan、Repository Check | 确定性执行观察 | pass |
 | Section Index 与语义切片职责不重叠 | 本事项 Plan | Skill 工作流、Reference、Case 02 与现有 Resolver 测试 | 契约交叉复核 | pass |
-| 新增内容没有产生结构回归 | 本事项 Plan | `npm test` 80/80、Specflow/Knowledge/Repository Check | 执行观察 | pass |
+| 新增内容没有产生结构回归 | 本事项 Plan | `npm test` 81/81、Specflow/Knowledge/Repository Check | 执行观察 | pass |
+| 整仓复核问题已经闭合 | Review 发现与 AC-016 | Eval 摘要回归测试、CI 候选命令与版本配置复核、文档全文检索 | 独立于说明文案的程序检查 | pass |
 
 设计说明、自生成检查清单或同一 Agent 的无外部观察复述不能作为唯一正确性证据。
 
@@ -51,8 +61,10 @@
 - Specflow Check：通过，3 个事项 Meta 和关系闭合。
 - Knowledge Check / Projection Verify：通过，新增任务路由可解析，三个命中 Knowledge 均复核为 `still-valid`。
 - Context Resolve：通过，任务类型“建立项目上下文或任务切片”能加载当前事项与三个相关 Knowledge。
-- `npm test`：80/80 通过。
+- `npm test`：81/81 通过；新增用例证明非正式 Replay JSON 不影响 Skill 行为摘要，而行为 Case 变化会改变摘要。
 - `git diff --check`：通过。
+- Quality Workflow 的 YAML 子集检查通过；PR/Push Base 选择、完整历史检出和候选 `git diff --check` 配置复核通过。
+- Node.js 最低版本声明与现有 CI 均为 20。
 - 新增范围定向敏感词与绝对路径扫描：无命中。
 - `project-context-bootstrap` 独立正式 Eval：4/4 Case 通过，平均分 100，无阻塞项和禁止动作；`evals/replay.json` 可由 Runner 重算并生成一致完整性摘要。
 - 本次独立回放严格按“Resolver → Section Index → 局部原文”执行；合成与本仓均未在 Resolver 返回前检索 `sectioned` 核心正文，Trace 只保存脱敏摘要。

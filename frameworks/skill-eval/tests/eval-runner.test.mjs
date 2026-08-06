@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, test } from 'node:test';
-import { buildEvalRun, compareEvalRuns, validateEvalRun } from '../scripts/eval-runner.mjs';
+import { behaviorDigest, buildEvalRun, compareEvalRuns, validateEvalRun } from '../scripts/eval-runner.mjs';
 
 const roots = [];
 afterEach(async () => { while (roots.length) await rm(roots.pop(), { recursive: true, force: true }); });
@@ -36,6 +36,17 @@ test('Eval Runner 动态覆盖真实 Case、评分并封存 Trace 摘要', async
   assert.equal(report.summary.result, 'pass');
   assert.equal(report.summary.average_score, 90);
   assert.equal(validateEvalRun(report).ok, true);
+});
+
+test('非正式 Replay JSON 不参与 Skill 行为摘要', async () => {
+  const { root } = await fixture();
+  const expected = await behaviorDigest(root);
+  await writeFile(path.join(root, 'evals', 'replay.self.json'), '{"kind":"self-review"}\n');
+  await writeFile(path.join(root, 'evals', 'replay.audit-01.json'), '{"kind":"audit"}\n');
+  assert.equal(await behaviorDigest(root), expected);
+
+  await writeFile(path.join(root, 'evals', 'cases', '01-one.md'), '# Case one\n\n行为已变化。\n');
+  assert.notEqual(await behaviorDigest(root), expected);
 });
 
 test('Eval Runner 阻断遗漏 Case 与不存在的 Evidence 引用', async () => {

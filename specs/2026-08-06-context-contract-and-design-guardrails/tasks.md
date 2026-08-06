@@ -130,6 +130,17 @@
 - 验证：Eval 4/4 Case 通过、平均分 100；Skill Check、Distribution Plan/Apply/Verify、Repository Check、`npm test` 80/80 和 `git diff --check` 通过；无 Commit、Push 或归档。
 - 阻塞条件：Trace 无法脱敏、Runner 无法重算，或任一正式门禁失败。
 
+### T-12 修复整仓复核发现的契约与校验边界
+
+- 状态：`done`
+- 依赖：`T-11`
+- 对应：`AC-016`
+- 输入：整仓复核发现的文档事实漂移、CI 空白检查空跑、Replay 变体摘要污染和 Node.js 支持声明不一致。
+- 动作：移除长期文档中的动态事项状态，统一多 Spec Change Gate 表述；让 CI 检查真实 Git 候选；排除所有约定命名的 Replay JSON Evidence；将最低 Node.js 版本对齐现有 CI，并增加摘要回归测试。
+- 产物：README、目标仓库设计、Quality Workflow、Eval Runner 及测试、Package 支持声明和本事项验证证据。
+- 验证：目标测试、整仓测试、Specflow/Knowledge/Repository Check 与 `git diff --check` 通过；不新增 CI 矩阵、命令、Schema 或运行时依赖。
+- 阻塞条件：最小修正必须改变 Eval 报告契约、Change Gate 实现或生命周期状态机。
+
 ## 验收任务
 
 ### V-01 完成原 P0 条件复核

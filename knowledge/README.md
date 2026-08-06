@@ -42,7 +42,7 @@
 - 新增稳定概念使用新 ID，修改既有概念更新原条目；
 - 被取代时记录替代项，不静默删除；
 - 代码入口、核心契约或仓库定位变化时，把相关条目标记为 `review-required`；
-- Registry 是发现和路由入口，不复制 Knowledge 正文。
+- Registry 是发现和路由入口，也是条目状态、适用范围、复核时间、权威来源、来源摘要和刷新条件的唯一元数据事实源；Knowledge 正文只保留稳定内容及其解释，不复制这些易变元数据。
 - 每个 Registry 条目的 `source_evidence` 保存全部 `authoritative_sources` 当前 UTF-8/原始字节的 SHA-256；摘要变化只证明需要复核，不能自动判断知识正文应如何修改。
 - `current` 条目的来源摘要不一致会阻断 Knowledge Check；先复核正文和来源，再更新摘要或把状态改为 `review-required`，不能只刷新摘要掩盖语义变化。
 - Projection Apply 可以在语义复核完成后机械刷新摘要和状态，但只作用于已经准备好的正文与 Registry 条目；`last_projection` 记录 Spec、动作、日期和决策摘要，用于幂等复核，不是新的内容事实源。

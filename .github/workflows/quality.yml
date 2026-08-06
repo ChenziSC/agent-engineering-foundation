@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: 检出仓库
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: 配置 Node.js
         uses: actions/setup-node@v4
         with:
@@ -22,4 +24,4 @@ jobs:
       - name: 运行仓库级只读检查
         run: npm run check
       - name: 检查空白错误
-        run: git diff --check
+        run: base_ref="${{ github.event.pull_request.base.sha || github.event.before }}"; if git cat-file -e "${base_ref}^{commit}" 2>/dev/null; then git diff --check "${base_ref}...HEAD"; else git show --check --format= HEAD; fi

@@ -8,7 +8,7 @@
 
 - 当前：已验证 Skill + Blueprint + 完整 Meta Schema/检查 + 全套生命周期模板 + 本地 Receipt/Event/Meta 与双终态事项关系事务脚本 + Context/Knowledge 检查 + Knowledge Projection Registry 更新器 + 本地 Git Merge Candidate 摘要与 Change Gate；
 - 当前成熟度：Skill `validated`；Meta、本地终态、Event 链、状态最后写、双终态事项 Relation Transaction、Context 解析、Knowledge 来源摘要/Registry 投影、Git 摘要与两阶段 Change Gate 子集 `reference-implemented`；
-- 当前未实现：Active/多事项/跨仓库关系事务、其他版本控制 Provider、受保护历史检查、Knowledge 正文生成与刷新触发语义和 CI 插件；
+- 当前未实现：Active 事项关系事务、三个及以上事项关系事务、跨仓库关系事务、其他版本控制 Provider、受保护历史检查、Knowledge 正文生成与刷新触发语义和 CI 插件；
 - 未来可选：完整结构检查器和 CI 集成。
 
 当前产物：[`specflow` Skill](../../skills/specflow/SKILL.md)与[项目接入 Blueprint](../../blueprints/specflow/README.md)。

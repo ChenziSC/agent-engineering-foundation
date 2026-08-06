@@ -73,6 +73,7 @@
 - [x] **AC-013** Skill 提供中文模板、参考规则和合成行为 Eval，不依赖语言专用分析器或公司基建。
 - [x] **AC-014** Skill 进入 Distribution Manifest 和能力地图，Skill Check、Repository Check、Eval 结构检查及整仓测试通过；没有正式行为回放时不标记为 `validated`。
 - [x] **AC-015** 当前事项保存四个合成 Case、本仓自举任务和私有参考仓库只读对照的脱敏 self-review Evidence；project-context-bootstrap 另以独立正式 Replay 完成四个 Case 的合成项目与本仓回放，self-review 不作为唯一验证证据，发现的分发摘要漂移已修复并通过重跑。
+- [x] **AC-016** 整仓复核发现的事实与校验边界已修正：长期文档不复制当前 Active 事项集合或工作区状态，多 Spec Change Gate 表述与实现一致，CI 对真实候选执行空白检查，非正式 Replay 变体不影响 Skill 行为摘要，声明的最低 Node.js 版本与 CI 验证版本一致。
 
 ## 约束
 

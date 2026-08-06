@@ -8,10 +8,14 @@ scope:
   - "frameworks/context-contract/"
   - "skills/project-context-bootstrap/"
   - "frameworks/change-validation/"
+  - "frameworks/skill-eval/scripts/eval-runner.mjs"
+  - "frameworks/skill-eval/tests/eval-runner.test.mjs"
   - "templates/ai-friendly-repository/"
+  - "blueprints/specflow/README.md"
   - "skills/specflow/"
   - "skills/safe-change/"
   - "knowledge/README.md"
+  - "knowledge/registry.yaml"
   - "knowledge/code-entry-map.yaml"
   - "docs/01-能力地图.md"
   - "docs/02-目标仓库设计.md"
@@ -19,7 +23,10 @@ scope:
   - "docs/06-公开发布检查清单.md"
   - "docs/08-能力问题图谱.md"
   - "docs/能力说明/P0-09-契约化上下文与任务切片.md"
+  - ".github/workflows/quality.yml"
   - "distribution/manifest.yaml"
+  - "package.json"
+  - "specs/2026-08-05-self-hosted-agent-governance/plan.md"
   - "specs/2026-08-06-context-contract-and-design-guardrails/"
 relations:
   parent: null
@@ -41,7 +48,7 @@ freshness:
     - "Context Resolver、Knowledge 或 Specflow 的职责边界变化"
     - "Context Contract Schema 或设计验证规则变化"
 active_context:
-  summary: "Context Contract、设计验证护栏与 project-context-bootstrap Skill 已完成；当前会话合成、本仓自举和私有参考仓库只读回放均已保存脱敏证据，并完成独立正式 Replay。"
+  summary: "Context Contract、设计验证护栏与 project-context-bootstrap Skill 已完成；整仓复核发现的文档事实漂移、CI 空白检查空跑和 Eval 摘要边界已修复并通过回归。"
   next_task_id: null
 authorization:
   terminal_transition_confirmed: false

@@ -22,7 +22,7 @@
 | AC-007 | T-06 | `starter/minimal/`、初始化/Doctor CLI 和临时项目自动化测试 | pass |
 | AC-008 | T-06 | Skill 发现/检查/计划/安装/更新、内容摘要、受管状态和 `adapters/open-agent/` | pass |
 | AC-009 | T-01/T-07 | 仓库检查、仓外已知词模式对工作区与现有 Git 历史的扫描均无命中 | pass |
-| AC-010 | T-05/T-07/T-08/T-16～T-34 | 成熟度表、README、目标结构和本报告与真实实现及 80 个测试一致 | pass |
+| AC-010 | T-05/T-07/T-08/T-16～T-35 | 成熟度表、README、目标结构和本报告与真实实现及 81 个测试一致 | pass |
 | AC-011 | T-03A | 迁移总览、公开化与权属规范、能力模板、根级规则和 `public-generalization-policy` Knowledge | pass |
 | AC-012 | T-03B | 仓外私有覆盖台账和 `docs/08-能力问题图谱.md`；公开仓仅保存通用投影 | pass |
 | AC-013 | T-08 | `adapters/registry.mjs`、Manifest v2、Infrastructure Adapter Blueprint、合成配置和自定义 Host 端到端测试 | pass |
@@ -52,8 +52,9 @@
 | AC-037 | T-30 | 共享 Web Evidence Parser、预请求资格 Validator、CLI 和 5 个 HAR/Trace/资格合成测试 | pass |
 | AC-038 | T-31 | `safe-change`、`design-to-code`、`tracking-governance` 三项 Skill、Framework/契约、模板及 6 个行为 Case | pass |
 | AC-039 | T-32 | 组件静态导入导出、消费者登记、深路径和兼容基线实现及 2 个新增合成测试 | pass |
-| AC-040 | T-33 | 8 项 Distribution Manifest、README、能力地图、成熟度、问题图谱、Knowledge Projection、CLI E2E 和整仓检查 | pass |
+| AC-040 | T-33 | 9 项 Distribution Manifest、README、能力地图、成熟度、问题图谱、Knowledge Projection、CLI E2E 和整仓检查 | pass |
 | AC-041 | T-34 | 重复 `--spec-id`、稳定 Spec 集合、Scope 并集与重叠、多 Spec 工作/交付门禁，以及 5 个 Change Gate 合成 Git 测试 | pass |
+| AC-042 | T-35 | Knowledge 元数据所有权、迁移演进范围、能力目录证据与成熟度、动态回放核对规则、宠物来源声明与摘要 | pass |
 
 ## 结构与内容检查
 
@@ -68,6 +69,7 @@
 - [x] 私有词表从仓外注入，命中结果只返回摘要，不回显词条。
 - [x] 使用仓外 17 项派生词表和 `--git-scope all` 扫描 474 个 Git 对象，其中 297 个文本对象进入内容扫描，结果无命中。
 - [x] 本轮再次以通用高置信规则和 `--git-scope all` 扫描 513 个 Git 对象，其中 320 个文本对象进入内容扫描，结果无错误或警告；私有词表结论仍以前述仓外扫描为准。
+- [x] T-35 收口时仓库检查覆盖 205 个 Markdown、300 个可扫描工作区文件和 865 个 Git 对象，其中 531 个 Git 文本对象进入内容扫描；全部通过，两个宠物二进制图集由公开来源记录与人工复核清单覆盖。
 - [x] 旧 “重建方式”等级已从当前公开资产和仓外覆盖台账移除；适配器型条目仍保留完整通用流程。
 - [x] Web 首屏预请求与 Web 性能评审的能力说明已和正式行为回放状态同步为 `validated`。
 - [x] Skill Eval 模板不要求指定模型或推理强度，运行时继承调用环境选择。
@@ -76,7 +78,12 @@
 - [x] 当前 Registry 的每个权威来源都有匹配摘要；Context Resolver 可以选择本 Active 事项和相关长期 Knowledge。
 - [x] 新增三个 Skill 均有 Rubric 与合成 Case，成熟度保持 `usable`，没有伪装成已经完成正式行为回放。
 - [x] Checkpoint、增量验证、Web Evidence、Design Contract、Event Catalog 和组件语言分析均由零依赖程序测试覆盖。
-- [x] 全部 8 个可分发 Skill 在独立合成项目完成 Distribution Plan、Apply 与 Verify；临时项目随后移动到系统废纸篓，可恢复。
+- [x] 全部 9 个可分发 Skill 在独立合成项目完成 Distribution Plan、Apply 与 Verify；临时项目随后移动到系统废纸篓，可恢复。
+- [x] Evidence/Claim 与 Skill Eval 目录均具有参考脚本和程序测试，成熟度保持 `reference-implemented`；自然语言重构 Skill 具有 7 个 Case、脱敏 Trace 和可重算 Replay，成熟度为 `validated`。
+- [x] Knowledge 正文不再复制状态、复核时间和权威来源，Registry 成为这些易变元数据的唯一事实源；迁移总览已覆盖后续 P0/P1 与自然语言治理扩展。
+- [x] 目标设计和发布清单不再各自手写正式回放 Skill 名称；发布时按真实目录、成熟度表和 Evidence 动态核对。
+- [x] Specflow 未实现边界统一写为 Active 事项、三个及以上事项和跨仓库的“关系事务”，避免与已经支持一个或多个 Spec 的 Change Gate 混淆。
+- [x] 宠物资源新增维护者公开声明、Apache 2.0 许可说明和当前二进制 SHA-256；该证据不被解释为独立法律审查。
 
 ## 生命周期检查
 
@@ -89,7 +96,7 @@
 
 - Starter 可以初始化空的合成项目，并对既有项目中的 Starter 文件冲突整体阻断；
 - Harness 可以向项目级 `.agents/skills` 安装和更新受管 Skill，保护未知目录、用户修改与 Symlink 目标；
-- CLI、幂等执行、内容摘要、状态复核、Context/Knowledge、规则导航与 Doctor、Knowledge Projection、Source Control、Change Gate、仓库检查、Adapter 注入和失败保持目标不变已纳入本轮 80 个整仓自动化测试；
+- CLI、幂等执行、内容摘要、状态复核、Context/Knowledge、规则导航与 Doctor、Knowledge Projection、Source Control、Change Gate、仓库检查、Adapter 注入和失败保持目标不变已纳入本轮 81 个整仓自动化测试；
 - 采用方可以显式注入项目级 Host，默认 CLI 不动态加载未知代码；
 - 未注册的非核心基建 Adapter 产生警告，未注册 Host、重复声明、非法配置引用和项目外路径会阻断。
 - 已有项目可以先生成只读初始化计划，且父路径 Symlink 在任何写入前阻断；

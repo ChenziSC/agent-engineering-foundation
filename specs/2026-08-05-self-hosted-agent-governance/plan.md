@@ -20,7 +20,7 @@
 | Evidence | 发布检查清单仍记录旧 Skill 数量 | `docs/06-公开发布检查清单.md` |
 | Evidence | 仓库此前没有 `specs/` 和 `knowledge/` | 本事项建立前的 Git 文件清单 |
 | Evidence | 既有非公开台账只覆盖较粗的能力分类，遗漏确定性 SDD、Knowledge 生命周期、Repository Doctor、工程门禁和多宿主基础设施等独立问题 | 2026-08-05 仓外结构覆盖审计；公开结论投影到能力问题图谱 |
-| Evidence | Node.js 18+ 标准库已足以完成文件发现、内容摘要、原子 Rename、CLI 和端到端测试 | 本机 Node.js 验证与标准库接口 |
+| Evidence | Node.js 20+ 标准库已足以完成文件发现、内容摘要、原子 Rename、CLI 和端到端测试 | 本机 Node.js 验证与标准库接口 |
 
 ## 目标分层
 
@@ -80,7 +80,7 @@
 | 外部集成走 Adapter | 在核心内支持具体平台 | 保持跨项目和公开可用 | 使用方需要配置 Adapter |
 | 全量盘点、分级公开 | 只盘点看起来可以直接公开的内容 | 不遗漏真实问题价值，同时把通用性与公开权分开判断 | 需要维护非公开覆盖台账并逐项判断 |
 | 先完成结构覆盖审计 | 直接继续完善归档实现 | 先确认要沉淀的问题全集，避免治理骨架完整但能力覆盖遗漏 | 归档实现顺延一个任务 |
-| Node.js 18+ ESM、零运行时依赖 | 立即引入 CLI 框架和 YAML 依赖 | 降低项目接入和供应链成本，首版命令面较小 | 参数解析和错误格式自行实现 |
+| Node.js 20+ ESM、零运行时依赖 | 立即引入 CLI 框架和 YAML 依赖 | 降低项目接入和供应链成本，首版命令面较小 | 参数解析和错误格式自行实现 |
 | 首版只支持项目级开放 Host | 同时支持多个宿主和用户级安装 | 先验证安全写入、幂等和冲突语义，不扩大用户目录权限 | 其他 Host 与全局安装后续增加 |
 | Starter 使用 JSON Manifest | 首版直接解析 YAML | 标准库可以确定性读取并校验，避免只为一个文件引入依赖 | 人工可读性略弱于 YAML |
 | Adapter Registry 通过构造参数注入 | 让 Harness 扫描目录或硬编码全部 Adapter | 下游可以显式组装自有 Adapter，核心不执行动态代码发现 | 采用方需要提供自己的组合入口 |
@@ -154,6 +154,7 @@
 | AC-038 | 三项 Skill、Framework、Template 与 Eval | Skill 检查、合成案例和确定性契约测试 |
 | AC-039 | 组件 Export/Consumer/Compatibility 检查 | 合成 TS 项目验证缺失导出、深路径消费和破坏性导出变化 |
 | AC-040 | Distribution、Knowledge 与仓库导航 | `npm test`、`npm run check`、Specflow、Distribution 和 Knowledge 检查 |
+| AC-042 | Knowledge、迁移总览、能力问题图谱、成熟度表、发布检查与资源来源记录 | 以各能力目录的实现、测试、Case、Trace 和 Replay 为证据复核成熟度；执行旧字段/重复清单搜索、链接、Knowledge、Specflow、Repository Check 与敏感扫描 |
 
 ## 风险
 
@@ -166,6 +167,6 @@
 
 ## 未决问题
 
-- [x] 最小 Harness 使用 Node.js 18+ ESM 和仓库内 CLI，不在本阶段发布 npm Package。
+- [x] 最小 Harness 使用 Node.js 20+ ESM 和仓库内 CLI，不在本阶段发布 npm Package。
 - [x] Starter 首版只支持项目级接入和一个开放 Agent Skills Host。
 - [x] T-06 Doctor 只验证 Starter、Skill 和安装状态；Archive Digest/Receipt Validator 留到后续质量任务，避免在一个任务中混入版本控制事务。

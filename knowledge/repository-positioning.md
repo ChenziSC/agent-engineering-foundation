@@ -1,12 +1,9 @@
 # Knowledge：仓库定位与产物分层
 
-## 元信息
+## 注册信息
 
 - ID：`repository-positioning`
-- 状态：`current`
-- 适用范围：仓库公开定位、顶层目录和能力交付形态
-- 最后复核：`2026-08-05`
-- 权威来源：README、能力地图、目标仓库设计和当前 Active Spec
+- 状态、适用范围、复核时间、权威来源和刷新条件以 [Knowledge Registry](registry.yaml) 中的同 ID 条目为准。
 
 ## 摘要
 
@@ -65,10 +62,3 @@
 | 核心依赖某个公司平台 | Adapter 边界缺失 | 核心只认识公开契约和 Provider 接口 |
 | 工具存在但没有设计原因 | 只沉淀 HOW | Framework 和 Knowledge 同步说明 WHY 与边界 |
 | 文档把未来能力写成已落地 | 成熟度和证据脱节 | 用 Spec 和 Validation Report 区分状态 |
-
-## 刷新条件
-
-- 仓库公开定位或目标使用方变化；
-- Starter、Harness 或 Adapter 的最小交付发生变化；
-- 顶层目录职责调整；
-- 核心能力和可选领域能力的边界变化。

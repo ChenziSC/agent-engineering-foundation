@@ -56,7 +56,7 @@ freshness:
     - "Specflow 生命周期或产物契约变化"
     - "Harness、Starter 或 Host Adapter 的边界变化"
 active_context:
-  summary: "把现有能力沉淀仓库升级为可由任意项目快速接入并可自我治理的 Agent 工程骨架。"
+  summary: "Agent 工程治理骨架已经形成；本轮完成全仓自然语言审计修复，并以各能力目录中的实现、测试和 Eval Evidence 校准成熟度。"
   next_task_id: null
 authorization:
   terminal_transition_confirmed: false

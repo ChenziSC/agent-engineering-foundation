@@ -1,6 +1,6 @@
 # Specflow Blueprint
 
-成熟度：Skill 与模板 `usable`；本地 Receipt/Event/Meta、双终态事项 Relation Transaction、Knowledge Projection Registry、Git 摘要与 Change Gate 子集 `reference-implemented`；Active/多事项/跨仓库关系事务与其他 Provider 自动化 `designed`
+成熟度：Skill 与模板 `usable`；本地 Receipt/Event/Meta、双终态事项 Relation Transaction、Knowledge Projection Registry、Git 摘要与 Change Gate 子集 `reference-implemented`；Active 事项关系事务、三个及以上事项关系事务、跨仓库关系事务与其他 Provider 自动化 `designed`
 
 Specflow 用仓库内的 Spec、Plan、Tasks 和 Meta 管理一个研发事项的目标、技术决策、执行拆分和业务生命周期。它优先解决跨会话恢复与可审计性，不要求接入特定 Issue、代码托管或 CI 平台。
 
@@ -81,7 +81,7 @@ Markdown 中使用上面的展示名称；`meta.yaml` 使用对应的小写标�
 
 首次终态必须先生成并回读不可覆盖的 Archive Receipt，最后更新 Meta 状态。归档后的真实状态或关系变化只追加 Lifecycle Event；两个终态事项的父子或取代关系由 Relation Transaction 先校验双向一致，再写双方 Event 和 Meta。该事务可幂等恢复，但跨文件投影不承诺绝对原子可见性。新的业务实现变化建立新事项，不能用 Event 绕过新的 Spec 和验证。完整语义见[归档回执、生命周期事件与 Knowledge Projection](../../skills/specflow/references/archive-and-lifecycle.md)。
 
-当项目能够提供不可变 Base/Source 时，可以在实现阶段执行工作门禁，在交付阶段复核最终候选。完整候选必须显式关联一个 Scope 覆盖完整的 Spec，或使用由全部路径机械证明的受控低风险豁免；不能同时使用两种关联，也不能用 Include/Exclude 隐藏候选。交付门禁还会复核 Archived Receipt、Lifecycle 摘要链和最终候选摘要，详见[事项—变更关联与交付门禁](../../skills/specflow/references/change-gate.md)。
+当项目能够提供不可变 Base/Source 时，可以在实现阶段执行工作门禁，在交付阶段复核最终候选。完整候选必须显式关联一个或多个 Active Spec，并由其 Scope 并集覆盖全部变更；也可以使用由全部路径机械证明的受控低风险豁免，但不能同时使用两种关联，也不能用 Include/Exclude 隐藏候选。交付门禁会逐项复核 Archived Receipt、Lifecycle 摘要链，并要求各事项对应同一最终候选摘要，详见[事项—变更关联与交付门禁](../../skills/specflow/references/change-gate.md)。
 
 采用本仓 Harness 时，Knowledge Projection 遵循 `plan → apply → verify`：Agent/人工先准备正文、Registry 条目和动作，程序再按真实变更路径检查 Scope 覆盖，机械更新来源摘要、状态与取代关系。`apply` 不生成正文；退役知识仍被代码入口引用、取代目标无效或命中知识没有决策时阻断。
 
