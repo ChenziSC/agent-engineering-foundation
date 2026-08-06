@@ -227,7 +227,7 @@
 
 ### T-27 生成归档证据并执行交付门禁
 
-- 状态：`in-progress`
+- 状态：`done`
 - 依赖：`T-26`
 - 对应：全部完成条件与 Specflow 终态契约
 - 动作：复核 Knowledge Projection，生成不可覆盖 Archive Receipt，最后投影 Meta 为 `archived`，提交归档证据并执行 Delivery Change Gate。

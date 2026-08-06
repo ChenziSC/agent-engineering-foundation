@@ -1,6 +1,6 @@
 id: "2026-08-06-docs-layer-consolidation"
 title: "收敛 Docs 与仓库结构分层"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-06"
 updated_at: "2026-08-06"
 scope:
@@ -43,7 +43,7 @@ artifacts:
   tasks: "./tasks.md"
   research: null
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -54,7 +54,7 @@ freshness:
     - "公开泛化政策的权威来源变化"
     - "主流 Agent Host 原生能力或仓库能力准入边界变化"
 active_context:
-  summary: "不可变实现提交与工作态 Change Gate 已通过；正在复核 Knowledge Projection、生成 Archive Receipt 并执行交付门禁。"
-  next_task_id: "T-27"
+  summary: "实现、验证、Knowledge Projection 与工作态 Change Gate 均已完成，终态 Receipt 已准备生成。"
+  next_task_id: null
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true

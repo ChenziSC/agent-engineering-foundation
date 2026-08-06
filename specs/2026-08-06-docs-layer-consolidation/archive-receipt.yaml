@@ -1,0 +1,119 @@
+schema_version: 1
+receipt_id: "2026-08-06-docs-layer-consolidation:first-terminal"
+spec_id: "2026-08-06-docs-layer-consolidation"
+created_at: "2026-08-06T12:27:54Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-06T12:27:54Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-06:commit-push-archive"
+snapshot:
+  source_revision: "1db70a94edb8357822bc8a93a7365d650501b860"
+  base_revision: "5df7338ac2d58b817b4d4c9468ee87f163cc50f7"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:d6b4e0cba76dc7cefec58a6b93b8e6b9c9350f329f2a47658662da2d43125fa8"
+    excludes:
+      - "specs/2026-08-06-docs-layer-consolidation"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:c261275d3942758101e4edf4c102c3004ac6cbea3acfa2d94bb7becf1c3e42df"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:9c9fd784aaa8620331b5a17e57b28e616eaa9d7b635902181d4733b7fda9e9ea"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:7d8635e18f00451d6e79abe861542e4e5d4e08152fe98550691d6302fc417fa4"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:db70714226ab195973e0a4c9f5c405e68d74123cffd20900ff82b6f4e3f4d872"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+    - "AC-009"
+    - "AC-010"
+    - "AC-011"
+    - "AC-012"
+    - "AC-013"
+    - "AC-014"
+    - "AC-015"
+    - "AC-016"
+    - "AC-017"
+    - "AC-018"
+    - "AC-019"
+    - "AC-020"
+    - "AC-021"
+    - "AC-022"
+    - "AC-023"
+    - "AC-024"
+    - "AC-025"
+    - "AC-026"
+    - "AC-027"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:1db70a94edb8357822bc8a93a7365d650501b860"
+    - "gate:work:sha256:c1cbab4d1fbe176233793c46f1b0f4970c7245cef02abcd33ed7889dcb50af5a"
+    - "test:npm-test-81-pass"
+    - "check:repository-all"
+    - "check:knowledge"
+    - "check:specflow"
+    - "check:knowledge-projection-verified"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "Docs 取消无语义编号，README 内容下沉，Pet 迁出，Harness 与 Web Evidence 结构调整，仓库产物分层的稳定事实需要同步。"
+      evidence_refs:
+        - "AGENTS.md"
+        - "README.md"
+        - "docs/能力地图.md"
+        - "docs/目标仓库设计.md"
+    - action: "update"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "新增能力需要统一的宿主基线、增量准入、确定性依赖方向和清理条件，避免重复建设 Host Runtime 或把基础 Agent 行为包装为能力。"
+      evidence_refs:
+        - "knowledge/deterministic-core-boundary.md"
+        - "AGENTS.md"
+        - "blueprints/skill-runtime/README.md"
+        - "distribution/README.md"
+    - action: "update"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "删除迁移期与重复权属文档后，公开处理等级、迁移映射和日志边界集中到正式 Knowledge。"
+      evidence_refs:
+        - "knowledge/public-generalization-policy.md"
+        - "docs/公开发布检查清单.md"
+        - "docs/公开内容来源说明.md"
+    - action: "still-valid"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "本次调整 Knowledge 的来源和路由，不改变 Specflow、Projection 或生命周期治理契约。"
+      evidence_refs:
+        - "knowledge/registry.yaml"
+        - "knowledge/code-entry-map.yaml"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:e5c365e7e5bcb43f97e9e92c90bdcb8478208e1f675e107e3d540f300328c282"
