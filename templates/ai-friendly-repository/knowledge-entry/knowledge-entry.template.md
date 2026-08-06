@@ -36,7 +36,7 @@
 
 ## 动态切片边界
 
-- 建议锚点：`<entrypoint / symbol / data-element>`
+- 建议锚点：`<entrypoint / symbol / data_element>`
 - 动态视图保存位置：`<当前 Spec 的 Plan、Research 或 Evidence>`
 - 不提升为长期知识的实现细节：`<局部调用、临时分支或易变字段>`
 

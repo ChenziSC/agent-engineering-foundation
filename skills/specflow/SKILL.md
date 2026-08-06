@@ -104,7 +104,7 @@ Receipt、Meta 和最终实现已经形成不可变版本后，运行 `change ga
 | Research | 对重大未知的限时实验及结论 | 普通代码浏览记录 |
 | Validation Report | 完成条件、结构、关系和验证结果 | 没有证据的完成声明 |
 
-`meta.yaml` 是事项生命周期的唯一事实来源。Checkpoint 只能保存一次 Agent 执行的恢复位置，不得复制 `Draft`、`Planned`、`In Progress` 或终态。
+`meta.yaml` 是事项状态、关系和影响范围的唯一事实来源。Spec 只引用 Meta，不保存这些动态事实的第二份副本；Checkpoint 只能保存一次 Agent 执行的恢复位置，不得复制 `Draft`、`Planned`、`In Progress` 或终态。
 
 ## 硬性门禁
 

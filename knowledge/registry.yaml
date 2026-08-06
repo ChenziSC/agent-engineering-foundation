@@ -68,7 +68,7 @@ entries:
       - path: "specs/README.md"
         digest: "sha256:79f9ac67d1365a6397dd928adf5dbbef7d233498408e91c70687b8795d784b8b"
       - path: "skills/specflow/SKILL.md"
-        digest: "sha256:d5f2a9114944f5a3e515638aedc3f3de3e84611cd5555aefc985f13d07f4944d"
+        digest: "sha256:ed3862665fad7782fe87f699bca04a989536bc880103024f991fc88eeee99ef9"
       - path: "skills/specflow/scripts/archive-receipt.mjs"
         digest: "sha256:d394e322fa802ff2bb6beccfc45af27286d23a0550b2b168b12a633c8e2f48ad"
     refresh_triggers:
@@ -82,10 +82,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-05-self-hosted-agent-governance"
+      spec_id: "2026-08-06-repository-content-consistency-repair"
       action: "update"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:1710a0db89249d47ef029d5d308ba5a4a99e85868066aa2b5f6feffc544bd370"
+      decision_digest: "sha256:4945520614dcc8d83b0a398dc87b6401bb1899bb8cef7ff641143279c03c4924"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"

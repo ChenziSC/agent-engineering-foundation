@@ -148,7 +148,7 @@ node <foundation-repo>/packages/harness/bin/agent-foundation.mjs component check
 
 - 管理废弃和替代关系；
 - 支持跨目录迁移比较；
-- 多个项目确有需要时再建设通用校验器。
+- 多个项目确有需要时，在当前通用 Validator 上扩展完整编译器语义、其他语言 Parser 和跨项目治理能力。
 
 ## 安全与隐私
 

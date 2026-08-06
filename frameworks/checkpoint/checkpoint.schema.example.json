@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/agent-foundation/checkpoint.schema.example.json",
-  "title": "Checkpoint run example",
-  "description": "An illustrative schema for discussing resumable agent runs. It is not a stable public API.",
+  "title": "Checkpoint Run 示例",
+  "description": "用于说明可恢复 Agent Run 的示意 Schema，不是稳定公开 API。",
   "type": "object",
   "required": ["run", "stages", "events", "decisions", "externalRefs"],
   "properties": {

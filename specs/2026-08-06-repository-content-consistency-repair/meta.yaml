@@ -1,0 +1,49 @@
+id: "2026-08-06-repository-content-consistency-repair"
+title: "修复全仓自然语言事实漂移与术语不一致"
+status: "in-progress"
+created_at: "2026-08-06"
+updated_at: "2026-08-06"
+scope:
+  - "skills/specflow/SKILL.md"
+  - "skills/specflow/assets/spec.md"
+  - "docs/02-目标仓库设计.md"
+  - "docs/05-交付形态与成熟度.md"
+  - "docs/能力说明/P0-01-Web首屏预请求.md"
+  - "docs/能力说明/P0-05-证据与推断模型.md"
+  - "docs/能力说明/P0-06-Skill行为评估.md"
+  - "docs/能力说明/P0-08-Web性能评审.md"
+  - "templates/project-component-governance/README.md"
+  - "blueprints/project-component-governance/README.md"
+  - "skills/project-component-governance/references/lifecycle-and-migration.md"
+  - "templates/ai-friendly-repository/knowledge-entry/knowledge-entry.template.md"
+  - "frameworks/evidence/evidence.schema.example.json"
+  - "frameworks/checkpoint/checkpoint.schema.example.json"
+  - "knowledge/self-hosted-governance.md"
+  - "knowledge/registry.yaml"
+  - "distribution/manifest.yaml"
+  - "specs/2026-08-06-repository-content-consistency-repair/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-06"
+  refresh_triggers:
+    - "Specflow 产物职责或唯一事实来源变化"
+    - "能力成熟度或参考实现边界变化"
+    - "Skill Eval 证据形态变化"
+active_context:
+  summary: "全仓自然语言事实漂移与术语修复已完成，Knowledge Projection、摘要、仓库检查和 81 项测试均已验证；用户已授权 commit、push 和归档，等待形成不可变实现提交与 Receipt。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false

@@ -8,7 +8,7 @@
 - [组件 Registry 示例](component-registry.example.yaml)：提供统一发现入口。
 - [准入检查清单](component-admission-checklist.md)：评审组件是否应提升层级。
 - [仓库指令模板](repository-instructions.template.md)：嵌入项目或模块级 `AGENTS.md`。
-- [校验配置示例](component-governance.config.example.yaml)：为未来确定性校验器描述项目结构。
+- [校验配置示例](component-governance.config.example.yaml)：为当前参考 Validator 描述项目结构和确定性门禁。
 - [公共导出兼容基线示例](public-exports.baseline.example.json)：记录采用方明确承诺保持的静态导出名称。
 
 Skill 的决策报告、迁移计划和废弃记录位于 [`skills/project-component-governance/assets/`](../../skills/project-component-governance/assets/)。

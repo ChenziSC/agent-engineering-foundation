@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.com/agent-foundation/evidence.schema.example.json",
-  "title": "Evidence bundle example",
-  "description": "An illustrative schema for discussing evidence and claim boundaries. It is not a stable public API.",
+  "title": "Evidence Bundle 示例",
+  "description": "用于说明 Evidence 与 Claim 边界的示意 Schema，不是稳定公开 API。",
   "type": "object",
   "required": ["evidence", "claims", "blockers", "verifications"],
   "properties": {

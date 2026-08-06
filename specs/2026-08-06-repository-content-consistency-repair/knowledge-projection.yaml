@@ -1,0 +1,24 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "Specflow 模板收敛了 Meta 动态事实的唯一所有权，长期自举治理 Knowledge 需明确 Spec 只引用而不复制状态、关系和影响范围。"
+    evidence_refs:
+      - "skills/specflow/SKILL.md"
+      - "skills/specflow/assets/spec.md"
+      - "specs/2026-08-06-repository-content-consistency-repair/spec.md#AC-001"
+  - action: "still-valid"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "Framework 清单和成熟度说明仅校准当前证据，未改变仓库定位、产物分层或 Adapter 边界。"
+    evidence_refs:
+      - "docs/02-目标仓库设计.md"
+      - "docs/05-交付形态与成熟度.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "本次只修复公开自然语言内容的事实漂移与术语，没有改变公开处理等级、脱敏边界或权属规则。"
+    evidence_refs:
+      - "specs/2026-08-06-repository-content-consistency-repair/spec.md"
+      - "docs/03-公开化与权属规范.md"

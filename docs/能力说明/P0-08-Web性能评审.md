@@ -6,10 +6,10 @@
 
 ## 交付形态
 
-- 当前：已验证 Skill + 性能评审报告模板和脱敏 Trace Evidence；
-- 当前成熟度：Skill `validated`；
-- 首期不要求：Trace/HAR Parser、Browser Adapter 或指标计算程序；
-- 未来可选：浏览器采集和报告解析参考实现。
+- 当前：已验证 Skill + 性能评审报告模板和脱敏 Trace Evidence + 共享 Web Evidence Parser 子集；
+- 当前成熟度：Skill `validated`，Evidence Parser 子集 `reference-implemented`；
+- 当前子集：从显式 HAR 事件导出网络 Observation，从完整 Trace 事件导出任务 Observation，并保留两类证据的不可推导边界；
+- 当前未提供：完整 Lighthouse/Trace/HAR Parser、Source Map 映射、Browser Adapter、真实采集器和通用指标比较程序。
 
 当前产物：[`web-performance-review` Skill 与配套模板](../../skills/web-performance-review/SKILL.md)。
 
@@ -72,11 +72,9 @@ Agent 负责：
 
 程序负责：
 
-- 解析和归一化 Lighthouse、Trace、HAR；
-- 计算确定性指标；
-- 校验 Evidence 引用和范围；
-- 检查版本映射；
-- 生成结构化报告和前后对比。
+- 当前参考程序只归一化显式 HAR/Trace Observation，并公开每类证据不能支持的 Claim；
+- 尚未实现的完整 Parser 负责 Lighthouse/Trace/HAR 深度解析、指标归一化和 Source Map 映射；
+- 上层 Validator 负责校验 Evidence 引用、版本范围和结构化对比，不代替 Agent 的根因判断。
 
 采集 URL、登录页面或访问外部环境时遵循宿主权限策略。
 
@@ -99,13 +97,13 @@ Agent 负责：
 - 不自动修改代码、部署或发布；
 - 不在公开案例中使用真实生产 Trace、HAR、URL 或业务数据。
 
-## 首期资源
+## 当前资源
 
 - `SKILL.md`：证据分析流程、边界和排序规则；
 - `references/`：指标语义、常见瓶颈、证据限制和失败模式；
 - `assets/`：评审报告、证据矩阵和验证计划模板；
 - `evals/`：证据边界、代码映射、排序和禁止幻觉案例；
-- `scripts/` 和 `tests/`：首期不需要。
+- 共享 `frameworks/web-prefetch/scripts/` 和 `tests/`：提供 HAR/Trace Observation 子集与证据边界测试；Skill 目录不复制 Parser。
 
 ## 合成评估案例
 
@@ -125,8 +123,8 @@ Agent 负责：
 
 ## 未来可选工程化
 
-- Lighthouse、Trace 和 HAR Parser；
-- 指标归一化与比较；
+- 完整 Lighthouse、Trace 和 HAR Parser；
+- 通用指标归一化、Source Map 映射与前后比较；
 - BrowserProvider 和 VersionEvidenceProvider；
 - Schema 校验和报告生成；
 - 确定性程序测试。

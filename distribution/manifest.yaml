@@ -17,7 +17,7 @@ skills:
     source: skills/project-component-governance
     version:
       type: content-hash
-      value: sha256:4aa5c020e1984129b14e94045b4a492cb69c7d78bbd3d287ea35d444ea0ef513
+      value: sha256:493040c2f8630721713c106a7b72be2ddf7b5cf149ecfea1619577886c8cbf4f
     distributable: true
     required_files:
       - SKILL.md
@@ -70,7 +70,7 @@ skills:
     source: skills/specflow
     version:
       type: content-hash
-      value: sha256:63097608b35566d3a70a7a280f34307e6cd817284c20f02382bd169a19670ece
+      value: sha256:ef0c6b2a2eb2990e05be495cdc3628f902827c4afba56da110ff06e0584acadb
     distributable: true
     required_files:
       - SKILL.md

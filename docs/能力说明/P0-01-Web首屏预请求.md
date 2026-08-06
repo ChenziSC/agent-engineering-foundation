@@ -20,10 +20,10 @@
 
 ## 交付形态
 
-- 当前：已验证 Skill + Web 预请求设计框架 + 报告、验证模板和脱敏 Trace Evidence；
-- 当前成熟度：Skill `validated`，Framework `designed`；
-- 首期不要求：实现 `prefetch-core`、Checkpoint、Evidence、BrowserProvider 或可运行 Demo；
-- 未来可选：Validator、Mock Adapter、合成 Demo 和共享 Core 的参考实现。
+- 当前：已验证 Skill + Web 预请求框架 + Evidence/资格参考实现 + 报告、验证模板和脱敏 Trace Evidence；
+- 当前成熟度：Skill `validated`，Framework 与 Evidence/资格子集 `reference-implemented`；
+- 当前子集：解析显式 HAR/Trace Observation，校验只读性、重复安全、契约、缓存维度、消费复用、失败回退和行为状态；
+- 当前未提供：真实应用 Promise/缓存接入、BrowserProvider、VersionEvidenceProvider、自动部署和可运行合成 Demo。
 
 当前产物：[Web 首屏预请求设计框架](../../frameworks/web-prefetch/README.md)与[`web-first-screen-prefetch` Skill](../../skills/web-first-screen-prefetch/SKILL.md)。
 
@@ -94,11 +94,10 @@ Agent 负责：
 
 程序负责：
 
-- `prefetch-core` 校验 readiness、请求资格、显式调度策略和比较结果；
-- `checkpoint-core` 保存 Run、Stage、Event、Decision 和外部引用；
-- `evidence-core` 校验 Evidence、Claim、Blocker、Verification 和 Claim 新鲜度；
-- 组合 Validator 根据 Checkpoint 与 Evidence 状态检查阶段退出条件；
-- Adapter 采集浏览器证据和版本证据。
+- 当前 Web Evidence/资格子集解析显式 Observation，并校验请求安全、契约、复用与回退条件；
+- 现有 Checkpoint 和 Evidence 参考实现各自校验运行恢复与证据契约，只在上层显式组合时参与本流程；
+- 尚未实现的完整 `prefetch-core` 负责调度策略、组合退出门禁和与真实应用的复用接入；
+- 尚未提供的 Adapter 负责浏览器证据和版本证据采集。
 
 涉及修改代码、运行浏览器或访问外部环境时，遵循宿主权限策略；发布和部署不属于本 Skill。
 
@@ -133,13 +132,13 @@ web-first-screen-prefetch
 - 没有版本映射时不能声称验证了目标版本；
 - 不负责部署、发布或绕过权限。
 
-## 首期资源
+## 当前资源
 
 - `SKILL.md`：完整执行流程、判断规则和安全门禁；
 - `references/`：请求资格规则、readiness 模式、失败模式和证据要求；
 - `assets/`：分析报告、验证清单和 Provider 配置模板；
 - `evals/`：触发、安全判断、证据纪律、行为回归和版本边界案例；
-- `scripts/` 和 `tests/`：首期不需要，因为尚未承诺确定性参考实现。
+- `frameworks/web-prefetch/scripts/` 和 `tests/`：提供 Evidence Observation 与请求资格的确定性参考实现和测试；Skill 目录不复制该程序。
 
 ## 合成评估案例
 
@@ -160,8 +159,8 @@ web-first-screen-prefetch
 
 ## 未来可选工程化
 
-- `prefetch-core` 与组合 Validator；
-- Checkpoint 和 Evidence 的参考实现；
+- 面向真实应用复用、调度和组合门禁的完整 `prefetch-core`；
+- Checkpoint、Evidence 与 Web 预请求状态的显式组合 Validator；
 - Mock BrowserProvider、Mock VersionEvidenceProvider；
 - 完全合成的可运行 Web Demo；
-- 对应程序测试。
+- 针对上述完整能力的程序测试。

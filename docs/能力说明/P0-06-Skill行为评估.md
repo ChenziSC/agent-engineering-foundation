@@ -111,7 +111,7 @@ Agent 或人工负责：
 - 模板：Case、Rubric、单次报告和版本对比报告；
 - 合成案例：安全门禁、虚构 Evidence、阻塞级回归和证据不足；
 - `scripts/`、Schema 和 `tests/`：动态读取真实 Case、封存摘要、阻塞优先评分与版本比较；
-- `evals/`：五个现有 Skill 均保存正式行为回放，新增三项可由 Replay 配置重算。
+- `evals/`：当前 9 个 Skill 均保存 Case 与 Rubric；其中 4 个提供可由 Runner 重算的 `replay.json` 与脱敏 Trace，2 个保存 `run-report.md` 与独立脱敏 Trace，其余 3 个尚未形成正式回放证据。
 
 ## 合成应用案例
 
