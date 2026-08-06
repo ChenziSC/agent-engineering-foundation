@@ -1,6 +1,6 @@
 id: "2026-08-05-self-hosted-agent-governance"
 title: "将仓库升级为可快速接入的 Agent 工程治理骨架"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-05"
 updated_at: "2026-08-06"
 scope:
@@ -34,6 +34,7 @@ scope:
   - "distribution/"
   - ".github/workflows/"
   - "package.json"
+  - "pets/"
 relations:
   parent: null
   children:
@@ -46,7 +47,7 @@ artifacts:
   tasks: "./tasks.md"
   research: null
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -59,4 +60,4 @@ active_context:
   summary: "Agent 工程治理骨架已经形成；本轮完成全仓自然语言审计修复，并以各能力目录中的实现、测试和 Eval Evidence 校准成熟度。"
   next_task_id: null
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true

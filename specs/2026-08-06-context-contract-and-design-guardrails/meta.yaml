@@ -1,6 +1,6 @@
 id: "2026-08-06-context-contract-and-design-guardrails"
 title: "补齐契约化上下文与设计验证护栏"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-06"
 updated_at: "2026-08-06"
 scope:
@@ -39,7 +39,7 @@ artifacts:
   tasks: "./tasks.md"
   research: null
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -51,4 +51,4 @@ active_context:
   summary: "Context Contract、设计验证护栏与 project-context-bootstrap Skill 已完成；整仓复核发现的文档事实漂移、CI 空白检查空跑和 Eval 摘要边界已修复并通过回归。"
   next_task_id: null
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true

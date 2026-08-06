@@ -6,7 +6,7 @@
 - 检查日期：`2026-08-06`
 - 结果：`pass`
 
-该结论表示本事项当前声明范围通过结构、契约和整仓回归；事项仍保持 `in-progress`，没有据此推断归档、提交或推送授权。
+该结论表示本事项声明范围通过结构、契约和整仓回归。维护者已于 `2026-08-06` 明确要求归档全部 Spec，并授权本轮提交与一次推送；公开发布未获授权。
 
 ## 完成条件映射
 
@@ -69,13 +69,15 @@
 - `project-context-bootstrap` 独立正式 Eval：4/4 Case 通过，平均分 100，无阻塞项和禁止动作；`evals/replay.json` 可由 Runner 重算并生成一致完整性摘要。
 - 本次独立回放严格按“Resolver → Section Index → 局部原文”执行；合成与本仓均未在 Resolver 返回前检索 `sectioned` 核心正文，Trace 只保存脱敏摘要。
 - 首轮 Repository Check 发现已有 Distribution Manifest 中 project-context-bootstrap 内容摘要漂移；更新摘要后重跑 Repository、Distribution 和 Eval 均通过。
-- 本仓自举能识别 Skill 内容变化对 Distribution Manifest、能力说明、Knowledge 路由和当前 Spec 的直接影响；工作区非干净，因此结果保持 `partial`。
+- 本仓自举能识别 Skill 内容变化对 Distribution Manifest、能力说明、Knowledge 路由和当前 Spec 的直接影响；实现候选已冻结为不可变 Source，结果由归档 Receipt 继续固化。
 - 私有参考仓库只读对照确认了“规则 → 确定性上下文命令 → Section Index/预算 → 行为与单元测试 → SDD 证据”链路，针对性测试 15/15 通过；公开 Evidence 未保存其名称、路径、业务、平台或提交标识。
 
 ## 生命周期检查
 
-- [x] 当前保持 `in-progress`，没有终态授权。
-- [x] 没有生成 Receipt，也没有从检查通过推断 Commit、Push 或归档。
+- [x] 维护者已明确授权将全部 Spec 归档；授权证据引用为 `conversation:2026-08-06:archive-all-specs`。
+- [x] 实现候选已冻结为 Source `38096e9be57b002e87d8f3c2e03ec460624624b4`，Base 为 `89e74f74a9dbf66b2aecde9ede75532682ebe3e4`。
+- [x] 两个待归档事项共享同一 Merge Candidate，范围摘要为 `sha256:2390d7ad00cec9e8689d79b9cb2d0f9a877dd5a2ed9b086a03e511c7fae618d5`；两个事项目录作为终态证据写入范围排除。
+- [x] 归档按“Receipt 先写并回读验证，Meta 终态最后写”的顺序执行，不从检查通过反推历史授权。
 
 ## Knowledge Projection
 
@@ -94,4 +96,4 @@
 
 - 在真实但可脱敏的项目任务中前向使用 Skill，保存最小 Trace Evidence 后补充 Replay；
 - 按真实缺口选择语言符号或运行态消费者 Adapter，不预先建设完整分析平台；
-- 由维护者另行决定提交、推送和事项终态。
+- 本轮完成 Receipt、Meta 终态、归档提交和一次推送；公开发布由维护者另行决定。

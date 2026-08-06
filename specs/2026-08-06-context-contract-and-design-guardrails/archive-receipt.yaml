@@ -1,0 +1,97 @@
+schema_version: 1
+receipt_id: "2026-08-06-context-contract-and-design-guardrails:first-terminal"
+spec_id: "2026-08-06-context-contract-and-design-guardrails"
+created_at: "2026-08-06T07:00:40Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-06T07:00:40Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-06:archive-all-specs"
+snapshot:
+  source_revision: "38096e9be57b002e87d8f3c2e03ec460624624b4"
+  base_revision: "89e74f74a9dbf66b2aecde9ede75532682ebe3e4"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:2390d7ad00cec9e8689d79b9cb2d0f9a877dd5a2ed9b086a03e511c7fae618d5"
+    excludes:
+      - "specs/2026-08-05-self-hosted-agent-governance"
+      - "specs/2026-08-06-context-contract-and-design-guardrails"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:9eef69a9d2e8b96c2b2a2d51e611410bd75a19a0bbe4030935d82d1d5a8a9fcd"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:94a018cb9a15a173fcc99cf67bae6d4a960d3ea762ba4b8c8b4aec4bc94cdac4"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:7265ea27d5f6aa6a999b724ba984ad68cbd227f3899423f927e49f1642919286"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:29b579acbddc97bf501c3333174f1319db7e4b250125fc9503fa5f940f0b8fa0"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+    - "AC-009"
+    - "AC-010"
+    - "AC-011"
+    - "AC-012"
+    - "AC-013"
+    - "AC-014"
+    - "AC-015"
+    - "AC-016"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:38096e9be57b002e87d8f3c2e03ec460624624b4"
+    - "test:npm-test-81-pass"
+    - "check:npm-run-check"
+    - "check:specflow"
+    - "check:knowledge"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "新增 Context Contract 与 Bootstrap/Slice Skill 继续遵守 Framework 解释问题、Knowledge 保存长期正文、Specflow 保存当前事项、确定性程序只做结构校验的既有分层；本轮移除 README 中复制的动态事项状态并修正现有校验边界，没有产生新的顶层状态所有者。"
+      evidence_refs:
+        - "frameworks/context-contract/README.md"
+        - "skills/project-context-bootstrap/SKILL.md"
+        - "docs/01-能力地图.md"
+    - action: "still-valid"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "Specflow 增加变更深度与 Evidence 来源关系后仍遵守范围变化回 Spec、技术路径回 Plan、状态最后写和语义判断由 Agent/人工负责的自举契约；任务切片只引用当前 Spec，不复制其状态，本轮多 Spec 文案与 CI 候选检查修正也没有改变状态所有权。"
+      evidence_refs:
+        - "skills/specflow/SKILL.md"
+        - "skills/specflow/references/workflow.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "新增模型、Skill、模板、案例以及本轮 CI/Eval 边界修正均为自行编写的通用方案与合成数据，不包含内部标识、真实拓扑、平台行为、配置、数据或专有实现表达。"
+      evidence_refs:
+        - "frameworks/context-contract/context-contract.template.json"
+        - "skills/project-context-bootstrap/evals/cases/03-bounded-task-slice.md"
+        - "specs/2026-08-06-context-contract-and-design-guardrails/spec.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:37c833c69d6ebb56efebf5551c32cfc9a7c0e305c6f5aa460566ee26215a7e72"

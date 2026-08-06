@@ -1,0 +1,25 @@
+schema_version: 1
+event_id: "2026-08-05-self-hosted-agent-governance:0001"
+spec_id: "2026-08-05-self-hosted-agent-governance"
+sequence: 1
+event_type: "freshness-reviewed"
+created_at: "2026-08-06T07:04:36Z"
+transition:
+  from: "archived"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-06T07:04:36Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-06:archive-all-specs"
+reason: "交付门禁发现 pets/ 已由 AC-042 验收但遗漏于事项 Scope；补齐范围元数据并保留归档状态。"
+relation_changes: {}
+evidence_refs:
+  - "spec.md#AC-042"
+  - "validation-report.md#完成条件映射"
+  - "delivery-gate:change-gate-spec-scope-mismatch:pets"
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  previous_digest: "sha256:cbf945819969413c29efe0ace2a8301ff5ba2bdbeb10751accabf190961155a0"
+  event_digest: "sha256:4c08d79961aee9d3b8b5d45e997d53289a49f763b231dd8c49889db1e9a0bb36"

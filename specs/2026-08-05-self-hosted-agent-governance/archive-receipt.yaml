@@ -1,0 +1,132 @@
+schema_version: 1
+receipt_id: "2026-08-05-self-hosted-agent-governance:first-terminal"
+spec_id: "2026-08-05-self-hosted-agent-governance"
+created_at: "2026-08-06T07:00:40Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-06T07:00:40Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-06:archive-all-specs"
+snapshot:
+  source_revision: "38096e9be57b002e87d8f3c2e03ec460624624b4"
+  base_revision: "89e74f74a9dbf66b2aecde9ede75532682ebe3e4"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:2390d7ad00cec9e8689d79b9cb2d0f9a877dd5a2ed9b086a03e511c7fae618d5"
+    excludes:
+      - "specs/2026-08-05-self-hosted-agent-governance"
+      - "specs/2026-08-06-context-contract-and-design-guardrails"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:b54c4d7b252def2b7b66f47dabc61acd98f421a1a1bef7bbac905e02e38e6e70"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:c6d5c866681cf39e8900b4e408f724cbefbc0130bc69d625d88166a908a4daac"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:12ab249b2b6adff47278a41357244bbe97370af2c9ef82e0bfbb98ce675d4f45"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+    - "AC-009"
+    - "AC-010"
+    - "AC-011"
+    - "AC-012"
+    - "AC-013"
+    - "AC-014"
+    - "AC-015"
+    - "AC-016"
+    - "AC-017"
+    - "AC-018"
+    - "AC-019"
+    - "AC-020"
+    - "AC-021"
+    - "AC-022"
+    - "AC-023"
+    - "AC-024"
+    - "AC-025"
+    - "AC-026"
+    - "AC-027"
+    - "AC-028"
+    - "AC-029"
+    - "AC-030"
+    - "AC-031"
+    - "AC-032"
+    - "AC-033"
+    - "AC-034"
+    - "AC-035"
+    - "AC-036"
+    - "AC-037"
+    - "AC-038"
+    - "AC-039"
+    - "AC-040"
+    - "AC-041"
+    - "AC-042"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:38096e9be57b002e87d8f3c2e03ec460624624b4"
+    - "test:npm-test-81-pass"
+    - "check:npm-run-check"
+    - "check:specflow"
+    - "check:knowledge"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "仓库已增加多 Spec Change Gate、Checkpoint、增量覆盖、Web Evidence、Design Contract、Event Catalog 和组件语言分析确定性子集，并补充三个可分发 Skill；本轮又按能力目录证据统一了成熟度表达和演进范围，定位与真实交付边界需要同步。"
+      evidence_refs:
+        - "spec.md#AC-035"
+        - "spec.md#AC-036"
+        - "spec.md#AC-037"
+        - "spec.md#AC-038"
+        - "spec.md#AC-039"
+        - "spec.md#AC-040"
+        - "spec.md#AC-041"
+        - "spec.md#AC-042"
+        - "validation-report.md#已证明的最小实现范围"
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "Change Gate 已从单 Spec 关联升级为多 Spec 集合和 Scope 并集，仍沿用既有状态所有权、逐事项 Receipt/Lifecycle 与终态授权边界；Knowledge 易变元数据进一步明确由 Registry 单点管理。"
+      evidence_refs:
+        - "spec.md#AC-041"
+        - "tasks.md#T-34-让-Change-Gate-支持多-Spec-候选"
+        - "validation-report.md#已证明的最小实现范围"
+        - "spec.md#AC-042"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "本次新增实现与文档修复均为独立编写的通用内容，没有改变公开化、脱敏和权属判断规则；宠物资源只增加维护者公开声明与当前文件摘要，不提交受限创作材料。"
+      evidence_refs:
+        - "spec.md#AC-009"
+        - "spec.md#AC-020"
+        - "spec.md#AC-042"
+relations_snapshot:
+  parent: null
+  children:
+    - "2026-08-05-refactor-natural-language-content"
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:cbf945819969413c29efe0ace2a8301ff5ba2bdbeb10751accabf190961155a0"
