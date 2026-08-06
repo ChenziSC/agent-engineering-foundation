@@ -4,6 +4,16 @@
 
 仓库同时保留三层资产：Framework 和 Knowledge 解释为什么需要某项能力；Skill、Template、Blueprint 和 Starter 负责如何采用；Harness、Validator 和 Adapter 负责适合确定性执行的部分。当前已提供一个最小的项目级参考闭环，其余能力仍以设计资产和可执行 Skill 为主。
 
+## 一句话定位
+
+本仓库可以作为通用的项目级 Agent Harness 化脚手架与参考底座：它把项目接入 Agent 所需的规则与上下文、Specflow、Skill 分发、确定性检查和 Adapter 扩展点组织成可复制、可验证的最小闭环。
+
+这里的“项目级 Harness 化”是让既有项目逐步形成 Agent 可理解、可执行、可约束和可验证的工程环境，不表示仅复制 Starter 就已完成接入，也不表示本仓提供完整 Agent Runtime 或企业研发平台。
+
+| 本仓直接提供 | 采用方需要补齐 |
+| --- | --- |
+| Starter、仓库规则与 Knowledge 骨架、Specflow、通用 Skill、确定性 Harness/Doctor、开放 Host 和 Adapter 契约 | 项目专属知识与领域 Skill、语言级构建/测试/Lint、真实运行沙箱与观测、审批发布策略，以及公司或项目专有 Adapter |
+
 ## 语言约定
 
 中文是本仓库内容和协作沟通的首要语言。Skill、规范、模板、示例、评估材料和说明文档默认使用中文编写。代码标识符、命令、文件格式固有字段和通行技术术语可以保留英文；必要时补充中文解释，确保中文读者无需依赖英文材料即可理解核心内容。

@@ -1,0 +1,18 @@
+impact: "reviewed"
+decisions:
+  - action: "still-valid"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "README 新增 Harness 化脚手架定位，但仍遵守面向任意项目、三层资产和 Adapter 隔离的既有稳定事实。"
+    evidence_refs:
+      - "README.md"
+      - "docs/01-能力地图.md"
+      - "docs/02-目标仓库设计.md"
+      - "docs/05-交付形态与成熟度.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "新增表述只描述已公开的通用能力和采用方扩展边界，没有引入内部标识、真实平台事实或受限实现。"
+    evidence_refs:
+      - "README.md"
+      - "knowledge/public-generalization-policy.md"

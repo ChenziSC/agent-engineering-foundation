@@ -25,7 +25,7 @@ entries:
       - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
     source_evidence:
       - path: "README.md"
-        digest: "sha256:fcdb04b29e5f5ddf7b1a71e8fc74ad5c0df80c1c447484a6a85f94a19f5760b5"
+        digest: "sha256:52ca95730341497ba40326d233f3ca92f922a35ddf1c0ccf50dd53435f717f18"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
         digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
     refresh_triggers:
@@ -39,10 +39,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-05-self-hosted-agent-governance"
-      action: "update"
+      spec_id: "2026-08-06-project-harness-scaffold-positioning"
+      action: "still-valid"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:e74d8d5a3a62ea128321e7315ccbcaad9a8eabab22e8aedc7f3b24c5b4efffd6"
+      decision_digest: "sha256:3960cec3cf7ca12436c35e89ddb4db66c9d45882356b1a184907a2860f2337a6"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -126,7 +126,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-05-self-hosted-agent-governance"
+      spec_id: "2026-08-06-project-harness-scaffold-positioning"
       action: "still-valid"
       reviewed_at: "2026-08-06"
-      decision_digest: "sha256:d57abaacad0ac3e25d0a88f5d93caf058d7efed68c4c559820d14815b7841143"
+      decision_digest: "sha256:54781a01140decc5d1b6959f56e5ed2741da1f05c199424c514c96338aa27ba2"
