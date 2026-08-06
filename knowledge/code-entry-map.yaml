@@ -25,6 +25,31 @@ entries:
       - "public-generalization-policy"
     exclude_by_default:
       - "pets/"
+  - task_type: "实现或验证安全变更"
+    start_paths:
+      - "frameworks/change-validation/"
+      - "skills/safe-change/"
+      - "packages/harness/"
+    module_rules:
+      - "AGENTS.md"
+    knowledge:
+      - "repository-positioning"
+      - "self-hosted-governance"
+    exclude_by_default:
+      - "pets/"
+  - task_type: "实现 Design-to-Code 或埋点治理"
+    start_paths:
+      - "frameworks/design-to-code/"
+      - "frameworks/tracking-governance/"
+      - "skills/design-to-code/"
+      - "skills/tracking-governance/"
+    module_rules:
+      - "AGENTS.md"
+    knowledge:
+      - "repository-positioning"
+      - "public-generalization-policy"
+    exclude_by_default:
+      - "pets/"
   - task_type: "修改 Specflow、归档或 Knowledge"
     start_paths:
       - "skills/specflow/"
@@ -54,7 +79,7 @@ entries:
       - "pets/"
   - task_type: "公开发布或敏感信息检查"
     start_paths:
-      - "docs/03-脱敏与独立重写规范.md"
+      - "docs/03-公开化与权属规范.md"
       - "docs/06-公开发布检查清单.md"
       - "docs/07-公开内容来源说明.md"
       - "packages/harness/src/harness.mjs"

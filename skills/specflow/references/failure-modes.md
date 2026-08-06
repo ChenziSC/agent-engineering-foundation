@@ -12,6 +12,8 @@
 | 先写 Archived 再补回执 | 中途失败会制造没有证据的终态 | 先写并回读不可覆盖 Receipt，Meta 状态最后写 |
 | Agent 填写看似真实的 Digest | 无法证明对应最终版本 | 只有确定性程序计算；条件不足时保持 Active |
 | 覆盖旧 Receipt 或 Event | 历史证据失去可信度 | 目标已存在时只验证一致；不一致立即停止 |
+| 分别更新父子或取代关系的两侧 | 任一步失败都会留下无法判断的单侧事实 | 使用 Relation Transaction 先冻结双方 Event，再逐侧投影 Meta |
+| 把 Relation Transaction 描述为绝对原子 | 跨文件第二次写入仍可能失败 | 明确报告中间态，以不可变事务意图和双方 Event 幂等补齐 |
 | Knowledge 过期仍写 still-valid | 把未知状态包装成已复核 | 先复核、更新、取代或退役 Knowledge |
 | 用 Lifecycle Event 承载新业务变化 | 绕过新的需求、验证和归档 | 新业务变化建立新 Spec 和新 Receipt |
 | 把 Archived 当成已上线 | 混淆仓库产物和外部交付 | 分别报告归档、合并、部署和发布事实 |

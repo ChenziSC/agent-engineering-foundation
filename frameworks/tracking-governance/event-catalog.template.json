@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "events": [
+    {
+      "name": "item_viewed",
+      "purpose": "衡量合成条目是否被有效查看",
+      "trigger": "条目主要内容在本次页面访问中首次可见",
+      "status": "draft",
+      "properties": [{ "name": "item_type", "type": "string", "required": true, "source": "页面数据模型", "privacy": "none", "approval_ref": null }],
+      "replacement": null,
+      "validation_scenarios": ["首次可见触发一次", "重复渲染不重复触发"]
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design-to-Code"
+  short_description: "从设计输入到代码实现及视觉、行为双重验证"
+  default_prompt: "使用 $design-to-code 基于这些设计输入实现页面，并保留版本、复用和验收证据。"

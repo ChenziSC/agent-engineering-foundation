@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "design": { "source_type": "design-file", "source_ref": "opaque:synthetic-design", "source_version": "candidate-1", "frames": ["main-page"] },
+  "implementation": { "target_paths": ["src/pages/example"], "reuse_candidates": ["ProjectButton"], "constraints": ["不改变现有路由契约"] },
+  "acceptance": { "viewports": ["desktop", "mobile"], "states": ["normal", "loading", "empty", "error"], "interactions": ["键盘和指针均可完成主要动作"], "accessibility": ["语义结构和焦点顺序可用"] },
+  "evidence": { "visual_refs": [], "behavior_refs": [], "status": "planned" }
+}

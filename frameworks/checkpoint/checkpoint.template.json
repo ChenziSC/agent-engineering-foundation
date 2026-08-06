@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run": {
+    "id": "example-run",
+    "task_type": "synthetic-analysis",
+    "status": "paused",
+    "current_stage_id": "verify-behavior",
+    "updated_at": "2026-08-05T00:00:00Z"
+  },
+  "stages": [
+    {
+      "id": "verify-behavior",
+      "status": "paused",
+      "replay_policy": "idempotent",
+      "input_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "exit_gate": { "status": "unknown", "reasons": [] }
+    }
+  ],
+  "events": [],
+  "decisions": [],
+  "external_refs": [],
+  "integrity": {
+    "algorithm": "sha256",
+    "canonicalization": "canonical-json-without-integrity",
+    "payload_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

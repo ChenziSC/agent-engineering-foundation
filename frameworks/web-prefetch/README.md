@@ -1,6 +1,6 @@
 # Web 首屏预请求框架
 
-成熟度目标：`usable`
+当前成熟度：Framework 与 Evidence/资格子集 `reference-implemented`；对应 Skill `validated`
 
 这个框架描述如何从页面可见完成条件出发，定位首屏请求瀑布，判断只读请求是否适合提前发送，并先验证行为正确性、再比较性能变化。
 
@@ -22,7 +22,7 @@
 ## 决策所有权
 
 - Agent 或人工选择页面终点、候选请求和实现范围；
-- 确定性程序未来可以校验请求资格、显式策略和结果结构；
+- 确定性程序可以校验请求资格、显式策略和结果结构；
 - BrowserProvider 只负责采集；
 - VersionEvidenceProvider 只负责证明版本关系；
 - Evidence 框架管理事实、推断、阻塞和验证；
@@ -49,10 +49,12 @@
 4. 性能比较使用一致的场景和条件；
 5. 没有用局部指标改善掩盖行为回归。
 
-## 首期不包含
+## 当前不包含
 
-- 可运行 `prefetch-core`；
+- 真实应用的 Promise 复用与缓存实现；
 - 浏览器或部署平台 Adapter；
 - 自动改代码；
 - 自动部署和发布；
 - 生产数据或真实业务案例。
+
+除问题模型外，本目录还提供平台无关的 [Web Evidence Schema](web-evidence.schema.json)、[预请求候选模板](prefetch-candidate.template.json)与[参考实现](scripts/web-evidence.mjs)。参考实现解析 HAR/Trace 的确定性 Observation，并检查只读性、重复安全、请求契约、缓存维度、消费复用、失败回退和行为状态；通过资格检查只会得到 `ready`，不会伪装成已验证收益。

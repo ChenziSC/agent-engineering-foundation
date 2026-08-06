@@ -6,10 +6,10 @@
 
 ## 交付形态
 
-- 首期：Skill 行为评估方法论 + Case、Rubric 和报告模板；
-- 成熟度目标：`usable`；
-- 首期不要求：Runner、Scorer、Trace 归一化程序或版本比较器；
-- 未来可选：`skill-eval-kit` 参考实现。
+- 当前：Skill 行为评估方法论 + Case、Rubric、Trace/报告模板 + 零依赖 Runner/Scorer/比较器；
+- 成熟度：`reference-implemented`；
+- 当前边界：不调用或选择模型，不自动判断语义评分是否正确，不归一化宿主原始 Trace；
+- 未来可选：宿主 Trace 归一化和 Meta Eval。
 
 当前产物：[Skill 行为评估方法与模板](../../frameworks/skill-eval/README.md)。
 
@@ -19,7 +19,7 @@
 
 - 新增或修改分析、生成、评审、规划类 Skill；
 - Skill 的触发、输出或安全行为需要回归；
-- 需要比较两个 Skill 或模型版本；
+- 需要比较两个 Skill 版本或两次运行结果；
 - 需要验证 Agent 是否遵守证据和人工门禁。
 
 不应调用：
@@ -40,7 +40,8 @@
 可选输入：
 
 - 基线版本结果；
-- 模型、宿主和工具配置；
+- 宿主和工具配置；
+- 影响复核的调用环境说明；
 - 人工评分；
 - 允许的波动范围。
 
@@ -67,8 +68,8 @@ Agent 或人工负责：
 程序负责：
 
 - 校验 Case 和 Rubric Schema；
-- 归一化 Trace；
-- 运行确定性断言；
+- 校验脱敏 Trace 的 Evidence 引用和真实 Case 全量覆盖；
+- 运行阻塞优先评分；
 - 聚合评分；
 - 生成版本差异和回归报告。
 
@@ -93,24 +94,24 @@ Agent 或人工负责：
 - `skills/<name>/evals/`：拥有该 Skill 的案例、Fixture 和 Rubric；
 - 仓库顶层 `evals/`：只拥有跨 Skill 的集成回归和仓库级安全案例；
 - 单元测试验证确定性程序，Eval 验证 Agent 行为，两者不互相替代；
-- 未来如实现 `skill-eval-kit`，由它统一提供 Runner、Scorer 和比较器。
+- 本仓 `frameworks/skill-eval/scripts/eval-runner.mjs` 统一提供 Runner、Scorer 和比较器。
 
 ## 非目标与安全边界
 
 - 不用单一分数代替失败证据；
 - 不声称 Eval 覆盖真实世界全部输入；
 - 不把生产数据直接作为公开 Fixture；
-- 不把模型随机波动误报为确定性程序错误；
+- 不把调用环境的非确定性波动误报为确定性程序错误；
 - 不执行未经授权的外部写操作；
 - 不用 Eval 替代单元测试、集成测试或人工 Review。
 
-## 首期资源
+## 当前资源
 
 - 方法论文档：评估维度、评分偏差、Trace 证据和失败模式；
 - 模板：Case、Rubric、单次报告和版本对比报告；
 - 合成案例：安全门禁、虚构 Evidence、阻塞级回归和证据不足；
-- `scripts/` 和 `tests/`：首期不需要；
-- `evals/`：首期只要求为实际可使用 Skill 编写案例，不要求评估器自身可运行。
+- `scripts/`、Schema 和 `tests/`：动态读取真实 Case、封存摘要、阻塞优先评分与版本比较；
+- `evals/`：五个现有 Skill 均保存正式行为回放，新增三项可由 Replay 配置重算。
 
 ## 合成应用案例
 
@@ -119,18 +120,17 @@ Agent 或人工负责：
 3. 两个合成版本总分相近，但新版新增一个阻塞级违规，回归报告必须判定失败。
 4. 合成 Trace 缺少关键工具结果，评分应为 inconclusive 而不是自动通过。
 
-## 方法论与模板首版验收
+## 当前验收
 
 - 提供 Case、Rubric、Trace 证据和报告模板；
 - 说明如何人工回放和评分；
 - Skill 本地 Eval 与仓库级 Eval 职责无重复；
 - 四个合成案例覆盖通过、失败、回归和不可判定；
 - 评分必须能追溯到具体产物或行为证据。
+- Runner 遗漏真实 Case、引用不存在 Evidence 或新增阻塞级违规时确定性失败。
 
 ## 未来可选工程化
 
-- Case、Rubric、Trace 和报告 Schema；
-- Runner、Scorer 和版本比较器；
 - Trace 归一化；
 - Meta Eval；
 - 确定性组件测试。

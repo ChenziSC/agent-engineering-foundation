@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/agent-foundation/component-governance-config.schema.json",
+  "title": "Component Governance Config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "registry", "sources", "standard", "deep_imports", "validation"],
+  "properties": {
+    "version": { "const": 1 },
+    "registry": { "type": "string", "minLength": 1 },
+    "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } },
+    "standard": { "$ref": "#/$defs/standard" },
+    "deep_imports": { "$ref": "#/$defs/deep_imports" },
+    "validation": { "$ref": "#/$defs/validation" },
+    "language_analysis": { "$ref": "#/$defs/language_analysis" }
+  },
+  "$defs": {
+    "level": { "enum": ["page-local", "app-shared", "project-shared", "project-standard"] },
+    "string_list": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "roots", "default_level"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+        "roots": { "allOf": [{ "$ref": "#/$defs/string_list" }, { "minItems": 1 }] },
+        "default_level": { "$ref": "#/$defs/level" }
+      }
+    },
+    "standard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["roots", "contract_pattern", "stable_entries"],
+      "properties": {
+        "roots": { "allOf": [{ "$ref": "#/$defs/string_list" }, { "minItems": 1 }] },
+        "contract_pattern": { "const": "<component-dir>/<component-name>.md" },
+        "stable_entries": { "allOf": [{ "$ref": "#/$defs/string_list" }, { "minItems": 1 }] }
+      }
+    },
+    "deep_imports": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["forbidden"],
+      "properties": { "forbidden": { "$ref": "#/$defs/string_list" } }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["require_registry_entry", "require_contract_for_levels", "require_public_entry_for_levels", "deprecation_requires_replacement", "test_policy"],
+      "properties": {
+        "require_registry_entry": { "const": true },
+        "require_contract_for_levels": { "type": "array", "items": { "$ref": "#/$defs/level" }, "uniqueItems": true },
+        "require_public_entry_for_levels": { "type": "array", "items": { "$ref": "#/$defs/level" }, "uniqueItems": true },
+        "deprecation_requires_replacement": { "type": "boolean" },
+        "test_policy": { "const": "risk-based" }
+      }
+    },
+    "language_analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "languages", "consumer_roots", "compatibility_baseline"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "languages": { "type": "array", "uniqueItems": true, "items": { "const": "javascript-typescript" } },
+        "consumer_roots": { "$ref": "#/$defs/string_list" },
+        "compatibility_baseline": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

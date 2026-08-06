@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "bundle_id": "example-bundle",
+  "created_at": "2026-01-01T00:00:00Z",
+  "evidence": [
+    {
+      "id": "evidence-01",
+      "source_type": "file",
+      "observed_at": "2026-01-01T00:00:00Z",
+      "scope": "synthetic/example.md",
+      "summary": "合成文件包含预期的公开示例字段。",
+      "content_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "status": "valid"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim-01",
+      "kind": "observation",
+      "statement": "合成文件存在预期字段。",
+      "evidence_refs": ["evidence-01"],
+      "blocker_refs": [],
+      "status": "supported"
+    }
+  ],
+  "blockers": [],
+  "verifications": [],
+  "integrity": {
+    "algorithm": "sha256",
+    "canonicalization": "canonical-json-without-integrity",
+    "payload_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

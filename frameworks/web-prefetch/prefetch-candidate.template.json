@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "id": "synthetic-catalog-request",
+  "method": "GET",
+  "side_effect_free": true,
+  "repeat_safe": true,
+  "request_contract": { "consumer": "catalog-v1", "prefetch": "catalog-v1" },
+  "cache_key_dimensions": ["item", "locale", "identity"],
+  "required_dimensions": ["item", "locale", "identity"],
+  "identity_stable_before_trigger": true,
+  "consumer_reuses_result": true,
+  "fallback_preserves_original_path": true,
+  "states_covered": ["normal", "empty", "error", "permission"]
+}

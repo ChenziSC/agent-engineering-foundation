@@ -33,6 +33,21 @@
 - 被取代时记录替代项，不静默删除；
 - 代码入口、核心契约或仓库定位变化时，把相关条目标记为 `review-required`；
 - Registry 是发现和路由入口，不复制 Knowledge 正文。
+- 每个 Registry 条目的 `source_evidence` 保存全部 `authoritative_sources` 当前 UTF-8/原始字节的 SHA-256；摘要变化只证明需要复核，不能自动判断知识正文应如何修改。
+- `current` 条目的来源摘要不一致会阻断 Knowledge Check；先复核正文和来源，再更新摘要或把状态改为 `review-required`，不能只刷新摘要掩盖语义变化。
+- Projection Apply 可以在语义复核完成后机械刷新摘要和状态，但只作用于已经准备好的正文与 Registry 条目；`last_projection` 记录 Spec、动作、日期和决策摘要，用于幂等复核，不是新的内容事实源。
+
+## 确定性检查与上下文解析
+
+```bash
+node packages/harness/bin/agent-foundation.mjs knowledge check --target /path/to/project
+node packages/harness/bin/agent-foundation.mjs knowledge projection plan --target /path/to/project --projection specs/example/knowledge-projection.yaml --spec-id example --reviewed-at 2026-08-05 --paths src,packages
+node packages/harness/bin/agent-foundation.mjs knowledge projection apply --target /path/to/project --projection specs/example/knowledge-projection.yaml --spec-id example --reviewed-at 2026-08-05 --paths src,packages
+node packages/harness/bin/agent-foundation.mjs knowledge projection verify --target /path/to/project --projection specs/example/knowledge-projection.yaml --spec-id example --reviewed-at 2026-08-05 --paths src,packages
+node packages/harness/bin/agent-foundation.mjs context resolve --target /path/to/project --task-type "<任务类型>" --paths path/one,path/two
+```
+
+`knowledge check` 校验 Registry、Code Entry Map、引用、项目内路径、取代关系和权威来源摘要，并检查失效起始路径、路由数组重复、同路径纳入/排除矛盾、规则文件预算和已登记父子规则精确重复。Projection 的 `plan/verify` 只读，`apply` 在排他锁内原子改写 Registry；变更路径命中 Scope 却没有决策、退役知识仍被路由或取代目标无效时阻断。`context resolve` 返回根级/祖先规则、Knowledge 路径与 Active Spec；预算内事项进入全文加载计划，超限事项返回由原文标题和位置构成的 Section Index。命令不生成知识正文，也不替代 Agent 对任务相关性、自然语言冲突与内容正确性的判断。
 
 ## 公开边界
 

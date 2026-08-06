@@ -12,9 +12,19 @@ entries:
     last_reviewed_at: "YYYY-MM-DD"
     authoritative_sources:
       - "src/app/router.ts"
+    source_evidence:
+      - path: "src/app/router.ts"
+        digest: "sha256:<由工具计算的64位小写十六进制摘要>"
     refresh_triggers:
       - "路由入口移动"
       - "初始化顺序变化"
     load_when:
       - "修改路由"
       - "分析页面初始化"
+    status_reason: null
+    superseded_by: null
+    last_projection:
+      spec_id: "example-work-item"
+      action: "update"
+      reviewed_at: "YYYY-MM-DD"
+      decision_digest: "sha256:<由工具计算的64位小写十六进制摘要>"

@@ -20,8 +20,8 @@
 
 ## 交付形态
 
-- 首期：可使用 Skill + Web 预请求设计框架 + 报告与验证模板；
-- 成熟度目标：`usable`；
+- 当前：已验证 Skill + Web 预请求设计框架 + 报告、验证模板和脱敏 Trace Evidence；
+- 当前成熟度：Skill `validated`，Framework `designed`；
 - 首期不要求：实现 `prefetch-core`、Checkpoint、Evidence、BrowserProvider 或可运行 Demo；
 - 未来可选：Validator、Mock Adapter、合成 Demo 和共享 Core 的参考实现。
 

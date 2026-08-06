@@ -1,0 +1,1205 @@
+{
+  "schema_version": 1,
+  "run_id": "specflow:2026-08-05",
+  "skill_name": "specflow",
+  "executed_at": "2026-08-05T12:00:00Z",
+  "environment": {
+    "host": "local-agent-host",
+    "tools": [
+      "repository-read",
+      "deterministic-validator"
+    ],
+    "configuration_ref": null
+  },
+  "threshold": 80,
+  "cases": [
+    {
+      "id": "case-01",
+      "case_path": "evals/cases/01-prd-and-figma-input.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S01-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-02",
+      "case_path": "evals/cases/02-continue-active-work.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S02-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-03",
+      "case_path": "evals/cases/03-insufficient-input.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S03-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S03-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S03-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S03-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S03-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S03-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S03-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S03-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S03-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S03-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-04",
+      "case_path": "evals/cases/04-small-change.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S04-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S04-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S04-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S04-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S04-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S04-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S04-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S04-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S04-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S04-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-05",
+      "case_path": "evals/cases/05-terminal-without-authorization.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S05-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S05-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S05-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S05-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S05-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S05-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S05-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S05-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S05-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S05-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-06",
+      "case_path": "evals/cases/06-provider-neutral-delivery.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S06-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S06-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S06-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S06-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S06-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S06-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S06-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S06-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S06-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S06-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-07",
+      "case_path": "evals/cases/07-first-archive-receipt.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S07-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S07-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S07-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S07-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S07-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S07-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S07-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S07-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S07-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S07-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-08",
+      "case_path": "evals/cases/08-cancel-active-work.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S08-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S08-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S08-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S08-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S08-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S08-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S08-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S08-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S08-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S08-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-09",
+      "case_path": "evals/cases/09-supersede-archived-work.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S09-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S09-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S09-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S09-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S09-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S09-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S09-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S09-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S09-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S09-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-10",
+      "case_path": "evals/cases/10-expired-knowledge.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S10-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S10-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S10-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S10-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S10-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S10-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S10-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S10-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S10-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S10-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-11",
+      "case_path": "evals/cases/11-tampered-history.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S11-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S11-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S11-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S11-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S11-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S11-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S11-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S11-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S11-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S11-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-12",
+      "case_path": "evals/cases/12-state-last-write-failure.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S12-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S12-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S12-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S12-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S12-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S12-A"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S12-A"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S12-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S12-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S12-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    }
+  ]
+}

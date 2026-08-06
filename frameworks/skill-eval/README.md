@@ -1,16 +1,25 @@
 # Skill 行为评估方法
 
-成熟度：`usable`
+成熟度：`reference-implemented`
 
 这套方法用于人工回放和比较 Agent 使用 Skill 时的行为，重点检查触发、流程、安全、证据和输出，而不是只检查目录格式。
 
-首期不提供 Runner 或自动评分器。使用以下模板即可完成一次可审计的人工 Eval：
+可以使用以下模板完成可审计的人工 Eval：
 
 - [Case 模板](../../templates/skill-eval/case.template.md)
 - [Rubric 模板](../../templates/skill-eval/rubric.template.md)
 - [Trace Evidence 模板](../../templates/skill-eval/trace-evidence.template.md)
 - [单次报告模板](../../templates/skill-eval/run-report.template.md)
 - [版本对比模板](../../templates/skill-eval/regression-report.template.md)
+
+本目录另提供零运行时依赖的 [Runner/Scorer](scripts/eval-runner.mjs)、[Eval Run Schema](eval-run.schema.json)和 [Replay 配置模板](replay.template.json)。Runner 不调用或选择模型；它读取已脱敏 Trace、动态发现真实 Case 目录、校验 Evidence 引用与全量覆盖、执行阻塞优先评分并封存摘要。
+
+```bash
+node packages/harness/bin/agent-foundation.mjs eval run --skill <skill-name> --target <foundation-repo>
+node packages/harness/bin/agent-foundation.mjs eval compare --baseline <baseline-report.json> --candidate <candidate-report.json>
+```
+
+`eval run` 默认读取 Skill 内的 `evals/replay.json` 并将可复核报告输出到标准输出；采用方可以显式保存该 JSON。模型和推理强度继承调用时环境，不属于报告契约。
 
 ## 资产所有权
 
@@ -36,7 +45,7 @@
 
 ## 人工回放
 
-1. 固定 Skill 版本、模型、宿主和工具条件。
+1. 固定 Skill 版本、Case、宿主和工具条件；模型与推理强度继承调用时环境选择，不写入 Eval 契约。
 2. 只向执行者提供 Case 中允许看到的输入。
 3. 保存最终产物和可观察行为。
 4. 用 Trace Evidence 模板记录实际发生的动作。
@@ -97,10 +106,11 @@ Skill 面对副作用请求时停止并给出安全替代。安全门禁得分�
 
 Trace 没有记录关键工具结果。相关维度标记 `inconclusive`，不自动通过或失败。
 
-## 未来可选工程化
+## Runner 与语义评审边界
 
-- Case、Rubric、Trace 和报告 Schema；
-- Runner、Scorer 与版本比较器；
-- 宿主 Trace 归一化；
-- 确定性断言；
-- Meta Eval。
+- Runner 只对 Case 覆盖、Trace 摘要、Evidence 引用、权重、阻塞项和汇总做确定性校验；
+- 行为是否真的满足 Rubric，仍由人工或评审 Agent 写入 Replay 评分；
+- `inconclusive` 不会自动变成通过；
+- 比较器在环境不同、Case 缺失或新增阻塞级违规时保持明确状态，不用平均分覆盖回归。
+
+未来仍可增加宿主 Trace 归一化、确定性行为断言和 Meta Eval。

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/agent-foundation/event-catalog.schema.json",
+  "title": "Tracking Event Catalog v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "events"],
+  "properties": {
+    "version": { "const": 1 },
+    "events": { "type": "array", "items": { "$ref": "#/$defs/event" } }
+  },
+  "$defs": {
+    "event": { "type": "object", "additionalProperties": false, "required": ["name", "purpose", "trigger", "status", "properties", "replacement", "validation_scenarios"], "properties": { "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]{1,63}$" }, "purpose": { "type": "string", "minLength": 1 }, "trigger": { "type": "string", "minLength": 1 }, "status": { "enum": ["draft", "active", "deprecated", "retired"] }, "properties": { "type": "array", "items": { "$ref": "#/$defs/property" } }, "replacement": { "type": ["string", "null"] }, "validation_scenarios": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } } } },
+    "property": { "type": "object", "additionalProperties": false, "required": ["name", "type", "required", "source", "privacy", "approval_ref"], "properties": { "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$" }, "type": { "enum": ["string", "number", "boolean"] }, "required": { "type": "boolean" }, "source": { "type": "string", "minLength": 1 }, "privacy": { "enum": ["none", "coarse", "sensitive"] }, "approval_ref": { "type": ["string", "null"] } } }
+  }
+}

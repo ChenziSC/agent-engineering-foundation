@@ -6,8 +6,8 @@
 
 ## 交付形态
 
-- 首期：可使用 Skill + 性能评审报告模板；
-- 成熟度目标：`usable`；
+- 当前：已验证 Skill + 性能评审报告模板和脱敏 Trace Evidence；
+- 当前成熟度：Skill `validated`；
 - 首期不要求：Trace/HAR Parser、Browser Adapter 或指标计算程序；
 - 未来可选：浏览器采集和报告解析参考实现。
 

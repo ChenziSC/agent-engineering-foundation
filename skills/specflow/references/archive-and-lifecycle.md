@@ -4,7 +4,7 @@
 
 终态不能只靠把 `meta.yaml.status` 改成 `archived`。归档必须回答：最终需求是什么、最终实现对应哪个版本、完成条件如何验证、哪些长期知识受到影响，以及谁明确授权了终态。
 
-本 Reference 定义 Provider-neutral 的语义契约。当前仓库尚未提供确定性 Validator；模板不能替代摘要计算、原子写入、受保护历史检测和并发控制的程序实现。
+本 Reference 定义 Provider-neutral 的语义契约。当前仓库已提供首次终态 Receipt、Lifecycle Event 摘要链、不可覆盖追加、Meta 状态最后写、双终态事项关系事务和失败恢复脚本，并由 Harness 的本地 Git Adapter 提供 Merge Candidate 摘要与两阶段 Change Gate 子集；Active 或多事项关系事务、跨仓库事务、其他版本控制 Adapter、受保护 Git 历史检测和外部交付平台集成尚未实现。
 
 ## 目录
 
@@ -67,6 +67,8 @@ Receipt 不保存完整 Diff，只保存可复现摘要：
 
 不同版本控制系统通过 Adapter 产生相同中立结构；核心契约不出现某个 Provider 的 PR、MR、Pipeline 或 Branch 专有字段。
 
+本仓本地 Git Adapter 使用不可变 Base/Source Commit，在临时对象库中计算 Merge Candidate。摘要输入为范围内按路径稳定排序的候选 Tree 对象 ID，标识为 `source-control-snapshot-v1`；删除路径的对象 ID 为 `null`。Rename 等状态作为复核证据返回但不进入摘要，避免启发式状态差异改变同一最终快照。范围内存在未提交/未跟踪内容或候选冲突时阻断。Provider 输出中的 `baseRevision`、`sourceRevision`、`change.digest` 与 `change.excludes` 可以投影到候选 Receipt；完整路径清单只作为当次复核证据，不写入 Receipt 正文。
+
 ## 产物摘要
 
 Receipt 至少冻结：
@@ -97,9 +99,19 @@ Knowledge Projection 是“本事项对长期知识有什么影响”的收口�
 
 Knowledge 正文必须在生成 Receipt 前完成并回读。Registry、正文、代码入口和 Projection 不一致时阻塞归档。已过刷新期限、标记为 `review-required` 或证据版本不匹配的 Knowledge 不能直接写 `still-valid`，必须先复核、更新或保留事项 Active。
 
+本仓 Harness 实现了 Registry 投影的确定性子集。Agent 或人工先完成语义判断、正文编辑、Registry 条目准备和 Code Entry Map 调整；程序再执行：
+
+1. `plan`：验证 Projection、正文、Registry、来源文件、路径反向命中、Code Entry Map 和取代关系，不写文件；
+2. `apply`：在 Registry 专用排他锁内重新计划，只原子更新状态、`last_reviewed_at`、来源摘要、退役原因、取代目标和 `last_projection` 决策指纹；
+3. `verify`：重新计算同一计划，只有 Registry 不再产生差异时通过。
+
+`create` 要求正文和 `review-required` Registry 条目已经准备；`update` 和 `still-valid` 只作用于未退役条目；`supersede` 目标必须最终为 `current`；退役条目不能继续出现在 Code Entry Map。`--paths` 用 Registry Scope 反向发现受影响知识，命中却没有对应决策时阻断；没有传入路径时只能保留人工覆盖警告，不能声称程序证明了无影响。
+
+`last_projection` 保存 Spec ID、动作、复核日期和规范化决策摘要，用于幂等重试和独立验证，不复制 Evidence 正文。程序不生成 Knowledge 内容，也不判断业务结论是否正确；这些仍由 Agent 与人工 Review 负责。
+
 ## Receipt 完整性
 
-模板中的 `integrity.payload_digest` 对 Receipt 中除 `integrity` 之外的规范化 Payload 计算，避免自引用。规范化规则必须由未来 Validator 固定，例如 UTF-8、键排序和 LF 换行；在规则尚未实现前，Agent 不得伪造看似真实的 Digest。
+模板中的 `integrity.payload_digest` 对 Receipt 中除 `integrity` 之外的规范化 Payload 计算，避免自引用。当前脚本固定生成 `canonical-json-v1`：对象键按 Unicode 码点排序、数组保持顺序、标量使用 JSON 表达，再对 UTF-8 字节计算 SHA-256。验证器兼容本仓早期使用的等价标识 `canonical-json-v1:recursive-key-sort:utf8`，但新证据不再生成旧标识。Agent 不得手工伪造 Digest。
 
 `authorization.evidence_ref` 只保存不透明引用或本地证据位置，不复制聊天全文、邮箱和外部平台敏感字段。
 
@@ -116,11 +128,20 @@ Knowledge 正文必须在生成 Receipt 前完成并回读。Registry、正文�
 
 Event 只表达归档后的真实状态或关系演进。存在新的业务实现变化时必须新建 Spec；不能用 Event 绕过新的 Spec、验证和 Receipt。
 
+当前脚本使用 `finalize-event` 执行单事项目录内的追加和状态最后写：先复核 Receipt、已有链以及 Meta 是否已投影到当前链尾，再以连续 Sequence、精确文件名、Previous Digest 和关系前置值 Seal Event，最后在 Meta 锁内原子替换 Meta。Event 已写但 Meta 更新失败时，用同一候选重试；在恢复完成前不能追加下一 Event。候选差异、链断裂或关系前置值变化都会阻断。
+
 ## 取代关系
 
-取代至少涉及两个事项：旧事项的 `superseded_by` 和新事项的 `supersedes` 必须互相对应。确定性实现需要先验证两侧均可更新并建立恢复计划，再追加 Event 和最后写状态。
+取代至少涉及两个事项：旧事项的 `superseded_by` 和新事项的 `supersedes` 必须互相对应。父子关系也要求 child 的 `parent` 与 parent 的 `children` 对应。
 
-如果只完成一侧写入，检查必须失败并报告不一致；不得为“让门禁通过”而猜测或静默补关系。
+本地 v1 Relation Transaction 只协调同一 Specs Root 下的两个终态事项：
+
+1. 读取双方 Receipt、Event 链、Meta 和 Event 候选，验证 Sequence、前置状态和关系严格互反；
+2. 先把事务 ID、双方目录、候选路径、Sequence 和 Event Digest 写入 `.specflow-transactions/<transaction-id>.yaml`；
+3. 两条 Event 都 Seal 成功后，才按候选顺序逐侧投影 Meta；
+4. 使用 `verify-relation` 独立复核事务摘要、Event 摘要和双方 Meta 是否位于各自链尾。
+
+跨两个 Meta 文件无法通过一次 Rename 获得绝对原子可见性。若第二个 Meta 更新失败，第一侧可能已经可见；这不是“已完成”或“已回滚”。不可变事务意图和 Event 是恢复依据，用完全相同的候选重跑只补齐缺失步骤。已有证据不一致、单侧关系、夹带第三项变化或候选变化都会阻断，不通过猜测静默补关系。
 
 ## 篡改与恢复
 
@@ -131,12 +152,18 @@ Event 只表达归档后的真实状态或关系演进。存在新的业务实�
 - Knowledge 过期：保持 Active，先完成复核；
 - 外部 Provider 不可用：保留已完成的本地证据，外部交付单独标为未执行，不改变 Specflow 终态语义。
 
+仓库内候选与事项的关联、受控低风险豁免和交付阶段摘要复核见[事项—变更关联与交付门禁](change-gate.md)。该门禁复用本 Reference 的 Receipt 与 Lifecycle 证据，但不创建版本、不确认终态授权，也不替代外部平台检查。
+
 模板见：
 
 - [archive-receipt.template.yaml](../assets/archive-receipt.template.yaml)
 - [archive-receipt.schema.json](../assets/archive-receipt.schema.json)
 - [lifecycle-event.template.yaml](../assets/lifecycle-event.template.yaml)
 - [lifecycle-event.schema.json](../assets/lifecycle-event.schema.json)
+- [relation-transaction.template.yaml](../assets/relation-transaction.template.yaml)
+- [relation-transaction.schema.json](../assets/relation-transaction.schema.json)
 - [knowledge-projection.template.yaml](../assets/knowledge-projection.template.yaml)
 - [knowledge-projection.schema.json](../assets/knowledge-projection.schema.json)
 - [archive-checklist.md](../assets/archive-checklist.md)
+
+首次 Receipt、Lifecycle Event、Relation Transaction 和 Meta 状态最后写命令见 [archive-receipt.mjs](../scripts/archive-receipt.mjs)。候选文件可以使用本 Skill 支持的 YAML 子集；输出仍为 YAML。脚本只接受指定 Root 内的普通文件，不跟随 Symlink；Git 变化摘要与 Change Gate 由 Harness 单独计算，脚本不替代候选关联、授权判断或远端事务。

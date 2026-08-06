@@ -1,0 +1,109 @@
+version: 1
+skills:
+  - name: design-to-code
+    source: skills/design-to-code
+    version:
+      type: content-hash
+      value: sha256:d6adac16e501393ecefc83014f07a9e5b4d89fb9838ccefe88849d635ebb3e33
+    distributable: true
+    required_files:
+      - SKILL.md
+    optional_resources:
+      - agents
+      - references
+      - assets
+      - evals
+  - name: project-component-governance
+    source: skills/project-component-governance
+    version:
+      type: content-hash
+      value: sha256:4aa5c020e1984129b14e94045b4a492cb69c7d78bbd3d287ea35d444ea0ef513
+    distributable: true
+    required_files:
+      - SKILL.md
+    optional_resources:
+      - agents
+      - references
+      - assets
+      - scripts
+      - evals
+      - tests
+  - name: refactor-natural-language-content
+    source: skills/refactor-natural-language-content
+    version:
+      type: content-hash
+      value: sha256:68c58b95c45699134cf771fa872a845e90bacd14d691c8feaad5fd2f72a791e6
+    distributable: true
+    required_files:
+      - SKILL.md
+    optional_resources:
+      - agents
+      - references
+      - evals
+  - name: safe-change
+    source: skills/safe-change
+    version:
+      type: content-hash
+      value: sha256:2684d27ef3687654fffebe6858aed6e509f068091a61d8a4ffadf7ec617d7a7e
+    distributable: true
+    required_files:
+      - SKILL.md
+    optional_resources:
+      - agents
+      - references
+      - assets
+      - evals
+  - name: specflow
+    source: skills/specflow
+    version:
+      type: content-hash
+      value: sha256:eb8d816f6df929bd9a0f435ae49a241b16b87af4da5d8c1d903b384883f8940e
+    distributable: true
+    required_files:
+      - SKILL.md
+    optional_resources:
+      - agents
+      - references
+      - assets
+      - scripts
+      - evals
+      - tests
+  - name: tracking-governance
+    source: skills/tracking-governance
+    version:
+      type: content-hash
+      value: sha256:bc4c1ad2a1aa39585f549e69f40c9e06e4d109cfc142b36845c1a2232a1d2552
+    distributable: true
+    required_files:
+      - SKILL.md
+    optional_resources:
+      - agents
+      - references
+      - assets
+      - evals
+  - name: web-first-screen-prefetch
+    source: skills/web-first-screen-prefetch
+    version:
+      type: content-hash
+      value: sha256:e05048c1aa961210688b1a0f9006747a08f69d1399655cb19fa74490f4d4243b
+    distributable: true
+    required_files:
+      - SKILL.md
+    optional_resources:
+      - agents
+      - references
+      - assets
+      - evals
+  - name: web-performance-review
+    source: skills/web-performance-review
+    version:
+      type: content-hash
+      value: sha256:eddd017b4143720127e8e90be511efb20c9f5418a8bf3658928721eae616ee10
+    distributable: true
+    required_files:
+      - SKILL.md
+    optional_resources:
+      - agents
+      - references
+      - assets
+      - evals

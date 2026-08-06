@@ -1,0 +1,4 @@
+interface:
+  display_name: "安全变更"
+  short_description: "规划影响覆盖、关键场景、证据和回滚边界"
+  default_prompt: "使用 $safe-change 为这项修改建立影响分析、增量验证矩阵和安全交付结论。"

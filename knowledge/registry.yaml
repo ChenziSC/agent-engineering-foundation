@@ -14,14 +14,20 @@ entries:
       - "starter/"
       - "packages/"
       - "adapters/"
+      - "distribution/"
     topics:
       - "repository-positioning"
       - "agent-harness"
       - "content-layering"
-    last_reviewed_at: "2026-08-05"
+    last_reviewed_at: "2026-08-06"
     authoritative_sources:
       - "README.md"
       - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
+    source_evidence:
+      - path: "README.md"
+        digest: "sha256:ef1ddd06d5b5858b37fecd3dd49abaa448706e17b4d51179d87ac4362b43b1ee"
+      - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
+        digest: "sha256:7674b296b577ff3f872fa1b8f2cc9226a690b757d0e20987f2032fe6f9c8e170"
     refresh_triggers:
       - "公开定位或主要使用方变化"
       - "顶层目录职责变化"
@@ -30,6 +36,13 @@ entries:
       - "修改仓库定位或 README"
       - "新增顶层能力或目录"
       - "规划 Starter、Harness 或 Adapter"
+    status_reason: null
+    superseded_by: null
+    last_projection:
+      spec_id: "2026-08-05-self-hosted-agent-governance"
+      action: "update"
+      reviewed_at: "2026-08-06"
+      decision_digest: "sha256:9ace7ed65ad305b82e3a56eae3b9f4a78773cb41995a59724f73f84a87a79cbc"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -43,11 +56,21 @@ entries:
       - "specflow"
       - "knowledge-governance"
       - "traceability"
-    last_reviewed_at: "2026-08-05"
+    last_reviewed_at: "2026-08-06"
     authoritative_sources:
       - "AGENTS.md"
       - "specs/README.md"
       - "skills/specflow/SKILL.md"
+      - "skills/specflow/scripts/archive-receipt.mjs"
+    source_evidence:
+      - path: "AGENTS.md"
+        digest: "sha256:1a482b3e216ae6fc60fb14c387c714984f94ae32a13e8a35cafb8aad25c21390"
+      - path: "specs/README.md"
+        digest: "sha256:79f9ac67d1365a6397dd928adf5dbbef7d233498408e91c70687b8795d784b8b"
+      - path: "skills/specflow/SKILL.md"
+        digest: "sha256:b46689cab91686ebf8205949503fdd5cb3d82d5cbaed143f5a6eb2f814e9dcf1"
+      - path: "skills/specflow/scripts/archive-receipt.mjs"
+        digest: "sha256:d394e322fa802ff2bb6beccfc45af27286d23a0550b2b168b12a633c8e2f48ad"
     refresh_triggers:
       - "Specflow 生命周期或产物职责变化"
       - "Knowledge 准入或投影规则变化"
@@ -56,8 +79,15 @@ entries:
       - "新建、继续或归档研发事项"
       - "修改 Specflow 或 Knowledge 规则"
       - "恢复跨会话工作上下文"
+    status_reason: null
+    superseded_by: null
+    last_projection:
+      spec_id: "2026-08-05-self-hosted-agent-governance"
+      action: "update"
+      reviewed_at: "2026-08-06"
+      decision_digest: "sha256:ecd81902532762c385563fb37a7c40a6627f5c7953983dccffcdc819d969ed24"
   - id: "public-generalization-policy"
-    title: "通用能力的公开与独立重建"
+    title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
     status: "current"
     scope:
@@ -71,13 +101,20 @@ entries:
     topics:
       - "capability-inventory"
       - "public-generalization"
-      - "independent-rebuild"
+      - "rights-and-redaction"
       - "release-safety"
-    last_reviewed_at: "2026-08-05"
+    last_reviewed_at: "2026-08-06"
     authoritative_sources:
       - "docs/00-迁移总览.md"
-      - "docs/03-脱敏与独立重写规范.md"
+      - "docs/03-公开化与权属规范.md"
       - "docs/07-公开内容来源说明.md"
+    source_evidence:
+      - path: "docs/00-迁移总览.md"
+        digest: "sha256:a5d57b5b1289f35349a134fbced36dbb0293d47457cbb4746790ceb3cb96aa54"
+      - path: "docs/03-公开化与权属规范.md"
+        digest: "sha256:79b5faa4335e99aeb782032ad912ce56b60efde49b1deff12dfebb3a5ec4a3bb"
+      - path: "docs/07-公开内容来源说明.md"
+        digest: "sha256:fdd1eed588ecd9dc06487c9a19354d1930c9d9290cac1048093149badc3b29db"
     refresh_triggers:
       - "公开处理等级或准入规则变化"
       - "能力说明模板或覆盖台账字段变化"
@@ -86,3 +123,10 @@ entries:
       - "盘点或迁移受限来源能力"
       - "决定公开资产的交付深度"
       - "执行公开发布或敏感信息检查"
+    status_reason: null
+    superseded_by: null
+    last_projection:
+      spec_id: "2026-08-05-self-hosted-agent-governance"
+      action: "still-valid"
+      reviewed_at: "2026-08-06"
+      decision_digest: "sha256:843004cd86243514703c4dc109ba2db17b73e35a8404c93dcdace527c85c96d4"

@@ -37,6 +37,14 @@ description: 基于可访问的代码仓库和组件证据，评估项目组件�
 6. 按 [validation-boundaries.md](references/validation-boundaries.md) 分配 Agent、程序与人工职责，并设计风险匹配的验证。
 7. 使用 [component-decision-report-template.md](assets/component-decision-report-template.md) 输出结论；涉及迁移或废弃时，附加对应模板。
 
+项目已接入 `.component-governance/config.yaml` 时，可运行确定性结构检查：
+
+```bash
+node <foundation-repo>/packages/harness/bin/agent-foundation.mjs component check --target <project-root>
+```
+
+程序默认验证 Registry、路径、Contract、稳定入口、替代项和禁止深路径导入；显式启用语言分析后，还验证 JavaScript/TypeScript 静态导出、公共入口消费者和兼容基线。它不替代复用价值、抽象边界、动态语义和兼容策略判断。
+
 ## 硬性门禁
 
 - 未搜索当前项目中的已有组件，不得建议新建。

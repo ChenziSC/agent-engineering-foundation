@@ -27,3 +27,10 @@ validation:
     - "project-standard"
   deprecation_requires_replacement: true
   test_policy: "risk-based"
+language_analysis:
+  enabled: true
+  languages:
+    - "javascript-typescript"
+  consumer_roots:
+    - "apps"
+  compatibility_baseline: ".component-governance/public-exports.baseline.json"

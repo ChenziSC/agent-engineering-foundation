@@ -133,7 +133,7 @@ Registry 不复制完整 Props 和示例；Contract 不维护第二份组件位�
 3. 仓库级组件治理指令；
 4. 一份治理决策报告；
 5. 与风险匹配的验证；
-6. 可选的确定性结构门禁。
+6. 可选的确定性结构门禁；本仓已提供 Registry Validator 参考实现。
 
 不需要先建设独立 Package、CLI、指标平台或文档站。
 
@@ -171,12 +171,24 @@ Registry 不复制完整 Props 和示例；Contract 不维护第二份组件位�
 - [可复制模板](../../templates/project-component-governance/README.md)
 - [仓库接入 Blueprint](../../blueprints/project-component-governance/README.md)
 
+## 已提供的确定性子集
+
+将[配置示例](../../templates/project-component-governance/component-governance.config.example.yaml)和 [Registry 示例](../../templates/project-component-governance/component-registry.example.yaml)接入项目后，可以运行：
+
+```bash
+node <foundation-repo>/packages/harness/bin/agent-foundation.mjs component check --target <project-root>
+```
+
+当前参考实现检查结构、路径、Source 归属、标准目录登记、Contract、稳定入口、废弃替代项和代码深路径导入。显式启用 `language_analysis` 后，还会解析 JavaScript/TypeScript 静态命名导入导出，检查 Registry `exports`、公共入口、已知消费者和兼容性基线。它不根据目录或字段自动判断组件抽象是否合理，也不执行发布或迁移。
+
+语言级检查不是完整编译器。`export *`、动态加载、条件导出、构建别名、类型系统兼容性和其他语言必须由专用 Parser 或人工复核；出现未解析的星号导出时只报告警告，不伪装成完整覆盖。
+
 ## 未来可选工程化
 
 只有多个项目出现相同需求时，再考虑：
 
-- Registry/Contract 校验器；
-- 深路径和调用方扫描器；
+- Contract 正文语义与其他语言的公开导出解析器；
+- 基于编译器或构建图的完整调用方与类型兼容差异扫描器；
 - Registry 生成器；
 - 组件相似候选检索；
 - 迁移比较器；

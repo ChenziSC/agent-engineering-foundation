@@ -1,10 +1,10 @@
 # 长任务 Checkpoint 框架
 
-成熟度：`designed`
+成熟度：`reference-implemented`
 
 这个框架用于记录多阶段 Agent 任务的执行位置、状态变化和人工决策，使任务中断后能够恢复，同时避免重复执行非幂等动作。
 
-它是设计框架，不是持久化组件。配套的 [Schema 示例](checkpoint.schema.example.json) 用于走查对象关系，不承诺稳定 API。
+它不是任务队列或业务状态持久化服务。仓库提供了稳定的 [v1 Schema](checkpoint.schema.json)、[模板](checkpoint.template.json) 和最小[参考实现](scripts/checkpoint.mjs)，用于确定性校验完整性、事件顺序、引用状态与恢复策略；存储、锁和外部动作确认由采用方 Adapter 负责。原 [Schema 示例](checkpoint.schema.example.json) 继续保留为早期设计记录，不属于稳定 API。
 
 ## 核心对象
 
@@ -16,6 +16,14 @@
 | Decision | 人工或策略作出的执行决策 |
 | ExternalRef | 对 Evidence、Claim、文件或外部产物的不透明引用 |
 | ResumePlan | 恢复时继续、跳过、重新验证或人工确认的步骤 |
+
+## 参考实现边界
+
+- `sealCheckpoint` 为候选对象计算内容摘要并立即回读校验；
+- `validateCheckpoint` 检查精确字段、阶段引用、Event 连续序号和不可篡改摘要；
+- `deriveResumePlan` 只根据已声明的重放策略、输入摘要、退出门禁和外部引用状态生成计划；
+- `manual-only` 和 `verify-before-replay` 永远不会被自动转换成重放动作；
+- 参考实现不写文件、不调用外部系统，也不把 Checkpoint 状态同步成业务状态。
 
 ## 状态原则
 

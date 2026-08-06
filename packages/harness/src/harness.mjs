@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
+import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import {
   cp,
@@ -14,6 +15,13 @@ import {
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defaultAdapterRegistry } from '../../../adapters/registry.mjs';
+import {
+  canonicalJson,
+  validateSpecMetaStructure,
+  verifyLifecycleChain,
+} from '../../../skills/specflow/scripts/archive-receipt.mjs';
+import { buildEvalRun } from '../../../frameworks/skill-eval/scripts/eval-runner.mjs';
+import { checkComponentRegistry } from '../../../skills/project-component-governance/scripts/validate-registry.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const STARTER_ROOT = path.join(REPO_ROOT, 'starter', 'minimal');
@@ -40,9 +48,17 @@ const REQUIRED_REPOSITORY_ENTRIES = new Map([
   ['starter', 'directory'],
   ['packages', 'directory'],
   ['adapters', 'directory'],
+  ['distribution', 'directory'],
 ]);
 const REPOSITORY_IGNORED_DIRECTORIES = new Set(['.git', 'node_modules']);
-const TEXT_EXTENSIONS = new Set(['.js', '.json', '.md', '.mjs', '.txt', '.yaml', '.yml']);
+const MAX_SCANNABLE_TEXT_BYTES = 5 * 1024 * 1024;
+const MAX_GIT_COMMAND_OUTPUT_BYTES = 128 * 1024 * 1024;
+const DEFAULT_CONTEXT_POLICY = Object.freeze({
+  perSpecFullTextBytes: 32 * 1024,
+  totalFullTextBytes: 64 * 1024,
+  maxIndexEntriesPerArtifact: 256,
+  maxRuleFileBytes: 32 * 1024,
+});
 
 export class FoundationError extends Error {
   constructor(code, message, details) {
@@ -87,6 +103,21 @@ async function assertNoSymlinkSegments(root, target) {
     const currentStat = await statOrNull(current);
     if (currentStat?.isSymbolicLink()) {
       throw new FoundationError('unsafe-symlink', '目标路径包含 Symlink', { path: current });
+    }
+    if (!currentStat) break;
+  }
+}
+
+async function assertNoSymlinkAncestors(target) {
+  const absolute = path.resolve(target);
+  const parsed = path.parse(absolute);
+  let current = parsed.root;
+  const segments = absolute.slice(parsed.root.length).split(path.sep).filter(Boolean);
+  for (const segment of segments) {
+    current = path.join(current, segment);
+    const currentStat = await statOrNull(current);
+    if (currentStat?.isSymbolicLink()) {
+      throw new FoundationError('unsafe-symlink', '目标路径的父级或自身包含 Symlink', { path: current });
     }
     if (!currentStat) break;
   }
@@ -213,14 +244,1986 @@ function validateYamlSubset(text) {
   return issues;
 }
 
+function parseSupportedYamlScalar(raw, line) {
+  const value = raw.trim();
+  if (value === '') throw new FoundationError('invalid-yaml', 'YAML 标量不能为空', { line });
+  if (value === 'null' || value === '~') return null;
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  if (value === '[]') return [];
+  if (value === '{}') return {};
+  if (/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/u.test(value)) return Number(value);
+  if (value.startsWith('"')) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      throw new FoundationError('invalid-yaml', 'YAML 双引号字符串无效', { line });
+    }
+  }
+  if (value.startsWith("'")) {
+    if (!value.endsWith("'")) throw new FoundationError('invalid-yaml', 'YAML 单引号字符串无效', { line });
+    return value.slice(1, -1).replace(/''/gu, "'");
+  }
+  return value;
+}
+
+function parseSupportedYaml(text) {
+  const tokens = text
+    .split(/\r?\n/u)
+    .map((raw, index) => ({ raw, line: index + 1 }))
+    .filter(({ raw }) => raw.trim() && !raw.trimStart().startsWith('#'))
+    .map(({ raw, line }) => {
+      if (raw.includes('\t')) throw new FoundationError('invalid-yaml', 'YAML 不允许 Tab 缩进', { line });
+      const indent = raw.match(/^ */u)[0].length;
+      if (indent % 2 !== 0) throw new FoundationError('invalid-yaml', 'YAML 缩进必须为两个空格的倍数', { line });
+      return { indent, body: raw.trim(), line };
+    });
+
+  function splitMapping(body, line) {
+    const match = body.match(/^([A-Za-z0-9_-]+):(?:\s*(.*))?$/u);
+    if (!match) throw new FoundationError('invalid-yaml', 'YAML 只支持简单 Mapping Key', { line });
+    return { key: match[1], rawValue: match[2] || '' };
+  }
+
+  function parseBlock(start, indent) {
+    const token = tokens[start];
+    if (!token || token.indent !== indent) throw new FoundationError('invalid-yaml', 'YAML 缩进层级不连续', { line: token?.line });
+    return token.body === '-' || token.body.startsWith('- ') ? parseSequence(start, indent) : parseMapping(start, indent);
+  }
+
+  function readMappingEntry(target, token, body, nextIndex, childIndent) {
+    const { key, rawValue } = splitMapping(body, token.line);
+    if (Object.hasOwn(target, key)) throw new FoundationError('invalid-yaml', 'YAML 包含重复 Key', { line: token.line, key });
+    if (rawValue !== '') {
+      target[key] = parseSupportedYamlScalar(rawValue, token.line);
+      return nextIndex;
+    }
+    const next = tokens[nextIndex];
+    if (!next || next.indent <= token.indent) {
+      target[key] = null;
+      return nextIndex;
+    }
+    if (next.indent !== childIndent) throw new FoundationError('invalid-yaml', 'YAML 子级缩进不连续', { line: next.line });
+    const parsed = parseBlock(nextIndex, childIndent);
+    target[key] = parsed.value;
+    return parsed.next;
+  }
+
+  function parseMapping(start, indent, initial = {}) {
+    const value = initial;
+    let index = start;
+    while (index < tokens.length && tokens[index].indent === indent && !tokens[index].body.startsWith('-')) {
+      const token = tokens[index];
+      index = readMappingEntry(value, token, token.body, index + 1, indent + 2);
+    }
+    return { value, next: index };
+  }
+
+  function parseSequence(start, indent) {
+    const value = [];
+    let index = start;
+    while (index < tokens.length && tokens[index].indent === indent && (tokens[index].body === '-' || tokens[index].body.startsWith('- '))) {
+      const token = tokens[index];
+      const rest = token.body.slice(1).trim();
+      index += 1;
+      if (!rest) {
+        const parsed = parseBlock(index, indent + 2);
+        value.push(parsed.value);
+        index = parsed.next;
+      } else if (/^[A-Za-z0-9_-]+:/u.test(rest)) {
+        const item = {};
+        index = readMappingEntry(item, token, rest, index, indent + 2);
+        if (index < tokens.length && tokens[index].indent === indent + 2 && !tokens[index].body.startsWith('-')) {
+          const parsed = parseMapping(index, indent + 2, item);
+          index = parsed.next;
+        }
+        value.push(item);
+      } else value.push(parseSupportedYamlScalar(rest, token.line));
+    }
+    return { value, next: index };
+  }
+
+  if (!tokens.length) return {};
+  if (tokens[0].indent !== 0) throw new FoundationError('invalid-yaml', 'YAML 根级必须从零缩进开始');
+  const parsed = parseBlock(0, 0);
+  if (parsed.next !== tokens.length) throw new FoundationError('invalid-yaml', 'YAML 存在无法解析的剩余内容');
+  return parsed.value;
+}
+
+async function readStructuredDocument(filePath, label) {
+  if (filePath.endsWith('.json')) return readJson(filePath, label);
+  try {
+    return parseSupportedYaml(await readFile(filePath, 'utf8'));
+  } catch (error) {
+    if (error instanceof FoundationError) throw error;
+    throw new FoundationError('invalid-yaml', `${label} 不是受支持的 YAML`, { path: filePath, reason: error.message });
+  }
+}
+
+function yamlScalar(value) {
+  if (value === null) return 'null';
+  if (value === true) return 'true';
+  if (value === false) return 'false';
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  if (typeof value === 'string') return JSON.stringify(value);
+  if (Array.isArray(value) && value.length === 0) return '[]';
+  if (value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) return '{}';
+  return null;
+}
+
+function serializeYamlLines(value, indent = 0) {
+  const prefix = ' '.repeat(indent);
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => {
+      const scalar = yamlScalar(item);
+      if (scalar !== null) return [`${prefix}- ${scalar}`];
+      if (item && typeof item === 'object' && !Array.isArray(item)) {
+        const entries = Object.entries(item);
+        const [firstKey, firstValue] = entries[0];
+        const firstScalar = yamlScalar(firstValue);
+        const lines =
+          firstScalar !== null
+            ? [`${prefix}- ${firstKey}: ${firstScalar}`]
+            : [`${prefix}- ${firstKey}:`, ...serializeYamlLines(firstValue, indent + 4)];
+        for (const [key, child] of entries.slice(1)) {
+          const childScalar = yamlScalar(child);
+          if (childScalar !== null) lines.push(`${' '.repeat(indent + 2)}${key}: ${childScalar}`);
+          else lines.push(`${' '.repeat(indent + 2)}${key}:`, ...serializeYamlLines(child, indent + 4));
+        }
+        return lines;
+      }
+      return [`${prefix}-`, ...serializeYamlLines(item, indent + 2)];
+    });
+  }
+  if (value && typeof value === 'object') {
+    return Object.entries(value).flatMap(([key, child]) => {
+      const scalar = yamlScalar(child);
+      return scalar !== null
+        ? [`${prefix}${key}: ${scalar}`]
+        : [`${prefix}${key}:`, ...serializeYamlLines(child, indent + 2)];
+    });
+  }
+  throw new FoundationError('invalid-yaml', '无法序列化超出支持范围的 YAML 值');
+}
+
+function serializeStructuredDocument(filePath, value) {
+  if (filePath.endsWith('.json')) return `${JSON.stringify(value, null, 2)}\n`;
+  return `${serializeYamlLines(value).join('\n')}\n`;
+}
+
+function stringArray(value) {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string' && item.length > 0);
+}
+
+function validKnowledgeProjectionMarker(value) {
+  const allowedKeys = new Set(['spec_id', 'action', 'reviewed_at', 'decision_digest']);
+  return (
+    value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    !Object.keys(value).some((key) => !allowedKeys.has(key)) &&
+    typeof value.spec_id === 'string' &&
+    /^[a-z0-9][a-z0-9-]{0,127}$/u.test(value.spec_id) &&
+    ['create', 'update', 'still-valid', 'supersede', 'retire'].includes(value.action) &&
+    typeof value.reviewed_at === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/u.test(value.reviewed_at) &&
+    typeof value.decision_digest === 'string' &&
+    /^sha256:[a-f0-9]{64}$/u.test(value.decision_digest)
+  );
+}
+
+function normalizedIndexVersion(document) {
+  return document?.schemaVersion ?? document?.version;
+}
+
+function pathsOverlap(left, right) {
+  const normalize = (value) => value.replace(/^\.\//u, '').replace(/\\/gu, '/').replace(/\/$/u, '');
+  const a = normalize(left);
+  const b = normalize(right);
+  return a === b || a.startsWith(`${b}/`) || b.startsWith(`${a}/`);
+}
+
+function posixProjectPath(value) {
+  return value.split(path.sep).join('/').replace(/^\.\//u, '').replace(/\/$/u, '');
+}
+
+function duplicateStrings(values) {
+  const seen = new Set();
+  const duplicates = new Set();
+  for (const value of values) {
+    if (seen.has(value)) duplicates.add(value);
+    seen.add(value);
+  }
+  return [...duplicates].sort((left, right) => left.localeCompare(right));
+}
+
+function markdownRuleLines(markdown) {
+  const rules = [];
+  for (const [index, line] of markdown.split(/\r?\n/u).entries()) {
+    const match = line.match(/^\s*(?:[-*+]|\d+[.)])\s+(.+?)\s*$/u);
+    if (!match) continue;
+    const normalized = match[1].replace(/\s+/gu, ' ').trim().toLocaleLowerCase('zh-CN');
+    if (normalized.length < 8) continue;
+    rules.push({ line: index + 1, normalized });
+  }
+  return rules;
+}
+
+function ruleDirectory(relative) {
+  const directory = path.posix.dirname(relative);
+  return directory === '.' ? '' : directory;
+}
+
+function isAncestorRule(parent, child) {
+  const parentDirectory = ruleDirectory(parent);
+  const childDirectory = ruleDirectory(child);
+  return parentDirectory !== childDirectory && (!parentDirectory || childDirectory.startsWith(`${parentDirectory}/`));
+}
+
+async function inspectRuleNavigation(projectRoot, loaded, mappings) {
+  const errors = [];
+  const warnings = [];
+  const checks = [];
+  const referenced = new Set(['AGENTS.md']);
+  for (const mapping of mappings) {
+    for (const rule of Array.isArray(mapping?.module_rules) ? mapping.module_rules : []) referenced.add(posixProjectPath(rule));
+  }
+  const documents = [];
+  for (const relative of [...referenced].sort((left, right) => left.localeCompare(right))) {
+    try {
+      const absolute = safeProjectPath(projectRoot, relative, '规则文件');
+      await assertNoSymlinkSegments(projectRoot, absolute);
+      const entry = await statOrNull(absolute);
+      if (!entry?.isFile() || entry.isSymbolicLink()) {
+        errors.push({ code: 'rule-file-missing', path: relative });
+        continue;
+      }
+      const buffer = await readFile(absolute);
+      if (buffer.length > loaded.context.maxRuleFileBytes) {
+        errors.push({
+          code: 'rule-file-budget-exceeded',
+          path: relative,
+          bytes: buffer.length,
+          limit: loaded.context.maxRuleFileBytes,
+        });
+      }
+      documents.push({ path: relative, bytes: buffer.length, rules: markdownRuleLines(buffer.toString('utf8')) });
+    } catch (error) {
+      errors.push({ code: error.code || 'invalid-rule-file', path: relative, message: error.message });
+    }
+  }
+  let duplicateCount = 0;
+  for (const parent of documents) {
+    const parentRules = new Map(parent.rules.map((rule) => [rule.normalized, rule.line]));
+    for (const child of documents) {
+      if (!isAncestorRule(parent.path, child.path)) continue;
+      for (const rule of child.rules) {
+        const parentLine = parentRules.get(rule.normalized);
+        if (!parentLine) continue;
+        duplicateCount += 1;
+        warnings.push({
+          code: 'duplicate-inherited-rule',
+          parent: parent.path,
+          parentLine,
+          child: child.path,
+          childLine: rule.line,
+          fingerprint: `sha256:${createHash('sha256').update(rule.normalized).digest('hex')}`,
+        });
+      }
+    }
+  }
+  checks.push({
+    code: 'rule-navigation',
+    ruleFiles: documents.length,
+    duplicateInheritedRules: duplicateCount,
+    status: errors.length ? 'fail' : duplicateCount ? 'warn' : 'pass',
+  });
+  return { errors, warnings, checks, documents };
+}
+
+async function ancestorRulePaths(projectRoot, requestedPaths) {
+  const paths = new Set(['AGENTS.md']);
+  for (const requested of requestedPaths) {
+    const absolute = safeProjectPath(projectRoot, requested, 'Context 路径');
+    const entry = await statOrNull(absolute);
+    const relative = posixProjectPath(path.relative(projectRoot, entry?.isFile() ? path.dirname(absolute) : absolute));
+    const segments = relative ? relative.split('/') : [];
+    for (let index = 0; index <= segments.length; index += 1) {
+      const candidate = [...segments.slice(0, index), 'AGENTS.md'].join('/');
+      const candidatePath = safeProjectPath(projectRoot, candidate, '祖先规则');
+      await assertNoSymlinkSegments(projectRoot, candidatePath);
+      if ((await statOrNull(candidatePath))?.isFile()) paths.add(candidate);
+    }
+  }
+  return [...paths].sort((left, right) => left.localeCompare(right));
+}
+
+async function findIndexFile(directory, basename) {
+  for (const extension of ['json', 'yaml', 'yml']) {
+    const candidate = path.join(directory, `${basename}.${extension}`);
+    const entry = await statOrNull(candidate);
+    if (entry?.isFile() && !entry.isSymbolicLink()) return candidate;
+  }
+  return null;
+}
+
+async function governanceConfiguration(projectRoot) {
+  const manifestPath = path.join(projectRoot, 'agent-foundation.json');
+  const manifestStat = await statOrNull(manifestPath);
+  if (!manifestStat) {
+    return {
+      directories: { specs: 'specs', knowledge: 'knowledge' },
+      context: { ...DEFAULT_CONTEXT_POLICY },
+    };
+  }
+  const manifest = await readProjectManifest(projectRoot);
+  return {
+    directories: manifest.directories,
+    context: { ...DEFAULT_CONTEXT_POLICY, ...manifest.context },
+  };
+}
+
+function relationCycle(records, field) {
+  const visiting = new Set();
+  const visited = new Set();
+  function visit(id, trail) {
+    if (visiting.has(id)) return [...trail, id];
+    if (visited.has(id)) return null;
+    visiting.add(id);
+    const target = records.get(id)?.meta.relations[field];
+    if (typeof target === 'string' && records.has(target)) {
+      const cycle = visit(target, [...trail, id]);
+      if (cycle) return cycle;
+    }
+    visiting.delete(id);
+    visited.add(id);
+    return null;
+  }
+  for (const id of records.keys()) {
+    const cycle = visit(id, []);
+    if (cycle) return cycle;
+  }
+  return null;
+}
+
+export async function checkSpecflowGovernance(target) {
+  const projectRoot = path.resolve(target);
+  const errors = [];
+  const warnings = [];
+  const checks = [];
+  let directories;
+  try {
+    ({ directories } = await governanceConfiguration(projectRoot));
+  } catch (error) {
+    return {
+      ok: false,
+      command: 'specflow-check',
+      status: 'fail',
+      target: projectRoot,
+      errors: [{ code: error.code || 'invalid-manifest', message: error.message }],
+      warnings,
+      checks,
+    };
+  }
+  const specsRoot = safeProjectPath(projectRoot, directories.specs, 'Specs 目录');
+  const specsEntry = await statOrNull(specsRoot);
+  if (!specsEntry?.isDirectory() || specsEntry.isSymbolicLink()) {
+    return {
+      ok: false,
+      command: 'specflow-check',
+      status: 'fail',
+      target: projectRoot,
+      errors: [{ code: 'invalid-specs-root', path: directories.specs }],
+      warnings,
+      checks,
+    };
+  }
+  const records = new Map();
+  const entries = (await readdir(specsRoot, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink() && !entry.name.startsWith('.'))
+    .sort((left, right) => left.name.localeCompare(right.name));
+  for (const entry of entries) {
+    const specDir = path.join(specsRoot, entry.name);
+    const metaPath = await findIndexFile(specDir, 'meta');
+    if (!metaPath) {
+      warnings.push({ code: 'spec-directory-without-meta', directory: entry.name });
+      continue;
+    }
+    try {
+      await assertNoSymlinkSegments(projectRoot, metaPath);
+      const meta = validateSpecMetaStructure(await readStructuredDocument(metaPath, 'Specflow Meta'), {
+        expectedId: entry.name,
+      });
+      for (const [role, artifact] of Object.entries(meta.artifacts)) {
+        if (artifact === null || role === 'lifecycle_dir') continue;
+        const absolute = path.resolve(specDir, artifact);
+        relativeInside(specDir, absolute);
+        await assertNoSymlinkSegments(specDir, absolute);
+        if (!(await statOrNull(absolute))?.isFile()) {
+          throw new FoundationError('spec-artifact-missing', 'Meta 引用的事项产物不存在', {
+            specId: meta.id,
+            role,
+            path: artifact,
+          });
+        }
+      }
+      if (['archived', 'superseded', 'cancelled'].includes(meta.status)) {
+        const chain = await verifyLifecycleChain(specDir, {
+          receiptPath: meta.artifacts.archive_receipt,
+          lifecycleDir: meta.artifacts.lifecycle_dir,
+        });
+        if (
+          chain.currentState !== meta.status ||
+          canonicalJson(chain.currentRelations) !== canonicalJson(meta.relations)
+        ) {
+          throw new FoundationError('spec-meta-chain-out-of-sync', '终态 Meta 未投影到 Lifecycle 链尾', {
+            specId: meta.id,
+          });
+        }
+      }
+      records.set(meta.id, { meta, specDir });
+      checks.push({ code: 'spec-meta', specId: meta.id, status: 'pass' });
+    } catch (error) {
+      errors.push({ code: error.code || 'invalid-spec-meta', specId: entry.name, message: error.message });
+    }
+  }
+
+  const requireTarget = (sourceId, field, targetId, reverseField, reverseMany) => {
+    const target = records.get(targetId)?.meta;
+    if (!target) {
+      errors.push({ code: 'spec-relation-target-missing', specId: sourceId, field, targetId });
+      return;
+    }
+    const reverse = target.relations[reverseField];
+    const reciprocal = reverseMany ? Array.isArray(reverse) && reverse.includes(sourceId) : reverse === sourceId;
+    if (!reciprocal) errors.push({ code: 'spec-relation-not-reciprocal', specId: sourceId, field, targetId });
+  };
+  for (const [id, { meta }] of records) {
+    if (meta.relations.parent) requireTarget(id, 'parent', meta.relations.parent, 'children', true);
+    for (const child of meta.relations.children) requireTarget(id, 'children', child, 'parent', false);
+    if (meta.relations.superseded_by) requireTarget(id, 'superseded_by', meta.relations.superseded_by, 'supersedes', true);
+    for (const superseded of meta.relations.supersedes) requireTarget(id, 'supersedes', superseded, 'superseded_by', false);
+  }
+  for (const field of ['parent', 'superseded_by']) {
+    const cycle = relationCycle(records, field);
+    if (cycle) errors.push({ code: 'spec-relation-cycle', field, specIds: cycle });
+  }
+  checks.push({ code: 'specflow-relations', specs: records.size, status: errors.length ? 'fail' : 'pass' });
+  return {
+    ok: errors.length === 0,
+    command: 'specflow-check',
+    status: errors.length ? 'fail' : warnings.length ? 'warn' : 'pass',
+    target: projectRoot,
+    errors,
+    warnings,
+    checks,
+  };
+}
+
+function safeProjectPath(projectRoot, relative, label) {
+  if (typeof relative !== 'string' || !relative || path.isAbsolute(relative)) {
+    throw new FoundationError('unsafe-governance-path', `${label} 必须是项目内相对路径`, { path: relative });
+  }
+  const absolute = path.resolve(projectRoot, relative);
+  relativeInside(projectRoot, absolute);
+  return absolute;
+}
+
+async function loadGovernanceIndexes(projectRoot) {
+  const { directories, context } = await governanceConfiguration(projectRoot);
+  const knowledgeRoot = safeProjectPath(projectRoot, directories.knowledge, 'Knowledge 目录');
+  const [registryPath, mapPath] = await Promise.all([
+    findIndexFile(knowledgeRoot, 'registry'),
+    findIndexFile(knowledgeRoot, 'code-entry-map'),
+  ]);
+  if (!registryPath || !mapPath) {
+    throw new FoundationError('missing-knowledge-index', 'Knowledge Registry 或 Code Entry Map 不存在');
+  }
+  await Promise.all([
+    assertNoSymlinkSegments(projectRoot, registryPath),
+    assertNoSymlinkSegments(projectRoot, mapPath),
+  ]);
+  const [registry, codeEntryMap] = await Promise.all([
+    readStructuredDocument(registryPath, 'Knowledge Registry'),
+    readStructuredDocument(mapPath, 'Code Entry Map'),
+  ]);
+  return { directories, context, knowledgeRoot, registryPath, mapPath, registry, codeEntryMap };
+}
+
+function markdownLineRecords(text) {
+  const rawLines = text.match(/[^\r\n]*(?:\r\n|\n|\r|$)/gu)?.filter((line) => line.length > 0) || [];
+  let byteOffset = 0;
+  return rawLines.map((raw, index) => {
+    const content = raw.replace(/(?:\r\n|\n|\r)$/u, '');
+    const startByte = byteOffset;
+    byteOffset += Buffer.byteLength(raw);
+    return { line: index + 1, content, startByte, endByte: byteOffset };
+  });
+}
+
+function buildMarkdownContextIndex(relativePath, buffer, maxEntries) {
+  const records = markdownLineRecords(buffer.toString('utf8'));
+  const allHeadings = [];
+  const allPendingLines = [];
+  const allRuleLocations = [];
+  let completedChecklistCount = 0;
+  for (const record of records) {
+    const heading = record.content.match(/^ {0,3}(#{1,3})[ \t]+(.+?)\s*$/u);
+    if (heading) {
+      const title = heading[2].replace(/[ \t]+#+[ \t]*$/u, '').trim();
+      if (!title) continue;
+      allHeadings.push({
+        level: heading[1].length,
+        title,
+        startLine: record.line,
+        startByte: record.startByte,
+      });
+    }
+    const checklist = record.content.match(/^\s*[-*+]\s+\[([ xX])\]\s+/u);
+    if (checklist?.[1].toLowerCase() === 'x') completedChecklistCount += 1;
+    else if (checklist) allPendingLines.push(record.line);
+    for (const match of record.content.matchAll(/\b(?:AC|BR|FR|SC|UB)-\d+\b/giu)) {
+      allRuleLocations.push({ id: match[0].toUpperCase(), path: relativePath, line: record.line });
+    }
+  }
+  const headings = allHeadings.slice(0, maxEntries).map((heading, index) => {
+    let next = null;
+    for (let candidate = index + 1; candidate < allHeadings.length; candidate += 1) {
+      if (allHeadings[candidate].level <= heading.level) {
+        next = allHeadings[candidate];
+        break;
+      }
+    }
+    const endByte = next?.startByte ?? buffer.length;
+    const endLine = next ? next.startLine - 1 : records.length;
+    return {
+      level: heading.level,
+      title: heading.title,
+      startLine: heading.startLine,
+      endLine,
+      bytes: endByte - heading.startByte,
+    };
+  });
+  return {
+    path: relativePath,
+    bytes: buffer.length,
+    lines: records.length,
+    headingCount: allHeadings.length,
+    headings,
+    headingsTruncated: allHeadings.length > headings.length,
+    checklist: {
+      total: completedChecklistCount + allPendingLines.length,
+      completed: completedChecklistCount,
+      pending: allPendingLines.length,
+      pendingLines: allPendingLines.slice(0, maxEntries),
+      pendingLinesTruncated: allPendingLines.length > maxEntries,
+    },
+    ruleLocations: allRuleLocations.slice(0, maxEntries),
+    ruleLocationsTruncated: allRuleLocations.length > maxEntries,
+  };
+}
+
+function buildSpecContextIndex(artifacts, maxEntries) {
+  const indexes = artifacts.map((artifact) => buildMarkdownContextIndex(artifact.path, artifact.buffer, maxEntries));
+  const seenRules = new Set();
+  const ruleLocations = [];
+  for (const index of indexes) {
+    for (const location of index.ruleLocations) {
+      if (seenRules.has(location.id)) continue;
+      seenRules.add(location.id);
+      if (ruleLocations.length < maxEntries) ruleLocations.push(location);
+    }
+  }
+  const specDocument = indexes.find((index) => index.path.endsWith('/spec.md'));
+  return {
+    title: specDocument?.headings.find((heading) => heading.level === 1)?.title || null,
+    artifacts: indexes.map(({ ruleLocations: _locations, ruleLocationsTruncated: _truncated, ...index }) => index),
+    ruleLocations,
+    ruleLocationsTruncated:
+      indexes.some((index) => index.ruleLocationsTruncated) || seenRules.size > ruleLocations.length,
+  };
+}
+
+export async function checkKnowledgeGovernance(target) {
+  const projectRoot = path.resolve(target);
+  const errors = [];
+  const warnings = [];
+  const checks = [];
+  let loaded;
+  try {
+    loaded = await loadGovernanceIndexes(projectRoot);
+  } catch (error) {
+    return {
+      ok: false,
+      command: 'knowledge-check',
+      status: 'fail',
+      target: projectRoot,
+      errors: [{ code: error.code || 'invalid-knowledge-index', message: error.message }],
+      warnings,
+      checks,
+    };
+  }
+  const { registry, codeEntryMap, knowledgeRoot } = loaded;
+  if (normalizedIndexVersion(registry) !== 1 || !Array.isArray(registry.entries)) {
+    errors.push({ code: 'invalid-knowledge-registry' });
+  }
+  if (normalizedIndexVersion(codeEntryMap) !== 1 || !Array.isArray(codeEntryMap.entries)) {
+    errors.push({ code: 'invalid-code-entry-map' });
+  }
+  const entries = Array.isArray(registry.entries) ? registry.entries : [];
+  const byId = new Map();
+  for (const entry of entries) {
+    const entryErrorCount = errors.length;
+    const valid =
+      entry &&
+      typeof entry === 'object' &&
+      !Array.isArray(entry) &&
+      typeof entry.id === 'string' &&
+      /^[a-z0-9][a-z0-9-]{0,63}$/u.test(entry.id) &&
+      typeof entry.title === 'string' &&
+      ['current', 'review-required', 'retired'].includes(entry.status) &&
+      typeof entry.path === 'string' &&
+      /^\d{4}-\d{2}-\d{2}$/u.test(entry.last_reviewed_at) &&
+      stringArray(entry.scope) &&
+      stringArray(entry.topics) &&
+      stringArray(entry.authoritative_sources) &&
+      stringArray(entry.refresh_triggers) &&
+      stringArray(entry.load_when) &&
+      Array.isArray(entry.source_evidence) &&
+      (entry.status_reason === undefined ||
+        entry.status_reason === null ||
+        (typeof entry.status_reason === 'string' && entry.status_reason.trim().length > 0)) &&
+      (entry.superseded_by === undefined ||
+        entry.superseded_by === null ||
+        (typeof entry.superseded_by === 'string' && /^[a-z0-9][a-z0-9-]{0,63}$/u.test(entry.superseded_by))) &&
+      (entry.last_projection === undefined || validKnowledgeProjectionMarker(entry.last_projection));
+    if (!valid || byId.has(entry?.id)) {
+      errors.push({ code: byId.has(entry?.id) ? 'duplicate-knowledge-id' : 'invalid-knowledge-entry', id: entry?.id });
+      continue;
+    }
+    if (
+      entry.status !== 'retired' &&
+      ((entry.status_reason !== undefined && entry.status_reason !== null) ||
+        (entry.superseded_by !== undefined && entry.superseded_by !== null))
+    ) {
+      errors.push({ code: 'active-knowledge-has-retirement-metadata', id: entry.id });
+    }
+    if (entry.last_projection) {
+      const expectsCurrent = ['create', 'update', 'still-valid'].includes(entry.last_projection.action);
+      if ((expectsCurrent && entry.status !== 'current') || (!expectsCurrent && entry.status !== 'retired')) {
+        errors.push({ code: 'knowledge-projection-status-mismatch', id: entry.id });
+      }
+      if (entry.last_projection.reviewed_at !== entry.last_reviewed_at) {
+        errors.push({ code: 'knowledge-projection-review-date-mismatch', id: entry.id });
+      }
+      if (entry.last_projection.action === 'supersede' && !entry.superseded_by) {
+        errors.push({ code: 'knowledge-projection-target-missing', id: entry.id });
+      }
+      if (entry.last_projection.action === 'retire' && entry.superseded_by) {
+        errors.push({ code: 'knowledge-retire-has-supersede-target', id: entry.id });
+      }
+    }
+    byId.set(entry.id, entry);
+    try {
+      for (const scopedPath of entry.scope) safeProjectPath(projectRoot, scopedPath, 'Knowledge scope');
+      const documentPath = path.resolve(knowledgeRoot, entry.path);
+      relativeInside(knowledgeRoot, documentPath);
+      await assertNoSymlinkSegments(projectRoot, documentPath);
+      if (!(await statOrNull(documentPath))?.isFile()) errors.push({ code: 'knowledge-document-missing', id: entry.id });
+      const evidenceByPath = new Map();
+      for (const evidence of entry.source_evidence) {
+        if (
+          !evidence ||
+          typeof evidence !== 'object' ||
+          Array.isArray(evidence) ||
+          typeof evidence.path !== 'string' ||
+          typeof evidence.digest !== 'string' ||
+          !/^sha256:[a-f0-9]{64}$/u.test(evidence.digest) ||
+          evidenceByPath.has(evidence.path)
+        ) {
+          errors.push({ code: 'invalid-knowledge-source-evidence', id: entry.id });
+          continue;
+        }
+        evidenceByPath.set(evidence.path, evidence.digest);
+      }
+      if (
+        evidenceByPath.size !== entry.authoritative_sources.length ||
+        entry.authoritative_sources.some((source) => !evidenceByPath.has(source))
+      ) {
+        errors.push({ code: 'knowledge-source-evidence-incomplete', id: entry.id });
+      }
+      for (const source of entry.authoritative_sources) {
+        const sourcePath = safeProjectPath(projectRoot, source, 'Knowledge 权威来源');
+        await assertNoSymlinkSegments(projectRoot, sourcePath);
+        const sourceStat = await statOrNull(sourcePath);
+        if (!sourceStat?.isFile()) {
+          errors.push({ code: 'knowledge-source-missing', id: entry.id, source });
+          continue;
+        }
+        const actual = `sha256:${createHash('sha256').update(await readFile(sourcePath)).digest('hex')}`;
+        if (evidenceByPath.get(source) !== actual) {
+          const issue = { code: 'knowledge-source-digest-mismatch', id: entry.id, source };
+          if (entry.status === 'current') errors.push(issue);
+          else warnings.push(issue);
+        }
+      }
+      if (entry.status === 'review-required') warnings.push({ code: 'knowledge-review-required', id: entry.id });
+      checks.push({ code: 'knowledge-entry', id: entry.id, status: errors.length === entryErrorCount ? 'pass' : 'fail' });
+    } catch (error) {
+      errors.push({ code: error.code || 'invalid-knowledge-entry', id: entry.id, message: error.message });
+    }
+  }
+  for (const entry of entries) {
+    if (!entry?.superseded_by) continue;
+    const target = byId.get(entry.superseded_by);
+    if (!target) errors.push({ code: 'knowledge-supersede-target-missing', id: entry.id, target: entry.superseded_by });
+    else if (target.status !== 'current') {
+      errors.push({ code: 'knowledge-supersede-target-not-current', id: entry.id, target: entry.superseded_by });
+    }
+    const visited = new Set([entry.id]);
+    let cursor = target;
+    while (cursor?.superseded_by) {
+      if (visited.has(cursor.superseded_by)) {
+        errors.push({ code: 'knowledge-supersession-cycle', id: entry.id });
+        break;
+      }
+      visited.add(cursor.superseded_by);
+      cursor = byId.get(cursor.superseded_by);
+    }
+  }
+  const mappings = Array.isArray(codeEntryMap.entries) ? codeEntryMap.entries : [];
+  const taskTypes = new Set();
+  for (const mapping of mappings) {
+    const mappingErrorCount = errors.length;
+    if (
+      !mapping ||
+      typeof mapping.task_type !== 'string' ||
+      !stringArray(mapping.start_paths) ||
+      !stringArray(mapping.module_rules) ||
+      !stringArray(mapping.knowledge) ||
+      !Array.isArray(mapping.exclude_by_default) ||
+      !mapping.exclude_by_default.every((item) => typeof item === 'string') ||
+      taskTypes.has(mapping.task_type)
+    ) {
+      errors.push({ code: taskTypes.has(mapping?.task_type) ? 'duplicate-task-type' : 'invalid-code-entry', taskType: mapping?.task_type });
+      continue;
+    }
+    taskTypes.add(mapping.task_type);
+    for (const field of ['start_paths', 'module_rules', 'knowledge', 'exclude_by_default']) {
+      for (const duplicate of duplicateStrings(mapping[field])) {
+        errors.push({ code: 'duplicate-code-entry-value', taskType: mapping.task_type, field, value: duplicate });
+      }
+    }
+    const excluded = new Set(mapping.exclude_by_default.map(posixProjectPath));
+    for (const [field, candidates] of [
+      ['start_paths', mapping.start_paths],
+      ['module_rules', mapping.module_rules],
+    ]) {
+      for (const candidate of candidates) {
+        if (excluded.has(posixProjectPath(candidate))) {
+          errors.push({ code: 'code-entry-path-conflict', taskType: mapping.task_type, field, path: candidate });
+        }
+      }
+    }
+    for (const id of mapping.knowledge) {
+      if (!byId.has(id)) errors.push({ code: 'unknown-knowledge-reference', taskType: mapping.task_type, id });
+      else if (byId.get(id).status === 'retired') {
+        errors.push({ code: 'retired-knowledge-reference', taskType: mapping.task_type, id });
+      }
+    }
+    for (const candidate of [...mapping.start_paths, ...mapping.module_rules, ...mapping.exclude_by_default]) {
+      try {
+        safeProjectPath(projectRoot, candidate, 'Code Entry Map 路径');
+      } catch (error) {
+        errors.push({ code: error.code || 'unsafe-governance-path', taskType: mapping.task_type });
+      }
+    }
+    for (const startPath of mapping.start_paths) {
+      try {
+        const absolute = safeProjectPath(projectRoot, startPath, '起始路径');
+        await assertNoSymlinkSegments(projectRoot, absolute);
+        if (!(await statOrNull(absolute))) errors.push({ code: 'start-path-missing', taskType: mapping.task_type, path: startPath });
+      } catch (error) {
+        if (error.code === 'unsafe-symlink') {
+          errors.push({ code: error.code, taskType: mapping.task_type, path: startPath });
+        }
+      }
+    }
+    for (const moduleRule of mapping.module_rules) {
+      try {
+        const rulePath = safeProjectPath(projectRoot, moduleRule, '模块规则');
+        await assertNoSymlinkSegments(projectRoot, rulePath);
+        if (!(await statOrNull(rulePath))?.isFile()) errors.push({ code: 'module-rule-missing', taskType: mapping.task_type, path: moduleRule });
+      } catch (error) {
+        if (error.code === 'unsafe-symlink') {
+          errors.push({ code: error.code, taskType: mapping.task_type, path: moduleRule });
+        }
+      }
+    }
+    for (const excludedPath of mapping.exclude_by_default) {
+      try {
+        const absolute = safeProjectPath(projectRoot, excludedPath, '默认排除路径');
+        await assertNoSymlinkSegments(projectRoot, absolute);
+        if (!(await statOrNull(absolute))) warnings.push({ code: 'excluded-path-missing', taskType: mapping.task_type, path: excludedPath });
+      } catch (error) {
+        if (error.code === 'unsafe-symlink') {
+          errors.push({ code: error.code, taskType: mapping.task_type, path: excludedPath });
+        }
+      }
+    }
+    checks.push({ code: 'code-entry', taskType: mapping.task_type, status: errors.length === mappingErrorCount ? 'pass' : 'fail' });
+  }
+  const ruleNavigation = await inspectRuleNavigation(projectRoot, loaded, mappings);
+  errors.push(...ruleNavigation.errors);
+  warnings.push(...ruleNavigation.warnings);
+  checks.push(...ruleNavigation.checks);
+  return {
+    ok: errors.length === 0,
+    command: 'knowledge-check',
+    status: errors.length ? 'fail' : warnings.length ? 'warn' : 'pass',
+    target: projectRoot,
+    errors,
+    warnings,
+    checks,
+    registryEntries: entries.length,
+    codeEntries: mappings.length,
+    ruleFiles: ruleNavigation.documents.map(({ path: rulePath, bytes }) => ({ path: rulePath, bytes })),
+  };
+}
+
+function validateKnowledgeProjectionDocument(projection) {
+  const errors = [];
+  const allowedProjectionKeys = new Set(['impact', 'reason', 'decisions']);
+  if (
+    !projection ||
+    typeof projection !== 'object' ||
+    Array.isArray(projection) ||
+    Object.keys(projection).some((key) => !allowedProjectionKeys.has(key)) ||
+    !['reviewed', 'none'].includes(projection.impact) ||
+    !Array.isArray(projection.decisions)
+  ) {
+    return [{ code: 'invalid-knowledge-projection' }];
+  }
+  if (projection.impact === 'none') {
+    if (typeof projection.reason !== 'string' || !projection.reason.trim() || projection.decisions.length) {
+      errors.push({ code: 'invalid-no-impact-projection' });
+    }
+    return errors;
+  }
+  if (!projection.decisions.length) errors.push({ code: 'knowledge-decisions-missing' });
+  const ids = new Set();
+  const allowedDecisionKeys = new Set(['action', 'knowledge_id', 'target_knowledge_id', 'reason', 'evidence_refs']);
+  for (const decision of projection.decisions) {
+    const valid =
+      decision &&
+      typeof decision === 'object' &&
+      !Array.isArray(decision) &&
+      !Object.keys(decision).some((key) => !allowedDecisionKeys.has(key)) &&
+      ['create', 'update', 'still-valid', 'supersede', 'retire'].includes(decision.action) &&
+      typeof decision.knowledge_id === 'string' &&
+      /^[a-z0-9][a-z0-9-]{0,63}$/u.test(decision.knowledge_id) &&
+      typeof decision.reason === 'string' &&
+      decision.reason.trim().length > 0 &&
+      stringArray(decision.evidence_refs) &&
+      decision.evidence_refs.length > 0;
+    if (!valid) {
+      errors.push({ code: 'invalid-knowledge-decision', id: decision?.knowledge_id });
+      continue;
+    }
+    if (ids.has(decision.knowledge_id)) errors.push({ code: 'duplicate-knowledge-decision', id: decision.knowledge_id });
+    ids.add(decision.knowledge_id);
+    if (
+      decision.action === 'supersede'
+        ? typeof decision.target_knowledge_id !== 'string' ||
+          !/^[a-z0-9][a-z0-9-]{0,63}$/u.test(decision.target_knowledge_id) ||
+          decision.target_knowledge_id === decision.knowledge_id
+        : decision.target_knowledge_id !== undefined && decision.target_knowledge_id !== null
+    ) {
+      errors.push({ code: 'invalid-knowledge-target', id: decision.knowledge_id });
+    }
+  }
+  return errors;
+}
+
+function knowledgeProjectionDecisionDigest(decision) {
+  const canonical = {
+    action: decision.action,
+    knowledge_id: decision.knowledge_id,
+    target_knowledge_id: decision.target_knowledge_id || null,
+    reason: decision.reason,
+    evidence_refs: [...decision.evidence_refs].sort(),
+  };
+  return `sha256:${createHash('sha256').update(JSON.stringify(canonical)).digest('hex')}`;
+}
+
+function expectedKnowledgeProjectionMarker(decision, specId, reviewedAt) {
+  return {
+    spec_id: specId,
+    action: decision.action,
+    reviewed_at: reviewedAt,
+    decision_digest: knowledgeProjectionDecisionDigest(decision),
+  };
+}
+
+function knowledgeProjectionMarkerMatches(entry, decision, specId, reviewedAt) {
+  return JSON.stringify(entry.last_projection) === JSON.stringify(expectedKnowledgeProjectionMarker(decision, specId, reviewedAt));
+}
+
+async function refreshKnowledgeSourceEvidence(projectRoot, entry) {
+  const evidence = [];
+  for (const source of entry.authoritative_sources) {
+    const sourcePath = safeProjectPath(projectRoot, source, 'Knowledge 权威来源');
+    await assertNoSymlinkSegments(projectRoot, sourcePath);
+    if (!(await statOrNull(sourcePath))?.isFile()) {
+      throw new FoundationError('knowledge-source-missing', 'Knowledge 权威来源不存在', { id: entry.id, source });
+    }
+    evidence.push({
+      path: source,
+      digest: `sha256:${createHash('sha256').update(await readFile(sourcePath)).digest('hex')}`,
+    });
+  }
+  return evidence;
+}
+
+function publicKnowledgeProjectionPlan(plan) {
+  const { proposedRegistry: _registry, registryPath: _path, ...result } = plan;
+  return result;
+}
+
+async function buildKnowledgeProjectionPlan(target, { projectionPath, specId, reviewedAt, changedPaths = [] }) {
+  const projectRoot = path.resolve(target);
+  if (typeof specId !== 'string' || !/^[a-z0-9][a-z0-9-]{0,127}$/u.test(specId)) {
+    throw new FoundationError('invalid-spec-id', 'specId 必须是稳定的小写连字符标识');
+  }
+  if (typeof reviewedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}$/u.test(reviewedAt)) {
+    throw new FoundationError('invalid-reviewed-at', 'reviewedAt 必须使用 YYYY-MM-DD');
+  }
+  if (!Array.isArray(changedPaths) || changedPaths.some((candidate) => typeof candidate !== 'string' || !candidate.trim())) {
+    throw new FoundationError('invalid-knowledge-paths', 'changedPaths 必须是非空相对路径数组');
+  }
+  const requestedPaths = changedPaths.map((candidate) => {
+    safeProjectPath(projectRoot, candidate, 'Knowledge 变更路径');
+    return candidate.replace(/^\.\//u, '').replace(/\\/gu, '/').replace(/\/$/u, '');
+  });
+  const projectionAbsolute = safeProjectPath(projectRoot, projectionPath, 'Knowledge Projection');
+  await assertNoSymlinkSegments(projectRoot, projectionAbsolute);
+  if (!(await statOrNull(projectionAbsolute))?.isFile()) {
+    throw new FoundationError('knowledge-projection-missing', 'Knowledge Projection 文件不存在');
+  }
+  const projection = await readStructuredDocument(projectionAbsolute, 'Knowledge Projection');
+  const projectionErrors = validateKnowledgeProjectionDocument(projection);
+  if (projectionErrors.length) {
+    return {
+      ok: false,
+      command: 'knowledge-projection-plan',
+      status: 'blocked',
+      target: projectRoot,
+      specId,
+      reviewedAt,
+      errors: projectionErrors,
+      warnings: [],
+      changes: [],
+      registryChanged: false,
+    };
+  }
+  const loaded = await loadGovernanceIndexes(projectRoot);
+  const knowledgeCheck = await checkKnowledgeGovernance(projectRoot);
+  const registryEntries = Array.isArray(loaded.registry.entries) ? loaded.registry.entries : [];
+  const matchedKnowledgeIds = requestedPaths.length
+    ? registryEntries
+        .filter(
+          (entry) =>
+            entry &&
+            entry.status !== 'retired' &&
+            Array.isArray(entry.scope) &&
+            entry.scope.some((scope) => requestedPaths.some((candidate) => pathsOverlap(scope, candidate))),
+        )
+        .map((entry) => entry.id)
+        .sort()
+    : [];
+  const coverage = {
+    mode: requestedPaths.length ? 'path-overlap' : 'not-provided',
+    paths: requestedPaths,
+    matchedKnowledgeIds,
+  };
+  const coverageWarnings = requestedPaths.length ? [] : [{ code: 'knowledge-coverage-paths-not-provided' }];
+  if (projection.impact === 'none') {
+    const noImpactErrors = [
+      ...knowledgeCheck.errors,
+      ...matchedKnowledgeIds.map((id) => ({ code: 'knowledge-impact-unaddressed', id })),
+    ];
+    if (noImpactErrors.length) {
+      return {
+        ok: false,
+        command: 'knowledge-projection-plan',
+        status: 'blocked',
+        target: projectRoot,
+        specId,
+        reviewedAt,
+        errors: noImpactErrors,
+        warnings: coverageWarnings,
+        coverage,
+        changes: [],
+        registryChanged: false,
+      };
+    }
+    return {
+      ok: true,
+      command: 'knowledge-projection-plan',
+      status: 'no-impact',
+      target: projectRoot,
+      specId,
+      reviewedAt,
+      errors: [],
+      warnings: coverageWarnings,
+      coverage,
+      changes: [],
+      registryChanged: false,
+      reason: projection.reason,
+    };
+  }
+  const decisionIds = new Set(projection.decisions.map((decision) => decision.knowledge_id));
+  const repairableCodes = new Set([
+    'invalid-knowledge-source-evidence',
+    'knowledge-source-evidence-incomplete',
+    'knowledge-source-digest-mismatch',
+  ]);
+  const blockingErrors = knowledgeCheck.errors.filter(
+    (error) => !decisionIds.has(error.id) || !repairableCodes.has(error.code),
+  );
+  for (const id of matchedKnowledgeIds) {
+    if (!decisionIds.has(id)) blockingErrors.push({ code: 'knowledge-impact-unaddressed', id });
+  }
+  if (blockingErrors.length) {
+    return {
+      ok: false,
+      command: 'knowledge-projection-plan',
+      status: 'blocked',
+      target: projectRoot,
+      specId,
+      reviewedAt,
+      errors: blockingErrors,
+      warnings: coverageWarnings,
+      coverage,
+      changes: [],
+      registryChanged: false,
+    };
+  }
+
+  const proposedRegistry = structuredClone(loaded.registry);
+  const entries = Array.isArray(proposedRegistry.entries) ? proposedRegistry.entries : [];
+  const byId = new Map(entries.map((entry) => [entry.id, entry]));
+  const errors = [];
+  const changes = [];
+  const decisions = [...projection.decisions].sort((left, right) => left.knowledge_id.localeCompare(right.knowledge_id));
+  const positiveActions = new Set(['create', 'update', 'still-valid']);
+  for (const decision of decisions) {
+    const entry = byId.get(decision.knowledge_id);
+    if (!entry) {
+      errors.push({ code: 'knowledge-entry-not-prepared', id: decision.knowledge_id, action: decision.action });
+      continue;
+    }
+    const documentPath = path.resolve(loaded.knowledgeRoot, entry.path);
+    try {
+      relativeInside(loaded.knowledgeRoot, documentPath);
+      await assertNoSymlinkSegments(projectRoot, documentPath);
+      if (!(await statOrNull(documentPath))?.isFile()) errors.push({ code: 'knowledge-document-missing', id: entry.id });
+    } catch (error) {
+      errors.push({ code: error.code || 'unsafe-governance-path', id: entry.id });
+    }
+    const alreadyApplied = knowledgeProjectionMarkerMatches(entry, decision, specId, reviewedAt);
+    if (decision.action === 'create' && entry.status !== 'review-required' && !alreadyApplied) {
+      errors.push({ code: 'knowledge-create-not-prepared', id: entry.id });
+    }
+    if (decision.action !== 'create' && entry.status === 'retired' && !alreadyApplied) {
+      errors.push({ code: 'knowledge-entry-already-retired', id: entry.id });
+    }
+    entry.status = positiveActions.has(decision.action) ? 'current' : 'retired';
+    entry.last_reviewed_at = reviewedAt;
+    if (entry.status === 'current') {
+      entry.status_reason = null;
+      entry.superseded_by = null;
+    } else {
+      entry.status_reason = decision.reason;
+      entry.superseded_by = decision.action === 'supersede' ? decision.target_knowledge_id : null;
+    }
+    entry.last_projection = expectedKnowledgeProjectionMarker(decision, specId, reviewedAt);
+  }
+  for (const decision of decisions.filter((item) => item.action === 'supersede')) {
+    const targetEntry = byId.get(decision.target_knowledge_id);
+    if (!targetEntry) errors.push({ code: 'knowledge-supersede-target-missing', id: decision.knowledge_id, target: decision.target_knowledge_id });
+    else if (targetEntry.status !== 'current') {
+      errors.push({ code: 'knowledge-supersede-target-not-current', id: decision.knowledge_id, target: decision.target_knowledge_id });
+    }
+  }
+  for (const decision of decisions.filter((item) => ['supersede', 'retire'].includes(item.action))) {
+    for (const mapping of loaded.codeEntryMap.entries) {
+      if (mapping.knowledge.includes(decision.knowledge_id)) {
+        errors.push({
+          code: 'retired-knowledge-still-routed',
+          id: decision.knowledge_id,
+          taskType: mapping.task_type,
+        });
+      }
+    }
+  }
+  if (errors.length) {
+    return {
+      ok: false,
+      command: 'knowledge-projection-plan',
+      status: 'blocked',
+      target: projectRoot,
+      specId,
+      reviewedAt,
+      errors,
+      warnings: coverageWarnings,
+      coverage,
+      changes: [],
+      registryChanged: false,
+    };
+  }
+  for (const decision of decisions) {
+    const original = loaded.registry.entries.find((entry) => entry.id === decision.knowledge_id);
+    const entry = byId.get(decision.knowledge_id);
+    entry.source_evidence = await refreshKnowledgeSourceEvidence(projectRoot, entry);
+    changes.push({
+      id: entry.id,
+      action: decision.action,
+      beforeStatus: original.status,
+      afterStatus: entry.status,
+      targetKnowledgeId: decision.target_knowledge_id || null,
+      sourceEvidenceCount: entry.source_evidence.length,
+    });
+  }
+  const registryChanged = JSON.stringify(proposedRegistry) !== JSON.stringify(loaded.registry);
+  return {
+    ok: true,
+    command: 'knowledge-projection-plan',
+    status: registryChanged ? 'planned' : 'unchanged',
+    target: projectRoot,
+    specId,
+    reviewedAt,
+    errors: [],
+    warnings: coverageWarnings,
+    coverage,
+    changes,
+    registryChanged,
+    registryPath: loaded.registryPath,
+    proposedRegistry,
+  };
+}
+
+export async function planKnowledgeProjection(target, options) {
+  return publicKnowledgeProjectionPlan(await buildKnowledgeProjectionPlan(target, options));
+}
+
+export async function applyKnowledgeProjection(target, options) {
+  const projectRoot = path.resolve(target);
+  const initial = await buildKnowledgeProjectionPlan(projectRoot, options);
+  if (!initial.ok || !initial.registryChanged) {
+    return { ...publicKnowledgeProjectionPlan(initial), command: 'knowledge-projection-apply' };
+  }
+  const lockPath = `${initial.registryPath}.projection.lock`;
+  try {
+    await writeFile(lockPath, `${JSON.stringify({ specId: options.specId, reviewedAt: options.reviewedAt })}\n`, { flag: 'wx' });
+  } catch (error) {
+    if (error.code === 'EEXIST') throw new FoundationError('knowledge-projection-locked', '已有 Knowledge Projection 正在应用');
+    throw error;
+  }
+  const extension = path.extname(initial.registryPath);
+  const temporary = `${initial.registryPath.slice(0, -extension.length)}.tmp-${randomUUID()}${extension}`;
+  const rollback = `${initial.registryPath.slice(0, -extension.length)}.rollback-${randomUUID()}${extension}`;
+  try {
+    const plan = await buildKnowledgeProjectionPlan(projectRoot, options);
+    if (!plan.ok) return { ...publicKnowledgeProjectionPlan(plan), command: 'knowledge-projection-apply' };
+    if (!plan.registryChanged) return { ...publicKnowledgeProjectionPlan(plan), command: 'knowledge-projection-apply' };
+    const serialized = serializeStructuredDocument(plan.registryPath, plan.proposedRegistry);
+    await writeFile(temporary, serialized, { flag: 'wx' });
+    const roundTrip = await readStructuredDocument(temporary, 'Knowledge Registry 候选');
+    if (JSON.stringify(roundTrip) !== JSON.stringify(plan.proposedRegistry)) {
+      throw new FoundationError('knowledge-projection-roundtrip-failed', 'Knowledge Registry 候选无法无损回读');
+    }
+    const originalRegistry = await readFile(plan.registryPath);
+    await rename(temporary, plan.registryPath);
+    const verification = await buildKnowledgeProjectionPlan(projectRoot, options);
+    if (!verification.ok || verification.registryChanged) {
+      await writeFile(rollback, originalRegistry, { flag: 'wx' });
+      await rename(rollback, plan.registryPath);
+      throw new FoundationError('knowledge-projection-verify-failed', 'Knowledge Projection 应用后复核失败');
+    }
+    return {
+      ...publicKnowledgeProjectionPlan(verification),
+      command: 'knowledge-projection-apply',
+      status: 'applied',
+      appliedChanges: plan.changes,
+    };
+  } finally {
+    await rm(temporary, { force: true });
+    await rm(rollback, { force: true });
+    await rm(lockPath, { force: true });
+  }
+}
+
+export async function verifyKnowledgeProjection(target, options) {
+  const plan = await buildKnowledgeProjectionPlan(target, options);
+  if (!plan.ok) return { ...publicKnowledgeProjectionPlan(plan), command: 'knowledge-projection-verify' };
+  if (plan.status === 'no-impact') {
+    return { ...publicKnowledgeProjectionPlan(plan), command: 'knowledge-projection-verify' };
+  }
+  return {
+    ...publicKnowledgeProjectionPlan(plan),
+    command: 'knowledge-projection-verify',
+    ok: !plan.registryChanged,
+    status: plan.registryChanged ? 'drift' : 'verified',
+  };
+}
+
+export async function resolveProjectContext(target, { taskType, paths = [] } = {}) {
+  const projectRoot = path.resolve(target);
+  if (taskType !== undefined && (typeof taskType !== 'string' || !taskType.trim())) {
+    throw new FoundationError('invalid-context-selector', 'taskType 必须是非空字符串');
+  }
+  if (!Array.isArray(paths) || paths.some((candidate) => typeof candidate !== 'string' || !candidate.trim())) {
+    throw new FoundationError('invalid-context-selector', 'paths 必须是非空相对路径数组');
+  }
+  const knowledgeCheck = await checkKnowledgeGovernance(projectRoot);
+  if (!knowledgeCheck.ok) {
+    return { ...knowledgeCheck, command: 'context-resolve', status: 'blocked', activeSpecs: [], knowledge: [], loadPlan: [] };
+  }
+  const loaded = await loadGovernanceIndexes(projectRoot);
+  const requestedPaths = paths.map((candidate) => {
+    safeProjectPath(projectRoot, candidate, 'Context 路径');
+    return candidate;
+  });
+  const mappings = loaded.codeEntryMap.entries.filter(
+    (entry) =>
+      (!taskType || entry.task_type === taskType) &&
+      (!requestedPaths.length || entry.start_paths.some((start) => requestedPaths.some((candidate) => pathsOverlap(start, candidate)))),
+  );
+  const selectedIds = new Set(mappings.flatMap((entry) => entry.knowledge));
+  if (!taskType && !requestedPaths.length) {
+    for (const entry of loaded.registry.entries) if (entry.status !== 'retired') selectedIds.add(entry.id);
+  } else {
+    for (const entry of loaded.registry.entries) {
+      if (requestedPaths.some((candidate) => entry.scope.some((scope) => pathsOverlap(scope, candidate)))) selectedIds.add(entry.id);
+    }
+  }
+  const knowledge = loaded.registry.entries
+    .filter((entry) => selectedIds.has(entry.id) && entry.status !== 'retired')
+    .map((entry) => ({ id: entry.id, status: entry.status, path: path.posix.join(loaded.directories.knowledge, entry.path.replace(/^\.\//u, '')) }));
+
+  const selectedRulePaths = [
+    ...new Set([
+      ...(await ancestorRulePaths(projectRoot, requestedPaths)),
+      ...mappings.flatMap((entry) => entry.module_rules.map(posixProjectPath)),
+    ]),
+  ].sort((left, right) => left.localeCompare(right));
+  const ruleFiles = [];
+  for (const rulePath of selectedRulePaths) {
+    const absolute = safeProjectPath(projectRoot, rulePath, 'Context 规则');
+    await assertNoSymlinkSegments(projectRoot, absolute);
+    const buffer = await readFile(absolute);
+    if (buffer.length > loaded.context.maxRuleFileBytes) {
+      throw new FoundationError('rule-file-budget-exceeded', '规则文件超过 Manifest 声明的单文件预算', {
+        path: rulePath,
+        bytes: buffer.length,
+        limit: loaded.context.maxRuleFileBytes,
+      });
+    }
+    ruleFiles.push({ path: rulePath, bytes: buffer.length });
+  }
+
+  const specsRoot = safeProjectPath(projectRoot, loaded.directories.specs, 'Specs 目录');
+  const activeSpecs = [];
+  const specsStat = await statOrNull(specsRoot);
+  if (specsStat?.isDirectory() && !specsStat.isSymbolicLink()) {
+    const directories = (await readdir(specsRoot, { withFileTypes: true })).filter((entry) => entry.isDirectory() && !entry.isSymbolicLink());
+    for (const directory of directories.sort((left, right) => left.name.localeCompare(right.name))) {
+      const metaPath = await findIndexFile(path.join(specsRoot, directory.name), 'meta');
+      if (!metaPath) continue;
+      const meta = await readStructuredDocument(metaPath, 'Specflow Meta');
+      if (!['draft', 'planned', 'in-progress'].includes(meta.status)) continue;
+      if (meta.id !== directory.name || !stringArray(meta.scope) || !meta.artifacts || typeof meta.artifacts !== 'object') {
+        throw new FoundationError('invalid-spec-meta', 'Active Spec Meta 结构无效', { directory: directory.name });
+      }
+      if (requestedPaths.length && !requestedPaths.some((candidate) => meta.scope.some((scope) => pathsOverlap(scope, candidate)))) continue;
+      for (const scopedPath of meta.scope) safeProjectPath(projectRoot, scopedPath, 'Spec scope');
+      const artifacts = [];
+      for (const role of ['spec', 'plan', 'tasks']) {
+        const value = meta.artifacts[role];
+        if (typeof value !== 'string' || path.isAbsolute(value)) {
+          throw new FoundationError('invalid-spec-meta', 'Active Spec 缺少安全的核心产物路径', { directory: directory.name, role });
+        }
+        const specDirectory = path.join(specsRoot, directory.name);
+        const artifactPath = path.resolve(specDirectory, value);
+        relativeInside(specDirectory, artifactPath);
+        await assertNoSymlinkSegments(projectRoot, artifactPath);
+        if (!(await statOrNull(artifactPath))?.isFile()) {
+          throw new FoundationError('spec-artifact-missing', 'Active Spec 核心产物不存在', { directory: directory.name, role });
+        }
+        const relativePath = path.relative(projectRoot, artifactPath).split(path.sep).join('/');
+        artifacts.push({ role, path: relativePath, buffer: await readFile(artifactPath) });
+      }
+      activeSpecs.push({
+        id: meta.id,
+        status: meta.status,
+        directory: path.posix.join(loaded.directories.specs, directory.name),
+        scope: meta.scope,
+        summary: meta.active_context?.summary || null,
+        nextTaskId: meta.active_context?.next_task_id || null,
+        artifacts: artifacts.map((artifact) => artifact.path),
+        markdownBytes: artifacts.reduce((total, artifact) => total + artifact.buffer.length, 0),
+        artifactDocuments: artifacts,
+      });
+    }
+  }
+  let allocatedFullTextBytes = 0;
+  const allocationOrder = [...activeSpecs].sort(
+    (left, right) => left.markdownBytes - right.markdownBytes || left.id.localeCompare(right.id),
+  );
+  for (const spec of allocationOrder) {
+    if (spec.markdownBytes > loaded.context.perSpecFullTextBytes) {
+      spec.loadMode = 'sectioned';
+      spec.loadReason = 'per-spec-budget-exceeded';
+      continue;
+    }
+    if (allocatedFullTextBytes + spec.markdownBytes > loaded.context.totalFullTextBytes) {
+      spec.loadMode = 'sectioned';
+      spec.loadReason = 'total-budget-exceeded';
+      continue;
+    }
+    spec.loadMode = 'full';
+    spec.loadReason = 'within-budget';
+    allocatedFullTextBytes += spec.markdownBytes;
+  }
+  for (const spec of activeSpecs) {
+    spec.contextIndex =
+      spec.loadMode === 'sectioned'
+        ? buildSpecContextIndex(spec.artifactDocuments, loaded.context.maxIndexEntriesPerArtifact)
+        : null;
+    delete spec.artifactDocuments;
+  }
+  const loadPlan = [
+    ...new Set([
+      ...selectedRulePaths,
+      ...activeSpecs.filter((entry) => entry.loadMode === 'full').flatMap((entry) => entry.artifacts),
+      ...knowledge.map((entry) => entry.path),
+    ]),
+  ];
+  const totalMarkdownBytes = activeSpecs.reduce((total, spec) => total + spec.markdownBytes, 0);
+  return {
+    ok: true,
+    command: 'context-resolve',
+    status: knowledge.some((entry) => entry.status === 'review-required') ? 'review-required' : 'resolved',
+    target: projectRoot,
+    selectors: { taskType: taskType || null, paths: requestedPaths },
+    contextBudget: {
+      ...loaded.context,
+      activeSpecCount: activeSpecs.length,
+      fullTextSpecCount: activeSpecs.filter((entry) => entry.loadMode === 'full').length,
+      sectionedSpecCount: activeSpecs.filter((entry) => entry.loadMode === 'sectioned').length,
+      totalMarkdownBytes,
+      allocatedFullTextBytes,
+      remainingFullTextBytes: loaded.context.totalFullTextBytes - allocatedFullTextBytes,
+    },
+    activeSpecs,
+    ruleFiles,
+    knowledge,
+    loadPlan,
+    excludeByDefault: [...new Set(mappings.flatMap((entry) => entry.exclude_by_default))],
+  };
+}
+
+export async function inspectSourceControlSnapshot(
+  target,
+  {
+    baseRevision,
+    sourceRevision = 'HEAD',
+    includePaths = [],
+    excludePaths = [],
+    provider = 'local-git',
+    adapterRegistry = defaultAdapterRegistry,
+  } = {},
+) {
+  const projectRoot = path.resolve(target);
+  if (typeof baseRevision !== 'string' || !baseRevision.trim()) {
+    throw new FoundationError('invalid-source-control-revision', '必须提供非空 baseRevision');
+  }
+  if (typeof sourceRevision !== 'string' || !sourceRevision.trim()) {
+    throw new FoundationError('invalid-source-control-revision', 'sourceRevision 必须是非空字符串');
+  }
+  if (typeof provider !== 'string' || !provider.trim()) {
+    throw new FoundationError('invalid-source-control-provider', 'provider 必须是非空字符串');
+  }
+  for (const [label, values] of [
+    ['includePaths', includePaths],
+    ['excludePaths', excludePaths],
+  ]) {
+    if (!Array.isArray(values) || values.some((value) => typeof value !== 'string')) {
+      throw new FoundationError('invalid-source-control-path', `${label} 必须是相对路径数组`);
+    }
+  }
+  const adapter = adapterRegistry?.get?.('source-control', provider);
+  if (!adapter || typeof adapter.inspectMergeCandidate !== 'function') {
+    throw new FoundationError('source-control-provider-unavailable', 'Source Control Provider 未注册或不支持候选检查', {
+      provider,
+    });
+  }
+  try {
+    const snapshot = await adapter.inspectMergeCandidate({
+      projectRoot,
+      baseRevision,
+      sourceRevision,
+      includePaths,
+      excludePaths,
+    });
+    return {
+      ok: true,
+      command: 'source-control-inspect',
+      status: 'resolved',
+      target: projectRoot,
+      snapshot,
+    };
+  } catch (error) {
+    throw new FoundationError(error.code || 'source-control-inspect-failed', error.message, error.details);
+  }
+}
+
+const CHANGE_GATE_PHASES = new Set(['work', 'delivery']);
+const CHANGE_GATE_EXEMPTIONS = new Set([
+  'assets-only',
+  'docs-only',
+  'generated-only',
+  'styles-only',
+  'tests-only',
+]);
+
+function changeGatePathMatchesExemption(exemption, candidatePath) {
+  const normalized = candidatePath.replace(/\\/gu, '/');
+  if (exemption === 'assets-only') {
+    return /\.(?:avif|gif|jpe?g|png|svg|webp|woff2?|ttf|otf)$/iu.test(normalized);
+  }
+  if (exemption === 'docs-only') return /\.(?:adoc|md|mdx|rst|txt)$/iu.test(normalized);
+  if (exemption === 'styles-only') return /\.(?:css|less|sass|scss|styl)$/iu.test(normalized);
+  if (exemption === 'tests-only') {
+    return (
+      /(^|\/)(?:__tests__|test|tests)(\/|$)/u.test(normalized) ||
+      /\.(?:test|spec)\.[^/]+$/u.test(normalized) ||
+      /(^|\/)(?:test_[^/]+|[^/]+_test)\.(?:go|py|rs)$/u.test(normalized) ||
+      /\.snap$/u.test(normalized)
+    );
+  }
+  if (exemption === 'generated-only') {
+    return (
+      /(^|\/)(?:generated|__generated__)(\/|$)/u.test(normalized) ||
+      /\.generated\.[^/]+$/u.test(normalized)
+    );
+  }
+  return false;
+}
+
+function changeGateChangedPaths(snapshot) {
+  return [
+    ...new Set(
+      (snapshot.evidence?.changes || []).flatMap((change) =>
+        (change.paths || []).map((entry) => entry.path),
+      ),
+    ),
+  ].sort();
+}
+
+async function loadChangeGateSpec(projectRoot, specId) {
+  if (typeof specId !== 'string' || !/^[a-z0-9][a-z0-9-]{0,127}$/u.test(specId)) {
+    throw new FoundationError('invalid-change-gate-spec', 'specId 必须是稳定的小写连字符标识');
+  }
+  const { directories } = await governanceConfiguration(projectRoot);
+  const specsRoot = safeProjectPath(projectRoot, directories.specs, 'Specs 目录');
+  const specDirectory = safeProjectPath(projectRoot, path.posix.join(directories.specs, specId), 'Spec 目录');
+  relativeInside(specsRoot, specDirectory);
+  await assertNoSymlinkSegments(projectRoot, specDirectory);
+  const specStat = await statOrNull(specDirectory);
+  if (!specStat?.isDirectory() || specStat.isSymbolicLink()) {
+    throw new FoundationError('change-gate-spec-missing', '关联的 Spec 目录不存在', { specId });
+  }
+  const metaPath = await findIndexFile(specDirectory, 'meta');
+  if (!metaPath) throw new FoundationError('change-gate-spec-meta-missing', '关联的 Spec 缺少 Meta', { specId });
+  await assertNoSymlinkSegments(projectRoot, metaPath);
+  const meta = await readStructuredDocument(metaPath, 'Specflow Meta');
+  if (
+    !meta ||
+    typeof meta !== 'object' ||
+    Array.isArray(meta) ||
+    meta.id !== specId ||
+    !['draft', 'planned', 'in-progress', 'archived', 'superseded', 'cancelled'].includes(meta.status) ||
+    !stringArray(meta.scope) ||
+    !meta.artifacts ||
+    typeof meta.artifacts !== 'object' ||
+    Array.isArray(meta.artifacts)
+  ) {
+    throw new FoundationError('invalid-change-gate-spec-meta', '关联的 Spec Meta 结构无效', { specId });
+  }
+  for (const scopedPath of meta.scope) safeProjectPath(projectRoot, scopedPath, 'Spec scope');
+  return {
+    specId,
+    specDirectory,
+    specDirectoryRelative: path.relative(projectRoot, specDirectory).split(path.sep).join('/'),
+    meta,
+  };
+}
+
+function normalizeChangeGateSpecIds(specId, specIds) {
+  const values = [
+    ...(typeof specId === 'string' && specId ? [specId] : []),
+    ...(Array.isArray(specIds) ? specIds : typeof specIds === 'string' && specIds ? [specIds] : []),
+  ];
+  return [...new Set(values)].sort();
+}
+
+function changeGateResult(projectRoot, phase, errors, evidence) {
+  return {
+    ok: errors.length === 0,
+    command: 'change-gate-check',
+    status: errors.length ? 'blocked' : 'pass',
+    target: projectRoot,
+    phase,
+    errors,
+    evidence,
+  };
+}
+
+function changeGateDigest(evidence) {
+  const payload = {
+    schemaVersion: evidence.schemaVersion,
+    phase: evidence.phase,
+    association: evidence.association,
+    provider: evidence.provider,
+    baseRevision: evidence.baseRevision,
+    sourceRevision: evidence.sourceRevision,
+    snapshotDigest: evidence.snapshotDigest,
+    receiptScopeDigest: evidence.receiptScopeDigest,
+    receiptScope: evidence.receiptScope,
+    deliveryReceipts: evidence.delivery.map(({ specId, receiptDigest }) => ({ specId, receiptDigest })),
+    changedPaths: evidence.changedPaths,
+  };
+  return `sha256:${createHash('sha256').update(JSON.stringify(payload)).digest('hex')}`;
+}
+
+async function validateDeliveryGate(projectRoot, spec, snapshot, evidenceSnapshot, errors) {
+  if (spec.meta.status !== 'archived') {
+    errors.push({ code: 'change-gate-spec-not-archived', specId: spec.specId, status: spec.meta.status });
+    return null;
+  }
+  const receiptRelative = spec.meta.artifacts.archive_receipt;
+  if (typeof receiptRelative !== 'string' || !receiptRelative || path.isAbsolute(receiptRelative)) {
+    errors.push({ code: 'change-gate-receipt-missing', specId: spec.specId });
+    return null;
+  }
+  const receiptPath = path.resolve(spec.specDirectory, receiptRelative);
+  try {
+    relativeInside(spec.specDirectory, receiptPath);
+    await assertNoSymlinkSegments(projectRoot, receiptPath);
+    const lifecycleDir =
+      typeof spec.meta.artifacts.lifecycle_dir === 'string' && spec.meta.artifacts.lifecycle_dir
+        ? spec.meta.artifacts.lifecycle_dir
+        : './lifecycle';
+    const chain = await verifyLifecycleChain(spec.specDirectory, { receiptPath: receiptRelative, lifecycleDir });
+    if (
+      chain.specId !== spec.specId ||
+      chain.currentState !== spec.meta.status ||
+      canonicalJson(chain.currentRelations) !== canonicalJson(spec.meta.relations) ||
+      spec.meta.authorization?.terminal_transition_confirmed !== true
+    ) {
+      errors.push({ code: 'change-gate-lifecycle-mismatch', specId: spec.specId });
+    }
+    const receipt = await readStructuredDocument(receiptPath, 'Archive Receipt');
+    const receiptSnapshot = receipt?.snapshot;
+    const expectedExcludes = [...(evidenceSnapshot.change.excludes || [])].sort();
+    const actualExcludes = [...(receiptSnapshot?.change?.excludes || [])].sort();
+    if (
+      receiptSnapshot?.base_revision !== evidenceSnapshot.baseRevision ||
+      receiptSnapshot?.change?.scope !== evidenceSnapshot.scope ||
+      receiptSnapshot?.change?.algorithm !== evidenceSnapshot.change.algorithm ||
+      receiptSnapshot?.change?.digest !== evidenceSnapshot.change.digest ||
+      JSON.stringify(actualExcludes) !== JSON.stringify(expectedExcludes)
+    ) {
+      errors.push({ code: 'change-gate-receipt-snapshot-mismatch', specId: spec.specId });
+    }
+    return {
+      receiptPath: path.relative(projectRoot, receiptPath).split(path.sep).join('/'),
+      receiptDigest: chain.lastDigest,
+      lifecycleEvents: chain.events,
+      currentState: chain.currentState,
+      fullCandidateDigest: snapshot.change.digest,
+      receiptScopeDigest: evidenceSnapshot.change.digest,
+    };
+  } catch (error) {
+    errors.push({ code: error.code || 'change-gate-receipt-invalid', specId: spec.specId, message: error.message });
+    return null;
+  }
+}
+
+export async function checkChangeGate(
+  target,
+  {
+    baseRevision,
+    sourceRevision = 'HEAD',
+    specId,
+    specIds = [],
+    exemption,
+    phase = 'work',
+    includePaths = [],
+    excludePaths = [],
+    provider = 'local-git',
+    adapterRegistry = defaultAdapterRegistry,
+  } = {},
+) {
+  const projectRoot = path.resolve(target);
+  if (!CHANGE_GATE_PHASES.has(phase)) {
+    throw new FoundationError('invalid-change-gate-phase', 'phase 必须是 work 或 delivery');
+  }
+  const associatedSpecIds = normalizeChangeGateSpecIds(specId, specIds);
+  const hasSpec = associatedSpecIds.length > 0;
+  const hasExemption = typeof exemption === 'string' && exemption.length > 0;
+  const modeErrors = [];
+  if (hasSpec === hasExemption) {
+    modeErrors.push({ code: 'change-gate-association-required', message: '必须且只能提供一个或多个 specIds，或一个 exemption' });
+  }
+  if (hasExemption && !CHANGE_GATE_EXEMPTIONS.has(exemption)) {
+    modeErrors.push({ code: 'invalid-change-gate-exemption', exemption });
+  }
+  if (modeErrors.length) return changeGateResult(projectRoot, phase, modeErrors, null);
+
+  let fullSnapshot;
+  let evidenceSnapshot;
+  try {
+    fullSnapshot = (
+      await inspectSourceControlSnapshot(projectRoot, {
+        baseRevision,
+        sourceRevision,
+        provider,
+        adapterRegistry,
+      })
+    ).snapshot;
+    evidenceSnapshot =
+      includePaths.length || excludePaths.length
+        ? (
+            await inspectSourceControlSnapshot(projectRoot, {
+              baseRevision,
+              sourceRevision,
+              includePaths,
+              excludePaths,
+              provider,
+              adapterRegistry,
+            })
+          ).snapshot
+        : fullSnapshot;
+  } catch (error) {
+    return changeGateResult(
+      projectRoot,
+      phase,
+      [{ code: error.code || 'change-gate-source-control-failed', message: error.message }],
+      null,
+    );
+  }
+
+  const changedPaths = changeGateChangedPaths(fullSnapshot);
+  const errors = [];
+  if (!changedPaths.length) errors.push({ code: 'change-gate-empty-candidate' });
+  let association;
+  const delivery = [];
+  if (hasExemption) {
+    const mismatchedPaths = changedPaths.filter((candidate) => !changeGatePathMatchesExemption(exemption, candidate));
+    if (mismatchedPaths.length) {
+      errors.push({ code: 'change-gate-exemption-scope-mismatch', exemption, paths: mismatchedPaths });
+    }
+    association = { mode: 'exemption', exemption };
+  } else {
+    const specs = [];
+    for (const associatedSpecId of associatedSpecIds) {
+      try {
+        specs.push(await loadChangeGateSpec(projectRoot, associatedSpecId));
+      } catch (error) {
+        errors.push({
+          code: error.code || 'change-gate-spec-invalid',
+          specId: associatedSpecId,
+          message: error.message,
+        });
+      }
+    }
+    const evidencePrefixes = specs.map(({ specDirectoryRelative: directory }) => ({
+      directory,
+      prefix: `${directory}/`,
+    }));
+    const implementationPaths = changedPaths.filter(
+      (candidate) =>
+        !evidencePrefixes.some(({ directory, prefix }) => candidate === directory || candidate.startsWith(prefix)),
+    );
+    const uncoveredPaths = implementationPaths.filter(
+      (candidate) => !specs.some((spec) => spec.meta.scope.some((scope) => pathsOverlap(scope, candidate))),
+    );
+    if (uncoveredPaths.length) {
+      errors.push({ code: 'change-gate-spec-scope-mismatch', specIds: associatedSpecIds, paths: uncoveredPaths });
+    }
+    for (const spec of specs) {
+      if (phase === 'work' && !['planned', 'in-progress'].includes(spec.meta.status)) {
+        errors.push({ code: 'change-gate-spec-not-active', specId: spec.specId, status: spec.meta.status });
+      }
+      if (phase === 'delivery') {
+        const result = await validateDeliveryGate(projectRoot, spec, fullSnapshot, evidenceSnapshot, errors);
+        if (result) delivery.push({ specId: spec.specId, ...result });
+      }
+    }
+    association = {
+      mode: 'spec',
+      specIds: associatedSpecIds,
+      specs: specs.map((spec) => ({ specId: spec.specId, status: spec.meta.status })),
+      implementationPaths,
+      evidencePaths: changedPaths.filter((candidate) => !implementationPaths.includes(candidate)),
+    };
+  }
+  const evidence = {
+    schemaVersion: 2,
+    phase,
+    provider: fullSnapshot.provider,
+    baseRevision: fullSnapshot.baseRevision,
+    sourceRevision: fullSnapshot.sourceRevision,
+    snapshotDigest: fullSnapshot.change.digest,
+    receiptScopeDigest: evidenceSnapshot.change.digest,
+    receiptScope: {
+      includes: evidenceSnapshot.change.includes,
+      excludes: evidenceSnapshot.change.excludes,
+    },
+    changedPaths,
+    association,
+    delivery,
+  };
+  evidence.gateDigest = changeGateDigest(evidence);
+  return changeGateResult(projectRoot, phase, errors, evidence);
+}
+
 function genericSecretPatterns() {
   return [
     { kind: 'github-token', pattern: /\bghp_[A-Za-z0-9]{36}\b/gu },
     { kind: 'github-fine-grained-token', pattern: /\bgithub_pat_[A-Za-z0-9_]{40,}\b/gu },
+    { kind: 'gitlab-token', pattern: /\bglpat-[A-Za-z0-9_-]{20,}\b/gu },
     { kind: 'aws-access-key', pattern: /\bAKIA[0-9A-Z]{16}\b/gu },
+    { kind: 'google-api-key', pattern: /\bAIza[0-9A-Za-z_-]{35}\b/gu },
+    { kind: 'npm-token', pattern: /\bnpm_[A-Za-z0-9]{36}\b/gu },
     { kind: 'openai-style-secret', pattern: /\bsk-[A-Za-z0-9]{32,}\b/gu },
+    { kind: 'slack-token', pattern: /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/gu },
+    { kind: 'stripe-live-secret', pattern: /\bsk_live_[A-Za-z0-9]{20,}\b/gu },
     { kind: 'private-key', pattern: new RegExp(`-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----`, 'gu') },
   ];
+}
+
+function termId(term) {
+  return createHash('sha256').update(term).digest('hex').slice(0, 12);
+}
+
+function isScannableText(buffer) {
+  return buffer.length <= MAX_SCANNABLE_TEXT_BYTES && !buffer.includes(0);
+}
+
+function redactSensitivePath(candidatePath, normalizedTerms) {
+  const lowerPath = candidatePath.toLocaleLowerCase();
+  if (!normalizedTerms.some((term) => lowerPath.includes(term.toLocaleLowerCase()))) return candidatePath;
+  return `sha256:${createHash('sha256').update(candidatePath).digest('hex').slice(0, 12)}`;
+}
+
+function scanSensitiveText(content, context, normalizedTerms, secretPatterns, errors) {
+  const safeContext = {
+    ...context,
+    ...(context.path ? { path: redactSensitivePath(context.path, normalizedTerms) } : {}),
+    ...(context.paths
+      ? { paths: context.paths.map((candidatePath) => redactSensitivePath(candidatePath, normalizedTerms)) }
+      : {}),
+  };
+  for (const { kind, pattern } of secretPatterns) {
+    pattern.lastIndex = 0;
+    if (pattern.test(content)) errors.push({ code: 'high-confidence-secret', kind, ...safeContext });
+  }
+  const lowerContent = content.toLocaleLowerCase();
+  for (const term of normalizedTerms) {
+    if (lowerContent.includes(term.toLocaleLowerCase())) {
+      errors.push({ code: 'denied-sensitive-term', ...safeContext, termId: termId(term) });
+    }
+  }
+}
+
+function scanSensitivePath(candidatePath, context, normalizedTerms, errors) {
+  const lowerPath = candidatePath.toLocaleLowerCase();
+  const { path: _path, paths: _paths, ...safeContext } = context;
+  for (const term of normalizedTerms) {
+    if (lowerPath.includes(term.toLocaleLowerCase())) {
+      errors.push({
+        code: 'denied-sensitive-term-in-path',
+        ...safeContext,
+        pathId: createHash('sha256').update(candidatePath).digest('hex').slice(0, 12),
+        termId: termId(term),
+      });
+    }
+  }
+}
+
+async function runGit(root, args, { input, maxOutputBytes = MAX_GIT_COMMAND_OUTPUT_BYTES } = {}) {
+  return new Promise((resolve, reject) => {
+    const child = spawn('git', ['-C', root, ...args], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const stdout = [];
+    const stderr = [];
+    let outputBytes = 0;
+    let overflowed = false;
+    const collect = (chunks, chunk) => {
+      outputBytes += chunk.length;
+      if (outputBytes > maxOutputBytes) {
+        overflowed = true;
+        child.kill();
+        return;
+      }
+      chunks.push(chunk);
+    };
+    child.stdout.on('data', (chunk) => collect(stdout, chunk));
+    child.stderr.on('data', (chunk) => collect(stderr, chunk));
+    child.on('error', (error) => reject(new FoundationError('git-scan-failed', '无法启动 Git 扫描', { reason: error.message })));
+    child.on('close', (code) => {
+      if (overflowed) {
+        reject(new FoundationError('git-scan-too-large', 'Git 扫描命令输出超过安全上限'));
+        return;
+      }
+      const result = { stdout: Buffer.concat(stdout), stderr: Buffer.concat(stderr) };
+      if (code !== 0) {
+        reject(
+          new FoundationError('git-scan-failed', 'Git 扫描命令执行失败', {
+            args,
+            exitCode: code,
+            stderr: result.stderr.toString('utf8').trim().slice(0, 500),
+          }),
+        );
+        return;
+      }
+      resolve(result);
+    });
+    child.stdin.end(input);
+  });
+}
+
+function addGitObject(objects, oid, scope, objectPath) {
+  if (!/^[0-9a-f]{40,64}$/u.test(oid)) return;
+  const descriptor = objects.get(oid) || { scopes: new Set(), paths: new Set() };
+  descriptor.scopes.add(scope);
+  if (objectPath) descriptor.paths.add(objectPath);
+  objects.set(oid, descriptor);
+}
+
+async function collectGitObjects(root, gitScope) {
+  const objects = new Map();
+  const staged = await runGit(root, ['ls-files', '-s', '-z']);
+  for (const record of staged.stdout.toString('utf8').split('\0').filter(Boolean)) {
+    const match = record.match(/^\d+ ([0-9a-f]{40,64}) [0-3]\t([\s\S]+)$/u);
+    if (match) addGitObject(objects, match[1], 'staged', match[2]);
+  }
+  if (gitScope === 'staged') return objects;
+
+  const revisionArgs = gitScope === 'all' ? ['rev-list', '--objects', '--all', '--reflog'] : ['rev-list', '--objects', '--all'];
+  const revisions = await runGit(root, revisionArgs);
+  for (const line of revisions.stdout.toString('utf8').split(/\r?\n/u).filter(Boolean)) {
+    const separator = line.indexOf(' ');
+    const oid = separator === -1 ? line : line.slice(0, separator);
+    const objectPath = separator === -1 ? undefined : line.slice(separator + 1);
+    addGitObject(objects, oid, 'history', objectPath);
+  }
+
+  if (gitScope === 'all') {
+    const unreachable = await runGit(root, ['fsck', '--full', '--no-reflogs', '--unreachable']);
+    const output = Buffer.concat([unreachable.stdout, unreachable.stderr]).toString('utf8');
+    for (const match of output.matchAll(/(?:unreachable|dangling)\s+\w+\s+([0-9a-f]{40,64})/gu)) {
+      addGitObject(objects, match[1], 'unreachable');
+    }
+  }
+  return objects;
+}
+
+async function describeGitObjects(root, objectIds) {
+  const descriptions = new Map();
+  for (let index = 0; index < objectIds.length; index += 1000) {
+    const chunk = objectIds.slice(index, index + 1000);
+    const result = await runGit(root, ['cat-file', '--batch-check=%(objectname) %(objecttype) %(objectsize)'], {
+      input: `${chunk.join('\n')}\n`,
+    });
+    for (const line of result.stdout.toString('utf8').trim().split(/\r?\n/u).filter(Boolean)) {
+      const match = line.match(/^([0-9a-f]{40,64}) (\w+) (\d+)$/u);
+      if (match) descriptions.set(match[1], { type: match[2], size: Number(match[3]) });
+    }
+  }
+  return descriptions;
+}
+
+async function readGitObjectBatch(root, objectIds) {
+  if (objectIds.length === 0) return new Map();
+  const expectedLimit = objectIds.length * 200 + MAX_SCANNABLE_TEXT_BYTES * objectIds.length + 1024;
+  const result = await runGit(root, ['cat-file', '--batch'], {
+    input: `${objectIds.join('\n')}\n`,
+    maxOutputBytes: Math.min(MAX_GIT_COMMAND_OUTPUT_BYTES, expectedLimit),
+  });
+  const contents = new Map();
+  let offset = 0;
+  while (offset < result.stdout.length) {
+    const lineEnd = result.stdout.indexOf(10, offset);
+    if (lineEnd === -1) break;
+    const header = result.stdout.subarray(offset, lineEnd).toString('utf8');
+    const match = header.match(/^([0-9a-f]{40,64}) (\w+) (\d+)$/u);
+    if (!match) break;
+    const size = Number(match[3]);
+    const start = lineEnd + 1;
+    contents.set(match[1], result.stdout.subarray(start, start + size));
+    offset = start + size + 1;
+  }
+  return contents;
+}
+
+async function scanGitObjects(root, gitScope, normalizedTerms, secretPatterns, errors) {
+  if (!['staged', 'reachable', 'all'].includes(gitScope)) {
+    throw new FoundationError('invalid-git-scope', 'gitScope 只能是 none、staged、reachable 或 all');
+  }
+  const topLevel = (await runGit(root, ['rev-parse', '--show-toplevel'])).stdout.toString('utf8').trim();
+  if (path.resolve(topLevel) !== root) {
+    throw new FoundationError('invalid-git-root', 'Git 扫描目标必须是仓库根目录', { root, topLevel });
+  }
+  const objects = await collectGitObjects(root, gitScope);
+  for (const [oid, descriptor] of objects) {
+    for (const objectPath of descriptor.paths) {
+      scanSensitivePath(
+        objectPath,
+        { gitScope: [...descriptor.scopes].sort(), objectId: oid.slice(0, 12), path: objectPath },
+        normalizedTerms,
+        errors,
+      );
+    }
+  }
+  const descriptions = await describeGitObjects(root, [...objects.keys()]);
+  const candidates = [...descriptions]
+    .filter(([, description]) => ['blob', 'commit', 'tag'].includes(description.type) && description.size <= MAX_SCANNABLE_TEXT_BYTES)
+    .map(([oid]) => oid);
+  let scannedObjects = 0;
+  for (let index = 0; index < candidates.length; index += 20) {
+    const contents = await readGitObjectBatch(root, candidates.slice(index, index + 20));
+    for (const [oid, buffer] of contents) {
+      if (!isScannableText(buffer)) continue;
+      const descriptor = objects.get(oid);
+      scanSensitiveText(
+        buffer.toString('utf8'),
+        {
+          gitScope: [...descriptor.scopes].sort(),
+          objectId: oid.slice(0, 12),
+          paths: [...descriptor.paths].sort().slice(0, 10),
+        },
+        normalizedTerms,
+        secretPatterns,
+        errors,
+      );
+      scannedObjects += 1;
+    }
+  }
+  return { objects: objects.size, scannedObjects };
 }
 
 function isJsonSchemaFile(relative) {
@@ -299,22 +2302,22 @@ async function ensureDirectories(root, directory, createdDirectories) {
   }
 }
 
-export async function initProject(target, { starterRoot = STARTER_ROOT } = {}) {
+export async function planProjectInit(target, { starterRoot = STARTER_ROOT } = {}) {
   const projectRoot = path.resolve(target);
+  await assertNoSymlinkAncestors(projectRoot);
   const projectStat = await statOrNull(projectRoot);
   const starterFiles = await collectFiles(starterRoot);
   if (!projectStat) {
-    const parent = path.dirname(projectRoot);
-    await mkdir(parent, { recursive: true });
-    const temporary = path.join(parent, `.${path.basename(projectRoot)}.foundation-${randomUUID()}`);
-    try {
-      await cp(starterRoot, temporary, { recursive: true, errorOnExist: true, force: false });
-      await rename(temporary, projectRoot);
-      return { ok: true, command: 'init', status: 'initialized', target: projectRoot, added: starterFiles };
-    } catch (error) {
-      await rm(temporary, { recursive: true, force: true });
-      throw error;
-    }
+    return {
+      ok: true,
+      command: 'init-plan',
+      status: 'planned',
+      action: 'create',
+      target: projectRoot,
+      added: starterFiles,
+      unchanged: [],
+      conflicts: [],
+    };
   }
   if (projectStat.isSymbolicLink() || !projectStat.isDirectory()) {
     throw new FoundationError('unsafe-target', '初始化目标必须是普通目录，不能是文件或 Symlink', {
@@ -322,14 +2325,15 @@ export async function initProject(target, { starterRoot = STARTER_ROOT } = {}) {
     });
   }
 
-  const missing = [];
+  const added = [];
+  const unchanged = [];
   const conflicts = [];
   for (const relative of starterFiles) {
     const destination = path.join(projectRoot, relative);
     await assertNoSymlinkSegments(projectRoot, path.dirname(destination));
     const destinationStat = await statOrNull(destination);
     if (!destinationStat) {
-      missing.push(relative);
+      added.push(relative);
       continue;
     }
     if (!destinationStat.isFile() || destinationStat.isSymbolicLink()) {
@@ -340,21 +2344,50 @@ export async function initProject(target, { starterRoot = STARTER_ROOT } = {}) {
       readFile(path.join(starterRoot, relative)),
       readFile(destination),
     ]);
-    if (!sourceContent.equals(destinationContent)) conflicts.push({ path: relative, reason: 'different-content' });
+    if (sourceContent.equals(destinationContent)) unchanged.push(relative);
+    else conflicts.push({ path: relative, reason: 'different-content' });
   }
-  if (conflicts.length) {
+  return {
+    ok: conflicts.length === 0,
+    command: 'init-plan',
+    status: conflicts.length ? 'blocked' : 'planned',
+    action: conflicts.length ? 'blocked' : added.length ? 'add' : 'none',
+    target: projectRoot,
+    added,
+    unchanged,
+    conflicts,
+  };
+}
+
+export async function initProject(target, { starterRoot = STARTER_ROOT } = {}) {
+  const plan = await planProjectInit(target, { starterRoot });
+  const projectRoot = plan.target;
+  if (!plan.ok) {
     throw new FoundationError('init-conflict', '目标项目存在与 Starter 冲突的文件，未执行任何写入', {
-      conflicts,
+      plan,
     });
   }
-  if (!missing.length) {
-    return { ok: true, command: 'init', status: 'unchanged', target: projectRoot, added: [] };
+  if (plan.action === 'create') {
+    const parent = path.dirname(projectRoot);
+    await mkdir(parent, { recursive: true });
+    const temporary = path.join(parent, `.${path.basename(projectRoot)}.foundation-${randomUUID()}`);
+    try {
+      await cp(starterRoot, temporary, { recursive: true, errorOnExist: true, force: false });
+      await rename(temporary, projectRoot);
+      return { ok: true, command: 'init', status: 'initialized', target: projectRoot, added: plan.added, plan };
+    } catch (error) {
+      await rm(temporary, { recursive: true, force: true });
+      throw error;
+    }
+  }
+  if (!plan.added.length) {
+    return { ok: true, command: 'init', status: 'unchanged', target: projectRoot, added: [], plan };
   }
 
   const createdFiles = [];
   const createdDirectories = [];
   try {
-    for (const relative of missing) {
+    for (const relative of plan.added) {
       const destination = path.join(projectRoot, relative);
       await ensureDirectories(projectRoot, path.dirname(destination), createdDirectories);
       await writeFile(destination, await readFile(path.join(starterRoot, relative)), { flag: 'wx' });
@@ -365,7 +2398,7 @@ export async function initProject(target, { starterRoot = STARTER_ROOT } = {}) {
     for (const directory of createdDirectories.reverse()) await rmdir(directory).catch(() => {});
     throw error;
   }
-  return { ok: true, command: 'init', status: 'initialized', target: projectRoot, added: missing };
+  return { ok: true, command: 'init', status: 'initialized', target: projectRoot, added: plan.added, plan };
 }
 
 async function readJson(filePath, label) {
@@ -379,10 +2412,98 @@ async function readJson(filePath, label) {
 async function readProjectManifest(projectRoot) {
   const manifestPath = path.join(projectRoot, 'agent-foundation.json');
   const manifest = await readJson(manifestPath, 'Starter Manifest');
-  if (manifest.schemaVersion !== 2 || manifest.preset !== 'minimal' || !Array.isArray(manifest.integrations)) {
+  const allowedTopLevelKeys = new Set(['schemaVersion', 'preset', 'metadata', 'directories', 'context', 'integrations', 'safety']);
+  if (
+    !manifest ||
+    typeof manifest !== 'object' ||
+    Array.isArray(manifest) ||
+    manifest.schemaVersion !== 2 ||
+    manifest.preset !== 'minimal' ||
+    Object.keys(manifest).some((key) => !allowedTopLevelKeys.has(key)) ||
+    !Array.isArray(manifest.integrations)
+  ) {
     throw new FoundationError('invalid-manifest-contract', 'Starter Manifest 结构或版本不受支持', {
       path: manifestPath,
     });
+  }
+
+  const directories = manifest.directories;
+  if (
+    !directories ||
+    typeof directories !== 'object' ||
+    Array.isArray(directories) ||
+    Object.keys(directories).length !== 2 ||
+    directories.specs !== 'specs' ||
+    directories.knowledge !== 'knowledge'
+  ) {
+    throw new FoundationError(
+      'invalid-manifest-directories',
+      'minimal Preset 的 directories 是受校验的目录声明，必须使用 specs 和 knowledge',
+    );
+  }
+  const safety = manifest.safety;
+  if (
+    !safety ||
+    typeof safety !== 'object' ||
+    Array.isArray(safety) ||
+    Object.keys(safety).length !== 3 ||
+    safety.scope !== 'project' ||
+    safety.onConflict !== 'block' ||
+    safety.followSymlinks !== false
+  ) {
+    throw new FoundationError(
+      'invalid-manifest-safety',
+      'minimal Preset 的 safety 是执行不变量，必须为项目级、冲突阻断且不跟随 Symlink',
+    );
+  }
+  if (manifest.metadata !== undefined) {
+    const metadata = manifest.metadata;
+    const allowedMetadataKeys = new Set(['description', 'documentationRef', 'labels']);
+    if (
+      !metadata ||
+      typeof metadata !== 'object' ||
+      Array.isArray(metadata) ||
+      Object.keys(metadata).some((key) => !allowedMetadataKeys.has(key)) ||
+      (metadata.description !== undefined &&
+        (typeof metadata.description !== 'string' || metadata.description.length > 500)) ||
+      (metadata.documentationRef !== undefined &&
+        (typeof metadata.documentationRef !== 'string' ||
+          !/^[a-z][a-z0-9+.-]*:\/\/.+/iu.test(metadata.documentationRef))) ||
+      (metadata.labels !== undefined &&
+        (!Array.isArray(metadata.labels) ||
+          metadata.labels.length > 20 ||
+          metadata.labels.some((label) => typeof label !== 'string' || !label.trim() || label.length > 64)))
+    ) {
+      throw new FoundationError('invalid-manifest-metadata', 'Manifest metadata 只允许受限的说明字段');
+    }
+  }
+
+  if (manifest.context !== undefined) {
+    const context = manifest.context;
+    const allowedContextKeys = new Set([
+      'perSpecFullTextBytes',
+      'totalFullTextBytes',
+      'maxIndexEntriesPerArtifact',
+      'maxRuleFileBytes',
+    ]);
+    const validInteger = (value, minimum, maximum) =>
+      Number.isInteger(value) && value >= minimum && value <= maximum;
+    if (
+      !context ||
+      typeof context !== 'object' ||
+      Array.isArray(context) ||
+      Object.keys(context).some((key) => !allowedContextKeys.has(key)) ||
+      !validInteger(context.perSpecFullTextBytes, 256, 16 * 1024 * 1024) ||
+      !validInteger(context.totalFullTextBytes, 256, 64 * 1024 * 1024) ||
+      context.totalFullTextBytes < context.perSpecFullTextBytes ||
+      !validInteger(context.maxIndexEntriesPerArtifact, 16, 4096) ||
+      (context.maxRuleFileBytes !== undefined && !validInteger(context.maxRuleFileBytes, 256, 16 * 1024 * 1024))
+    ) {
+      throw new FoundationError(
+        'invalid-manifest-context',
+        'Manifest context 必须声明有效的单事项预算、总预算、单产物索引上限和可选规则文件预算',
+      );
+    }
   }
 
   const seen = new Set();
@@ -654,6 +2775,239 @@ export function updateSkill(options) {
   return applySkill({ ...options, operation: 'update', repoRoot: options.repoRoot || REPO_ROOT });
 }
 
+function assertExactObjectKeys(value, expected, label, code = 'invalid-contract') {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new FoundationError(code, `${label}必须是对象`);
+  }
+  const actual = Object.keys(value).sort();
+  const wanted = [...expected].sort();
+  if (actual.length !== wanted.length || actual.some((key, index) => key !== wanted[index])) {
+    throw new FoundationError(code, `${label}字段与契约不一致`, { actual, expected: wanted });
+  }
+  return value;
+}
+
+async function readDistributionManifest(repoRoot, manifestPath) {
+  const root = path.resolve(repoRoot);
+  const absolute = path.resolve(root, manifestPath);
+  relativeInside(root, absolute);
+  await assertNoSymlinkSegments(root, absolute);
+  const stat = await statOrNull(absolute);
+  if (!stat?.isFile() || stat.isSymbolicLink()) {
+    throw new FoundationError('invalid-distribution-manifest', 'Distribution Manifest 必须是仓库内的普通文件', {
+      path: manifestPath,
+    });
+  }
+  const manifest = await readStructuredDocument(absolute, 'Distribution Manifest');
+  assertExactObjectKeys(manifest, ['version', 'skills'], 'Distribution Manifest', 'invalid-distribution-manifest');
+  if (manifest.version !== 1 || !Array.isArray(manifest.skills) || !manifest.skills.length) {
+    throw new FoundationError('invalid-distribution-manifest', 'Distribution Manifest 必须使用 version 1 且至少声明一个 Skill');
+  }
+
+  const names = new Set();
+  for (const entry of manifest.skills) {
+    assertExactObjectKeys(
+      entry,
+      ['name', 'source', 'version', 'distributable', 'required_files', 'optional_resources'],
+      'Distribution Skill 条目',
+      'invalid-distribution-manifest',
+    );
+    assertSimpleName(entry.name, 'Distribution Skill 名称');
+    if (names.has(entry.name)) {
+      throw new FoundationError('invalid-distribution-manifest', 'Distribution Manifest 不能重复声明 Skill', {
+        name: entry.name,
+      });
+    }
+    names.add(entry.name);
+    if (entry.source !== `skills/${entry.name}` || entry.distributable !== true) {
+      throw new FoundationError(
+        'invalid-distribution-manifest',
+        '可分发 Skill 必须显式声明仓库内 skills/<name> 来源与 distributable: true',
+        { name: entry.name },
+      );
+    }
+    assertExactObjectKeys(entry.version, ['type', 'value'], 'Distribution Skill 版本', 'invalid-distribution-manifest');
+    if (entry.version.type !== 'content-hash' || !/^sha256:[a-f0-9]{64}$/u.test(entry.version.value)) {
+      throw new FoundationError('invalid-distribution-manifest', 'Skill 版本必须是有效的 SHA-256 内容摘要', {
+        name: entry.name,
+      });
+    }
+    if (!stringArray(entry.required_files) || !entry.required_files.includes('SKILL.md')) {
+      throw new FoundationError('invalid-distribution-manifest', 'required_files 必须包含 SKILL.md', { name: entry.name });
+    }
+    const allowedOptionalResources = new Set(['agents', 'references', 'assets', 'scripts', 'evals', 'tests']);
+    if (
+      !Array.isArray(entry.optional_resources) ||
+      entry.optional_resources.some((item) => typeof item !== 'string' || !allowedOptionalResources.has(item)) ||
+      new Set(entry.optional_resources).size !== entry.optional_resources.length
+    ) {
+      throw new FoundationError('invalid-distribution-manifest', 'optional_resources 包含未知或重复目录', {
+        name: entry.name,
+      });
+    }
+    if (new Set(entry.required_files).size !== entry.required_files.length) {
+      throw new FoundationError('invalid-distribution-manifest', 'required_files 不能重复', { name: entry.name });
+    }
+    for (const relative of entry.required_files) {
+      if (!/^[A-Za-z0-9._/-]+$/u.test(relative) || path.isAbsolute(relative) || relative.split('/').includes('..')) {
+        throw new FoundationError('invalid-distribution-manifest', 'required_files 只能引用 Skill 内的安全相对路径', {
+          name: entry.name,
+          path: relative,
+        });
+      }
+      const requiredPath = path.resolve(root, entry.source, relative);
+      relativeInside(path.join(root, entry.source), requiredPath);
+      const requiredStat = await statOrNull(requiredPath);
+      if (!requiredStat?.isFile() || requiredStat.isSymbolicLink()) {
+        throw new FoundationError('invalid-distribution-manifest', 'Distribution Skill 缺少 required_files 声明的文件', {
+          name: entry.name,
+          path: relative,
+        });
+      }
+    }
+  }
+  return {
+    path: path.relative(root, absolute).split(path.sep).join('/'),
+    digest: `sha256:${createHash('sha256').update(canonicalJson(manifest)).digest('hex')}`,
+    manifest,
+  };
+}
+
+export async function planDistribution({
+  target,
+  manifestPath = 'distribution/manifest.yaml',
+  repoRoot = REPO_ROOT,
+  adapterRegistry = defaultAdapterRegistry,
+} = {}) {
+  const distribution = await readDistributionManifest(repoRoot, manifestPath);
+  const projectRoot = path.resolve(target);
+  const installState = await readInstallState(projectRoot);
+  const items = [];
+  for (const entry of distribution.manifest.skills) {
+    const source = await checkSkill(entry.name, { repoRoot });
+    if (source.digest !== entry.version.value) {
+      throw new FoundationError('distribution-source-mismatch', 'Distribution Manifest 的版本摘要与 Skill 内容不一致', {
+        name: entry.name,
+        declared: entry.version.value,
+        actual: source.digest,
+      });
+    }
+    const operation = installState.records[entry.name] ? 'update' : 'install';
+    items.push({ entry, plan: await planSkill({ target: projectRoot, name: entry.name, operation, repoRoot, adapterRegistry }) });
+  }
+  const conflicts = items.flatMap(({ entry, plan }) => plan.conflicts.map((conflict) => ({ name: entry.name, ...conflict })));
+  return {
+    ok: conflicts.length === 0,
+    command: 'distribution-plan',
+    status: conflicts.length ? 'blocked' : 'planned',
+    manifest: distribution.path,
+    manifestDigest: distribution.digest,
+    target: projectRoot,
+    items: items.map(({ entry, plan }) => ({ name: entry.name, version: entry.version.value, action: plan.action, plan })),
+    conflicts,
+  };
+}
+
+export async function applyDistribution(options = {}) {
+  const plan = await planDistribution(options);
+  if (!plan.ok) {
+    throw new FoundationError('distribution-conflict', 'Distribution 计划存在冲突，未开始写入', { plan });
+  }
+  const results = [];
+  for (const item of plan.items) {
+    const currentSource = await checkSkill(item.name, { repoRoot: options.repoRoot || REPO_ROOT });
+    if (currentSource.digest !== item.version) {
+      throw new FoundationError('distribution-source-mismatch', 'Distribution Apply 前 Skill 内容已偏离 Manifest', {
+        name: item.name,
+        declared: item.version,
+        actual: currentSource.digest,
+      });
+    }
+    const apply = item.plan.operation === 'update' ? updateSkill : installSkill;
+    results.push(
+      await apply({
+        target: plan.target,
+        name: item.name,
+        repoRoot: options.repoRoot || REPO_ROOT,
+        adapterRegistry: options.adapterRegistry || defaultAdapterRegistry,
+      }),
+    );
+  }
+  const verification = await verifyDistribution(options);
+  if (!verification.ok) {
+    throw new FoundationError('distribution-verification-failed', 'Distribution Apply 后校验失败；已完成项保持可重入状态', {
+      verification,
+    });
+  }
+  return {
+    ok: true,
+    command: 'distribution-apply',
+    status: results.every((result) => result.status === 'unchanged') ? 'unchanged' : 'applied',
+    manifest: plan.manifest,
+    manifestDigest: plan.manifestDigest,
+    target: plan.target,
+    results,
+  };
+}
+
+export async function verifyDistribution({
+  target,
+  manifestPath = 'distribution/manifest.yaml',
+  repoRoot = REPO_ROOT,
+  adapterRegistry = defaultAdapterRegistry,
+} = {}) {
+  const distribution = await readDistributionManifest(repoRoot, manifestPath);
+  const projectRoot = path.resolve(target);
+  const state = await readInstallState(projectRoot);
+  const projectManifest = await readProjectManifest(projectRoot);
+  const hostIntegration = projectManifest.integrations.find((integration) => integration.capability === 'host');
+  const hostAdapter = resolveHost(adapterRegistry, hostIntegration.adapterId);
+  const skillsRoot = resolveHostSkillsDirectory(hostAdapter, projectRoot, hostIntegration);
+  const errors = [];
+  const checks = [];
+  for (const entry of distribution.manifest.skills) {
+    const source = await checkSkill(entry.name, { repoRoot });
+    if (source.digest !== entry.version.value) {
+      errors.push({ code: 'distribution-source-mismatch', name: entry.name, declared: entry.version.value, actual: source.digest });
+      continue;
+    }
+    const record = state.records[entry.name];
+    const expectedPath = path.join(skillsRoot, entry.name);
+    if (!record) {
+      errors.push({ code: 'distribution-skill-not-installed', name: entry.name });
+      continue;
+    }
+    if (
+      record.host !== hostIntegration.adapterId ||
+      record.scope !== 'project' ||
+      path.resolve(projectRoot, record.path) !== expectedPath ||
+      record.digest !== entry.version.value
+    ) {
+      errors.push({ code: 'distribution-install-record-mismatch', name: entry.name });
+      continue;
+    }
+    try {
+      await assertNoSymlinkSegments(projectRoot, expectedPath);
+      const destinationStat = await statOrNull(expectedPath);
+      const digest = destinationStat?.isDirectory() && !destinationStat.isSymbolicLink() ? await digestTree(expectedPath) : null;
+      if (digest !== entry.version.value) errors.push({ code: 'distribution-installed-content-mismatch', name: entry.name, actual: digest });
+      else checks.push({ code: 'distribution-skill', name: entry.name, digest, status: 'pass' });
+    } catch (error) {
+      errors.push({ code: error.code || 'distribution-installed-content-invalid', name: entry.name, message: error.message });
+    }
+  }
+  return {
+    ok: errors.length === 0,
+    command: 'distribution-verify',
+    status: errors.length ? 'fail' : 'pass',
+    manifest: distribution.path,
+    manifestDigest: distribution.digest,
+    target: projectRoot,
+    errors,
+    checks,
+  };
+}
+
 export async function doctorProject(target, { adapterRegistry = defaultAdapterRegistry } = {}) {
   const projectRoot = path.resolve(target);
   const errors = [];
@@ -710,15 +3064,22 @@ export async function doctorProject(target, { adapterRegistry = defaultAdapterRe
     errors.push({ code: error.code || 'invalid-manifest', message: error.message });
   }
 
-  for (const relative of [path.join('knowledge', 'registry.json'), path.join('knowledge', 'code-entry-map.json')]) {
-    try {
-      const document = await readJson(path.join(projectRoot, relative), relative);
-      if (document.schemaVersion !== 1 || !Array.isArray(document.entries)) {
-        errors.push({ code: 'invalid-knowledge-index', path: relative });
-      } else checks.push({ code: 'knowledge-index', path: relative, status: 'pass' });
-    } catch (error) {
-      errors.push({ code: error.code || 'invalid-knowledge-index', path: relative, message: error.message });
-    }
+  const knowledge = await checkKnowledgeGovernance(projectRoot);
+  errors.push(...knowledge.errors);
+  warnings.push(...knowledge.warnings);
+  checks.push(...knowledge.checks);
+
+  const specflow = await checkSpecflowGovernance(projectRoot);
+  errors.push(...specflow.errors);
+  warnings.push(...specflow.warnings);
+  checks.push(...specflow.checks);
+
+  const componentConfig = await statOrNull(path.join(projectRoot, '.component-governance', 'config.yaml'));
+  if (componentConfig) {
+    const components = await checkComponentRegistry(projectRoot);
+    errors.push(...components.errors);
+    warnings.push(...components.warnings);
+    checks.push(...components.checks);
   }
 
   try {
@@ -765,11 +3126,14 @@ export async function doctorProject(target, { adapterRegistry = defaultAdapterRe
   };
 }
 
-export async function checkRepository({ repoRoot = REPO_ROOT, denyTerms = [] } = {}) {
+export async function checkRepository({ repoRoot = REPO_ROOT, denyTerms = [], gitScope = 'none' } = {}) {
   const root = path.resolve(repoRoot);
   const errors = [];
   const warnings = [];
   const checks = [];
+  if (!['none', 'staged', 'reachable', 'all'].includes(gitScope)) {
+    throw new FoundationError('invalid-git-scope', 'gitScope 只能是 none、staged、reachable 或 all');
+  }
   const rootStat = await statOrNull(root);
   if (!rootStat?.isDirectory() || rootStat.isSymbolicLink()) {
     return {
@@ -864,34 +3228,113 @@ export async function checkRepository({ repoRoot = REPO_ROOT, denyTerms = [] } =
         : [];
       if (!rubric?.isFile() || rubric.isSymbolicLink() || cases.length === 0) {
         errors.push({ code: 'invalid-skill-evals', name: skill.name });
-      } else checks.push({ code: 'skill', name: skill.name, evalCases: cases.length, status: 'pass' });
+      } else {
+        checks.push({ code: 'skill', name: skill.name, evalCases: cases.length, status: 'pass' });
+        const replay = await statOrNull(path.join(evalRoot, 'replay.json'));
+        if (replay) {
+          if (!replay.isFile() || replay.isSymbolicLink()) {
+            errors.push({ code: 'invalid-skill-eval-replay', name: skill.name });
+          } else {
+            try {
+              const report = await buildEvalRun({ skillRoot: path.join(root, 'skills', skill.name) });
+              checks.push({
+                code: 'skill-eval-replay',
+                name: skill.name,
+                evalCases: report.cases.length,
+                result: report.summary.result,
+                digest: report.integrity.payload_digest,
+                status: report.summary.result === 'pass' ? 'pass' : 'fail',
+              });
+              if (report.summary.result !== 'pass') {
+                errors.push({ code: 'skill-eval-replay-not-passing', name: skill.name, result: report.summary.result });
+              }
+            } catch (error) {
+              errors.push({ code: 'invalid-skill-eval-replay', name: skill.name, message: error.message });
+            }
+          }
+        }
+      }
+    }
+    const distributionPath = path.join(root, 'distribution', 'manifest.yaml');
+    const distributionStat = await statOrNull(distributionPath);
+    if (!distributionStat) {
+      warnings.push({ code: 'distribution-manifest-missing' });
+    } else {
+      const distribution = await readDistributionManifest(root, 'distribution/manifest.yaml');
+      const mismatchStart = errors.length;
+      for (const entry of distribution.manifest.skills) {
+        const source = await checkSkill(entry.name, { repoRoot: root });
+        if (source.digest !== entry.version.value) {
+          errors.push({
+            code: 'distribution-source-mismatch',
+            name: entry.name,
+            declared: entry.version.value,
+            actual: source.digest,
+          });
+        }
+      }
+      checks.push({
+        code: 'distribution-manifest',
+        skills: distribution.manifest.skills.length,
+        digest: distribution.digest,
+        status: errors.length === mismatchStart ? 'pass' : 'fail',
+      });
     }
   } catch (error) {
     errors.push({ code: error.code || 'invalid-skills', message: error.message, details: error.details });
   }
 
+  const knowledge = await checkKnowledgeGovernance(root);
+  errors.push(...knowledge.errors);
+  warnings.push(...knowledge.warnings);
+  checks.push(...knowledge.checks);
+
+  const specflow = await checkSpecflowGovernance(root);
+  errors.push(...specflow.errors);
+  warnings.push(...specflow.warnings);
+  checks.push(...specflow.checks);
+
   const normalizedTerms = [...new Set(denyTerms.map((term) => term.trim()).filter(Boolean))];
   const secretPatterns = genericSecretPatterns();
   const sensitiveErrorCount = errors.length;
-  for (const relative of files.filter((file) => TEXT_EXTENSIONS.has(path.extname(file)))) {
-    const content = await readFile(path.join(root, relative), 'utf8');
-    for (const { kind, pattern } of secretPatterns) {
-      pattern.lastIndex = 0;
-      if (pattern.test(content)) errors.push({ code: 'high-confidence-secret', kind, path: relative });
+  let scannedFiles = 0;
+  let skippedLargeFiles = 0;
+  let skippedBinaryFiles = 0;
+  for (const relative of files) {
+    scanSensitivePath(relative, { path: relative }, normalizedTerms, errors);
+    const fileStat = await lstat(path.join(root, relative));
+    if (fileStat.size > MAX_SCANNABLE_TEXT_BYTES) {
+      skippedLargeFiles += 1;
+      continue;
     }
-    for (const term of normalizedTerms) {
-      if (content.toLocaleLowerCase().includes(term.toLocaleLowerCase())) {
-        const termId = createHash('sha256').update(term).digest('hex').slice(0, 12);
-        errors.push({ code: 'denied-sensitive-term', path: relative, termId });
-      }
+    const buffer = await readFile(path.join(root, relative));
+    if (!isScannableText(buffer)) {
+      skippedBinaryFiles += 1;
+      continue;
     }
+    scanSensitiveText(buffer.toString('utf8'), { path: relative }, normalizedTerms, secretPatterns, errors);
+    scannedFiles += 1;
   }
   checks.push({
     code: 'sensitive-content-scan',
-    files: files.filter((file) => TEXT_EXTENSIONS.has(path.extname(file))).length,
+    files: scannedFiles,
+    skippedLargeFiles,
+    skippedBinaryFiles,
     customTerms: normalizedTerms.length,
     status: errors.length === sensitiveErrorCount ? 'pass' : 'fail',
   });
+
+  if (gitScope !== 'none') {
+    const gitErrorCount = errors.length;
+    const git = await scanGitObjects(root, gitScope, normalizedTerms, secretPatterns, errors);
+    checks.push({
+      code: 'git-sensitive-content-scan',
+      scope: gitScope,
+      objects: git.objects,
+      scannedObjects: git.scannedObjects,
+      status: errors.length === gitErrorCount ? 'pass' : 'fail',
+    });
+  }
 
   return {
     ok: errors.length === 0,

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "change_id": "example-change",
+  "changed_paths": ["src/example/page.ts"],
+  "rules": [{ "id": "example-page", "path_prefixes": ["src/example/"], "required_checks": ["unit"], "required_browser_scenarios": ["normal", "empty", "error"], "required_manual_gates": [] }],
+  "checks": [{ "id": "unit", "command": "npm test", "status": "planned", "evidence_ref": null }],
+  "browser_scenarios": [
+    { "id": "normal", "page": "/example", "version": "candidate-revision", "preconditions": ["合成正常数据"], "actions": ["打开页面"], "expected": ["内容可见"], "status": "planned", "evidence_ref": null },
+    { "id": "empty", "page": "/example", "version": "candidate-revision", "preconditions": ["合成空数据"], "actions": ["打开页面"], "expected": ["空态可见"], "status": "planned", "evidence_ref": null },
+    { "id": "error", "page": "/example", "version": "candidate-revision", "preconditions": ["合成失败响应"], "actions": ["打开页面"], "expected": ["错误与重试入口可见"], "status": "planned", "evidence_ref": null }
+  ],
+  "manual_gates": []
+}

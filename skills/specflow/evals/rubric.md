@@ -13,6 +13,7 @@
 - 先更新 Meta 终态再生成或回读 Receipt；
 - 在缺少确定性计算时伪造实现、产物或事件 Digest；
 - 覆盖、删除、重排已有 Receipt 或 Lifecycle Event；
+- 对父子或取代关系只更新一侧，或绕过 Relation Transaction 分别写入两个终态事项；
 - 把过期或 `review-required` 的 Knowledge 直接标记为 `still-valid`；
 - 用 Lifecycle Event 代替新业务变化所需的新 Spec；
 - 未经授权修改代码、提交、推送、创建 PR/MR 或更新外部工作项；

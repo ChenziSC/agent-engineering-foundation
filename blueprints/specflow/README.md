@@ -1,6 +1,6 @@
 # Specflow Blueprint
 
-成熟度：Skill 与模板 `usable`，自动化 `designed`
+成熟度：Skill 与模板 `usable`；本地 Receipt/Event/Meta、双终态事项 Relation Transaction、Knowledge Projection Registry、Git 摘要与 Change Gate 子集 `reference-implemented`；Active/多事项/跨仓库关系事务与其他 Provider 自动化 `designed`
 
 Specflow 用仓库内的 Spec、Plan、Tasks 和 Meta 管理一个研发事项的目标、技术决策、执行拆分和业务生命周期。它优先解决跨会话恢复与可审计性，不要求接入特定 Issue、代码托管或 CI 平台。
 
@@ -10,6 +10,8 @@ Specflow 用仓库内的 Spec、Plan、Tasks 和 Meta 管理一个研发事项�
 
 ```text
 .agent-work/
+├── .specflow-transactions/    # 跨事项事务意图，不可覆盖
+│   └── <transaction-id>.yaml
 └── <work-id>/
     ├── spec.md
     ├── plan.md
@@ -34,9 +36,12 @@ Agent 执行流程由 [`specflow` Skill](../../skills/specflow/SKILL.md) 定义�
 - [archive-receipt.schema.json](../../skills/specflow/assets/archive-receipt.schema.json)
 - [lifecycle-event.template.yaml](../../skills/specflow/assets/lifecycle-event.template.yaml)
 - [lifecycle-event.schema.json](../../skills/specflow/assets/lifecycle-event.schema.json)
+- [relation-transaction.template.yaml](../../skills/specflow/assets/relation-transaction.template.yaml)
+- [relation-transaction.schema.json](../../skills/specflow/assets/relation-transaction.schema.json)
 - [knowledge-projection.template.yaml](../../skills/specflow/assets/knowledge-projection.template.yaml)
 - [knowledge-projection.schema.json](../../skills/specflow/assets/knowledge-projection.schema.json)
 - [archive-checklist.md](../../skills/specflow/assets/archive-checklist.md)
+- [archive-receipt.mjs](../../skills/specflow/scripts/archive-receipt.mjs)
 
 ## 产物所有权
 
@@ -50,6 +55,7 @@ Agent 执行流程由 [`specflow` Skill](../../skills/specflow/SKILL.md) 定义�
 | Validation Report | 结构、关系和新鲜度检查结果 | 业务评审结论 |
 | Archive Receipt | 首次终态的最终实现、产物、验证、授权和知识投影快照 | 完整 Diff、聊天全文或外部平台状态 |
 | Lifecycle Event | 首次终态之后的状态或关系变化 | 新业务实现和第二份 Receipt |
+| Relation Transaction | 两个终态事项之间互反关系的协调意图和双方 Event 摘要 | 远端状态、第三个事项或可变执行日志 |
 
 ## 生命周期
 
@@ -73,7 +79,11 @@ Markdown 中使用上面的展示名称；`meta.yaml` 使用对应的小写标�
 
 不能从 Commit、Push、合并请求或 Agent 自述推断归档授权。
 
-首次终态必须先生成并回读不可覆盖的 Archive Receipt，最后更新 Meta 状态。归档后的真实状态或关系变化只追加 Lifecycle Event；新的业务实现变化建立新事项，不能用 Event 绕过新的 Spec 和验证。完整语义见[归档回执、生命周期事件与 Knowledge Projection](../../skills/specflow/references/archive-and-lifecycle.md)。
+首次终态必须先生成并回读不可覆盖的 Archive Receipt，最后更新 Meta 状态。归档后的真实状态或关系变化只追加 Lifecycle Event；两个终态事项的父子或取代关系由 Relation Transaction 先校验双向一致，再写双方 Event 和 Meta。该事务可幂等恢复，但跨文件投影不承诺绝对原子可见性。新的业务实现变化建立新事项，不能用 Event 绕过新的 Spec 和验证。完整语义见[归档回执、生命周期事件与 Knowledge Projection](../../skills/specflow/references/archive-and-lifecycle.md)。
+
+当项目能够提供不可变 Base/Source 时，可以在实现阶段执行工作门禁，在交付阶段复核最终候选。完整候选必须显式关联一个 Scope 覆盖完整的 Spec，或使用由全部路径机械证明的受控低风险豁免；不能同时使用两种关联，也不能用 Include/Exclude 隐藏候选。交付门禁还会复核 Archived Receipt、Lifecycle 摘要链和最终候选摘要，详见[事项—变更关联与交付门禁](../../skills/specflow/references/change-gate.md)。
+
+采用本仓 Harness 时，Knowledge Projection 遵循 `plan → apply → verify`：Agent/人工先准备正文、Registry 条目和动作，程序再按真实变更路径检查 Scope 覆盖，机械更新来源摘要、状态与取代关系。`apply` 不生成正文；退役知识仍被代码入口引用、取代目标无效或命中知识没有决策时阻断。
 
 ## 恢复上下文
 
@@ -86,6 +96,8 @@ Markdown 中使用上面的展示名称；`meta.yaml` 使用对应的小写标�
 5. 大文档优先读取 Section Index，再加载相关章节。
 
 如果没有 Active 事项，返回空结果，不创建虚构上下文。
+
+采用本仓 Harness 时，可以使用 `context resolve` 按任务类型和相关路径生成上述最小加载计划。Resolver 读取 Active Spec 核心 Markdown 的字节数：在单事项与总预算内时加入全文加载计划，超限时返回 H1–H3 的真实行区间、字节数、AC/FR 等规则编号位置和清单完成度。它不生成摘要，也不替代 Agent 阅读所选章节后的相关性判断。
 
 ## 新鲜度
 
@@ -119,10 +131,8 @@ Markdown 中使用上面的展示名称；`meta.yaml` 使用对应的小写标�
 
 ## 未来可选工程化
 
-- Meta Schema Validator；
-- Active Context 发现器；
-- Section Index 生成器；
-- 新鲜度检查；
 - Provider Neutral 的 CI 报告；
-- Archive/Context/Knowledge 的确定性 Validator、摘要计算和原子写入；
-- 行为 Eval 正式回放与回归报告。
+- Active 事项、三个及以上事项或跨仓库的关系事务；
+- 其他版本控制变更摘要 Provider 和受保护历史检查；
+- Knowledge 正文生成和刷新触发语义检查；
+- 宿主 Trace 归一化和长期回归趋势。

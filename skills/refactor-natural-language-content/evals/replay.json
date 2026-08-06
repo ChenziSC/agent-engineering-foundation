@@ -1,0 +1,584 @@
+{
+  "schema_version": 1,
+  "run_id": "refactor-natural-language-content:2026-08-05",
+  "skill_name": "refactor-natural-language-content",
+  "executed_at": "2026-08-05T12:00:00Z",
+  "environment": {
+    "host": "local-agent-host",
+    "tools": [
+      "repository-read",
+      "deterministic-validator"
+    ],
+    "configuration_ref": null
+  },
+  "threshold": 80,
+  "cases": [
+    {
+      "id": "case-01",
+      "case_path": "evals/cases/01-explicit-spec-refactor.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与模式选择",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N01-A"
+          ]
+        },
+        {
+          "name": "增量门禁与扫描成本",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N01-A"
+          ]
+        },
+        {
+          "name": "问题分类",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N01-A"
+          ]
+        },
+        {
+          "name": "证据与权威处理",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N01-A"
+          ]
+        },
+        {
+          "name": "重构质量与语义保真",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N01-A"
+          ]
+        },
+        {
+          "name": "复查与交付",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "N01-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "N01-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "N01-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-02",
+      "case_path": "evals/cases/02-low-risk-copy-edit.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与模式选择",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N02-A"
+          ]
+        },
+        {
+          "name": "增量门禁与扫描成本",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N02-A"
+          ]
+        },
+        {
+          "name": "问题分类",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N02-A"
+          ]
+        },
+        {
+          "name": "证据与权威处理",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N02-A"
+          ]
+        },
+        {
+          "name": "重构质量与语义保真",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N02-A"
+          ]
+        },
+        {
+          "name": "复查与交付",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "N02-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "N02-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "N02-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-03",
+      "case_path": "evals/cases/03-shared-term-change.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与模式选择",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N03-A"
+          ]
+        },
+        {
+          "name": "增量门禁与扫描成本",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N03-A"
+          ]
+        },
+        {
+          "name": "问题分类",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N03-A"
+          ]
+        },
+        {
+          "name": "证据与权威处理",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N03-A"
+          ]
+        },
+        {
+          "name": "重构质量与语义保真",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N03-A"
+          ]
+        },
+        {
+          "name": "复查与交付",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "N03-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "N03-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "N03-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-04",
+      "case_path": "evals/cases/04-repeated-local-edits.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与模式选择",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N04-A"
+          ]
+        },
+        {
+          "name": "增量门禁与扫描成本",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N04-A"
+          ]
+        },
+        {
+          "name": "问题分类",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N04-A"
+          ]
+        },
+        {
+          "name": "证据与权威处理",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N04-A"
+          ]
+        },
+        {
+          "name": "重构质量与语义保真",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N04-A"
+          ]
+        },
+        {
+          "name": "复查与交付",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "N04-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "N04-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "N04-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-05",
+      "case_path": "evals/cases/05-source-code-refactor.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与模式选择",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N05-A"
+          ]
+        },
+        {
+          "name": "增量门禁与扫描成本",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N05-A"
+          ]
+        },
+        {
+          "name": "问题分类",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N05-A"
+          ]
+        },
+        {
+          "name": "证据与权威处理",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N05-A"
+          ]
+        },
+        {
+          "name": "重构质量与语义保真",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N05-A"
+          ]
+        },
+        {
+          "name": "复查与交付",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "N05-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "N05-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "N05-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-06",
+      "case_path": "evals/cases/06-unknown-authority-conflict.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与模式选择",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N06-A"
+          ]
+        },
+        {
+          "name": "增量门禁与扫描成本",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N06-A"
+          ]
+        },
+        {
+          "name": "问题分类",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N06-A"
+          ]
+        },
+        {
+          "name": "证据与权威处理",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N06-A"
+          ]
+        },
+        {
+          "name": "重构质量与语义保真",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N06-A"
+          ]
+        },
+        {
+          "name": "复查与交付",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "N06-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "N06-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "N06-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-07",
+      "case_path": "evals/cases/07-large-document-cost-gate.md",
+      "trace_path": "evals/traces/2026-08-05/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与模式选择",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N07-A"
+          ]
+        },
+        {
+          "name": "增量门禁与扫描成本",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N07-A"
+          ]
+        },
+        {
+          "name": "问题分类",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N07-A"
+          ]
+        },
+        {
+          "name": "证据与权威处理",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "N07-A"
+          ]
+        },
+        {
+          "name": "重构质量与语义保真",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "N07-A"
+          ]
+        },
+        {
+          "name": "复查与交付",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "N07-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "N07-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "N07-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    }
+  ]
+}

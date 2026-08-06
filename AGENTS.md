@@ -12,11 +12,11 @@
 ## 内容边界
 
 - 受限来源中的 Agent 能力全部进入非公开能力盘点，不因来源而丢弃问题价值；是否进入公开仓库另行判断。
-- “跨项目通用”表示值得沉淀，不等于当然可以公开。公开形态按 `full-rebuild`、`design-rebuild`、`framework-only`、`exclude` 分级。
+- 跨项目通用且已移除具体内部信息的设计可以沉淀；具体文字、代码、Schema、测试和数据是否能直接复用，另按权属或许可判断。公开形态按 `complete-solution`、`adapter-backed`、`problem-pattern`、`exclude` 分级，成熟度另行标记。
 - 不复制公司代码、内部文档、生产数据、真实接口、内部域名、私有包名、人员信息和操作手册。
-- 不以“替换名称”的方式处理内部材料；所有公开内容必须重新抽象、重新命名、重新组织和独立实现。
-- 对可以由公开资料和通用工程知识独立推导的方案，允许完整重建问题、设计、Skill 和参考实现，不要求一律退化为空框架。
-- 对非公开的独特组合、关键策略、阈值、事故结论或内部实践，只保留可以安全独立重建的层级；公开依据不足时暂不进入公开仓库。
+- 不以“只替换名称”的方式发布仍含内部事实的材料；通用问题、解决思路、状态机、步骤顺序、职责划分和能力组合可以保留，不要求为了与来源不同而刻意重排。
+- 通用方案可以完整沉淀为问题、设计、Skill 和参考实现，不因来自受限来源或由多个通用细节组成而自动降级为空框架。
+- 只有具体内部标识、真实系统拓扑、私有平台行为、配置、数据、权限、专有实现表达、特有阈值或事故结论需要移除、替换或降低公开深度；不能仅以“组合后可能反推”为由排除通用方案。
 - 示例、测试和评估数据必须自行构造。
 - 外部系统必须通过接口隔离，核心模块不得依赖某一家公司的研发平台。
 - 遥测默认关闭或仅保存在本地，不记录 Prompt、工具原始输入输出、邮箱和稳定个人标识。
@@ -29,7 +29,7 @@
 - 共享能力只实现一次，上层能力通过依赖复用。
 - 未经用户明确要求，不进行 commit 或 push。
 
-具体分级和公开依据要求见 [`knowledge/public-generalization-policy.md`](knowledge/public-generalization-policy.md)。
+具体分级和公开边界见 [`knowledge/public-generalization-policy.md`](knowledge/public-generalization-policy.md)。
 
 ## 仓库地图
 
@@ -63,7 +63,7 @@
 
 ## Knowledge 治理
 
-- 执行任务前按 [`knowledge/registry.yaml`](knowledge/registry.yaml) 和 [`knowledge/code-entry-map.yaml`](knowledge/code-entry-map.yaml) 读取与范围相关的长期知识，不无差别加载全部正文。
+- 执行任务前优先使用 `context resolve` 生成 Active Spec 与 Knowledge 的最小加载计划；不可用时再按 [`knowledge/registry.yaml`](knowledge/registry.yaml) 和 [`knowledge/code-entry-map.yaml`](knowledge/code-entry-map.yaml) 人工解析，不无差别加载全部正文。
 - Knowledge 只记录跨任务稳定的事实、设计原因、契约、失败模式和刷新条件，不保存当前任务进度和聊天摘要。
 - Specflow 管理当前写模型，Knowledge 管理长期读模型；两者不能复制相同状态。
 - 归档前判断是否产生需要 `create`、`update`、`still-valid`、`supersede` 或 `retire` 的长期知识；自动化尚未实现时在 Validation Report 中明确记录结论和证据。
@@ -74,7 +74,7 @@ Knowledge 准入与状态规则见 [`knowledge/README.md`](knowledge/README.md)�
 ## 工作入口
 
 1. 读取根 `AGENTS.md`。
-2. 从 `specs/*/meta.yaml` 选择相关 Active 事项。
-3. 根据 `knowledge/code-entry-map.yaml` 加载相关长期知识和代码入口。
+2. 运行 `node packages/harness/bin/agent-foundation.mjs context resolve --task-type "<任务类型>" --paths <相关路径>`；没有 Harness 时人工读取索引。
+3. 按结果加载相关 Active Spec、长期 Knowledge 和代码入口；空结果不生成虚构上下文。
 4. 执行范围内工作并同步 Spec、Plan、Tasks 和验证证据。
 5. 只有用户明确要求收口时才进入归档；提交、推送和外部操作分别遵循用户授权。

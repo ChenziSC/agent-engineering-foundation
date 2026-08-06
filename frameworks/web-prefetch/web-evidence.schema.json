@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/agent-foundation/web-evidence.schema.json",
+  "title": "Synthetic Web Evidence Input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "page_version", "har", "trace"],
+  "properties": {
+    "version": { "const": 1 },
+    "page_version": { "type": "string", "minLength": 1 },
+    "har": { "type": ["object", "null"] },
+    "trace": { "type": ["object", "null"] }
+  }
+}

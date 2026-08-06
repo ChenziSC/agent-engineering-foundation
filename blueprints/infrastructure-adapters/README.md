@@ -1,6 +1,6 @@
 # 项目基建 Adapter Blueprint
 
-成熟度：公共契约 `designed`；Host 注册子集 `reference-implemented`
+成熟度：公共契约 `designed`；Host 注册与本地 Git Source Control 子集 `reference-implemented`
 
 这个 Blueprint 用于让采用方把自己的 Agent Host、代码托管、工作项、设计输入、浏览器证据、发布和遥测基建接入治理骨架，同时避免公开核心依赖某个平台、SDK、凭证格式或组织实现。
 
@@ -29,13 +29,21 @@ Starter 的 `agent-foundation.json` 使用 `integrations` 声明项目需要的�
 }
 ```
 
-每项只能包含：
+Manifest 顶层字段分为：
+
+- `schemaVersion`、`preset`：选择并校验受支持契约；
+- `directories`、`context`、`integrations`、`safety`：执行契约，必须被 Harness 消费或校验；其中 `context` 控制 Active Spec 全文预算、索引上限和单个规则文件预算；
+- `metadata`：受限的辅助理解信息，可包含 `description`、`documentationRef` 和 `labels`，不产生权限、安全或执行效果。
+
+每个 `integrations` 项只能包含：
 
 - `capability`：能力类别；
 - `adapterId`：采用方注册的稳定 ID；
 - `configRef`：可选的不透明配置引用，必须使用 URI 形式；不能内联配置或凭证。
 
 Manifest 声明需求，不负责加载代码。当前 Harness 要求且只允许一个项目级 Host；其他能力可以声明多个不同 Adapter。
+
+允许保存辅助理解信息不等于允许任意扩展字段。描述性信息进入 `metadata`；任何看起来会改变路径、权限、冲突或凭证处理的字段，都必须先有实际消费者和验证，否则不得加入 Manifest。
 
 完整的合成配置见[Integration Manifest 示例](../../templates/infrastructure-adapters/agent-foundation.example.json)。
 
@@ -68,7 +76,7 @@ await planSkill({ target: '/path/to/project', name: 'specflow', adapterRegistry 
 | Capability | 主要职责 | 当前成熟度 |
 | --- | --- | --- |
 | `host` | 解析项目级 Skill 目标目录和宿主约束 | Registry 与开放 Host 已参考实现 |
-| `source-control` | 提供版本、差异、候选变更和合并证据 | `designed` |
+| `source-control` | 提供版本、差异、候选变更和合并证据 | 本地 Git Merge Candidate 摘要子集已参考实现；其他 Provider `designed` |
 | `work-item` | 查询或写入外部研发事项，处理去重和回读 | `designed` |
 | `design-input` | 获取稳定设计标识、资源和能力信息 | `designed` |
 | `browser-evidence` | 提供 DOM、网络、控制台、截图和版本映射证据 | `designed` |
@@ -117,6 +125,8 @@ await planSkill({ target: '/path/to/project', name: 'specflow', adapterRegistry 
 - 非核心 Adapter 未注册：Doctor 警告，核心本地治理仍可运行；
 - `configRef` 不是 URI 形式：阻断并且不尝试猜测凭证；
 - Adapter 部分成功：保留已获得证据和未完成项，不回滚外部已发生事实，也不冒充完整成功。
+
+本地 Git Adapter 只接受不可变可解析的 Base/Source 边界。它在临时对象库中计算候选 Tree，按显式 Include/Exclude 范围生成 `source-control-snapshot-v1` 摘要；范围内脏工作区、未跟踪文件或合并冲突会阻断，且不会修改工作树、Index、分支、Tag 或远端。
 
 ## 当前不包含
 

@@ -5,8 +5,8 @@
 ## 工作入口
 
 1. 先读取本文件；
-2. 从 `specs/*/meta.yaml` 选择与请求相关的 Active 事项；
-3. 根据 `knowledge/registry.json` 和 `knowledge/code-entry-map.json` 加载相关长期知识；
+2. Harness 可用时先运行 `context resolve` 生成最小加载计划；标记为 `sectioned` 的事项按返回的 Section Index 读取相关章节，不直接加载全部正文；否则从 `specs/*/meta.yaml` 人工选择相关 Active 事项；
+3. 根据加载计划或 `knowledge/registry.json` 和 `knowledge/code-entry-map.json` 加载相关长期知识；
 4. 范围变化更新 Spec，技术路径变化更新 Plan，执行状态和验证更新 Tasks；
 5. 只有用户明确要求终态时才归档；提交、推送和外部写入分别需要明确授权。
 

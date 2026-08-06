@@ -1,9 +1,19 @@
 {
   "schemaVersion": 2,
   "preset": "minimal",
+  "metadata": {
+    "description": "最小项目级 Agent 工程治理骨架",
+    "labels": ["starter", "project"]
+  },
   "directories": {
     "specs": "specs",
     "knowledge": "knowledge"
+  },
+  "context": {
+    "perSpecFullTextBytes": 32768,
+    "totalFullTextBytes": 65536,
+    "maxIndexEntriesPerArtifact": 256,
+    "maxRuleFileBytes": 32768
   },
   "integrations": [
     {

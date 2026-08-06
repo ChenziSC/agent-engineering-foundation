@@ -1,0 +1,27 @@
+schema_version: 1
+transaction_id: "attach-example-parent-child"
+created_at: "YYYY-MM-DDTHH:mm:ssZ"
+relation_type: "parent-child"
+authorization:
+  confirmed: true
+  confirmed_at: "YYYY-MM-DDTHH:mm:ssZ"
+  authority: "maintainer"
+  evidence_ref: "opaque-local-reference"
+reason: "在两个事项之间建立可双向验证的父子关系"
+participants:
+  - spec_id: "example-child-work"
+    spec_dir: "./example-child-work"
+    event_candidate: "./relation-event.candidate.yaml"
+    sequence: 1
+    event_digest: "sha256:<computed-value>"
+  - spec_id: "example-parent-work"
+    spec_dir: "./example-parent-work"
+    event_candidate: "./relation-event.candidate.yaml"
+    sequence: 1
+    event_digest: "sha256:<computed-value>"
+evidence_refs:
+  - "local:approved-relation-change"
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  transaction_digest: "sha256:<computed-value>"

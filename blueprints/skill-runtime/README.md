@@ -1,8 +1,8 @@
 # Skill 运行时与分发 Blueprint
 
-成熟度：Blueprint `designed`；项目级 Host 注册子集 `reference-implemented`
+成熟度：Blueprint `designed`；项目级 Host 注册与 Distribution Manifest 子集 `reference-implemented`
 
-这个 Blueprint 描述如何发现、校验、计划安装和更新仓库内的 Agent Skill，并为不同宿主生成统一能力清单。仓库已提供最小 CLI、项目级开放 Host 和可注入 Adapter Registry；采用方可以显式组装自己的 Host。分发 Manifest、用户级安装和能力注册表仍是设计契约。
+这个 Blueprint 描述如何发现、校验、计划安装和更新仓库内的 Agent Skill，并为不同宿主生成统一能力清单。仓库已提供最小 CLI、项目级开放 Host、可注入 Adapter Registry 和仓库级 Distribution Manifest；采用方可以显式组装自己的 Host。用户级安装和能力注册表仍是设计契约。
 
 ## 当前参考实现
 
@@ -10,9 +10,9 @@
 - Host：[`adapters/open-agent/index.mjs`](../../adapters/open-agent/index.mjs)；
 - Registry：[`adapters/registry.mjs`](../../adapters/registry.mjs)；
 - 范围：项目级 `.agents/skills`；
-- 命令：`skill list`、`skill check`、`skill plan`、`skill install`、`skill update`；
+- 命令：`skill list`、`skill check`、`skill plan`、`skill install`、`skill update`，以及 `distribution plan/apply/verify`；
 - 安全性：内容摘要、受管状态、冲突阻断、Symlink 阻断、临时目录替换和失败回滚；
-- 限制：默认 CLI 只打包开放 Host；自定义 Host 由采用方组合入口注入；Skill 只从当前仓库真实 `skills/` 目录发现，不解析下述可选分发 Manifest。
+- 限制：默认 CLI 只打包开放 Host；自定义 Host 由采用方组合入口注入；Distribution 只允许项目级安装，不支持用户级或远端动态来源。
 
 ## 配套模板
 
@@ -55,7 +55,15 @@ Skill 源目录是内容的唯一事实来源。安装目录是派生副本，�
 
 ### Distribution Manifest
 
-Manifest 可用于声明哪些 Skill 允许分发、源路径和版本标识。需要显式发布白名单或版本目录的实现应在不一致时阻断操作；当前最小参考实现以仓库真实 `skills/` 目录为来源，不声称执行该可选契约。
+仓库根目录的 [`distribution/manifest.yaml`](../../distribution/manifest.yaml) 声明允许分发的 Skill、固定源路径、内容摘要、必需文件和可选资源。参考实现会在摘要漂移、缺少文件、未知资源、目标冲突或用户修改时阻断。
+
+```bash
+node packages/harness/bin/agent-foundation.mjs distribution plan --target <project-root>
+node packages/harness/bin/agent-foundation.mjs distribution apply --target <project-root>
+node packages/harness/bin/agent-foundation.mjs distribution verify --target <project-root>
+```
+
+`plan` 与 `verify` 只读；`apply` 会逐项使用已有安全安装/更新原语，成功项保持幂等。若进程在多项之间中断，重跑同一 Manifest 会从已记录状态继续，不宣称跨 Skill 文件系统事务绝对原子。
 
 ### Host Target
 
@@ -109,7 +117,7 @@ check
 
 ## 更新规则
 
-1. 只更新此前由工具管理的 Skill；启用 Distribution Manifest 后还必须位于其分发白名单。
+1. 只更新此前由工具管理且位于 Distribution Manifest 白名单中的 Skill。
 2. 不静默安装新出现的 Skill。
 3. 不删除无法确认归属的文件。
 4. 目标目录存在用户修改时报告冲突，不覆盖。
@@ -157,7 +165,6 @@ Manifest 声明一个不存在的 Skill。Check 返回 `blocked`，目标目录�
 
 ## 当前参考实现不包含
 
-- 分发 Manifest 解析和白名单执行；
 - 默认 CLI 内置多个 Host、动态插件加载与用户级安装；
 - 未经显式命令触发的自动安装或更新；
 - npm、编辑器插件或 Marketplace 发布；

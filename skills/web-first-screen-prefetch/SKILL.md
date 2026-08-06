@@ -33,6 +33,8 @@ description: 分析并设计 Web 首屏关键只读请求的安全预请求方�
 7. 先设计行为验证，再设计性能对比。
 8. 使用报告模板输出结论、Blocker 和版本边界。
 
+采用方同时接入本仓 Harness 时，可以用 `web-evidence summarize --file <evidence.json>` 将合成或脱敏 HAR/Trace 归一为 Observation，用 `prefetch check --file <candidate.json>` 复核确定性资格。程序通过只表示候选达到 `ready`，行为和性能仍需按同一候选版本验证。
+
 执行每一步时，按需读取：
 
 - 分析阶段和退出条件：[workflow.md](references/workflow.md)
@@ -92,4 +94,4 @@ description: 分析并设计 Web 首屏关键只读请求的安全预请求方�
 
 ## 资源决策
 
-本 Skill 首期没有 `scripts/` 和 `tests/`。所有判断依赖 Agent、现有工具和人工确认；只有未来加入确定性 Validator 时，才增加对应脚本与测试。
+本 Skill 自身不复制共享 Parser。确定性 HAR/Trace Observation 与预请求资格子集位于仓库的 `frameworks/web-prefetch/`，真实 Browser、缓存实现和行为判断仍依赖采用方工具、Agent 与人工确认。

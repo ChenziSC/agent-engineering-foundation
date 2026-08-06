@@ -9,7 +9,8 @@
 - Blueprint：`designed`；
 - 项目级参考子集：`reference-implemented`；
 - 已提供：CLI、发现、校验、计划、安装、安全更新、开放 Host 和可注入 Adapter Registry；
-- 尚未提供：Distribution Manifest 执行、用户级安装、动态插件加载和远端能力服务。
+- 已提供：项目级 Distribution Manifest Plan/Apply/Verify 与内容摘要版本；
+- 尚未提供：用户级安装、动态插件加载和远端能力服务。
 
 当前产物：[Skill 运行时与分发 Blueprint 与模板](../../blueprints/skill-runtime/README.md)、[项目基建 Adapter Blueprint](../../blueprints/infrastructure-adapters/README.md)和 `packages/harness/` 参考实现。
 
@@ -96,6 +97,12 @@ Agent 负责：
 - 不把用户级安装默认为已授权。
 
 ## 当前资源
+
+- [`distribution/manifest.yaml`](../../distribution/manifest.yaml) 是可分发 Skill 白名单；
+- `distribution plan` 在任何写入前校验全部条目、摘要和目标冲突；
+- `distribution apply` 复用受管安装/更新，进程中断后可按安装状态幂等继续；
+- `distribution verify` 独立比较源摘要、安装记录和目标内容；
+- 多 Skill Apply 不宣称跨目录绝对原子，用户级和远端动态来源仍不支持。
 
 - Blueprint：开放目录、Host 差异、安全更新和兼容规则；
 - 模板：Manifest、Host Target、安装计划和能力注册表；

@@ -46,7 +46,16 @@
       }
     },
     "reason": { "type": "string", "minLength": 1 },
-    "relation_changes": { "type": "object" },
+    "relation_changes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "parent": { "$ref": "#/$defs/nullableStringChange" },
+        "children": { "$ref": "#/$defs/stringArrayChange" },
+        "supersedes": { "$ref": "#/$defs/stringArrayChange" },
+        "superseded_by": { "$ref": "#/$defs/nullableStringChange" }
+      }
+    },
     "evidence_refs": {
       "type": "array",
       "minItems": 1,
@@ -65,6 +74,24 @@
     }
   },
   "$defs": {
-    "digest": { "type": "string", "pattern": "^sha256:[a-fA-F0-9]{64}$" }
+    "digest": { "type": "string", "pattern": "^sha256:[a-fA-F0-9]{64}$" },
+    "nullableStringChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "type": ["string", "null"], "minLength": 1 },
+        "to": { "type": ["string", "null"], "minLength": 1 }
+      }
+    },
+    "stringArrayChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "to": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    }
   }
 }

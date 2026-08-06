@@ -6,10 +6,10 @@
 
 ## 交付形态
 
-- 首期：可使用 Skill + Blueprint + Spec、Plan、Tasks、Meta、Research 和 Validation Report 模板；
-- 成熟度目标：`usable`；
-- 首期不要求：Package、CI 插件或自动 Validator；
-- 未来可选：结构检查器和 CI 集成。
+- 当前：已验证 Skill + Blueprint + 完整 Meta Schema/检查 + 全套生命周期模板 + 本地 Receipt/Event/Meta 与双终态事项关系事务脚本 + Context/Knowledge 检查 + Knowledge Projection Registry 更新器 + 本地 Git Merge Candidate 摘要与 Change Gate；
+- 当前成熟度：Skill `validated`；Meta、本地终态、Event 链、状态最后写、双终态事项 Relation Transaction、Context 解析、Knowledge 来源摘要/Registry 投影、Git 摘要与两阶段 Change Gate 子集 `reference-implemented`；
+- 当前未实现：Active/多事项/跨仓库关系事务、其他版本控制 Provider、受保护历史检查、Knowledge 正文生成与刷新触发语义和 CI 插件；
+- 未来可选：完整结构检查器和 CI 集成。
 
 当前产物：[`specflow` Skill](../../skills/specflow/SKILL.md)与[项目接入 Blueprint](../../blueprints/specflow/README.md)。
 
@@ -58,6 +58,9 @@
 | `meta` | 业务生命周期状态、关系和影响范围 |
 | `research` | 重大技术未知的限时实验与结论，按需创建 |
 | `validation-report` | Schema、关系、终态和新鲜度检查结果 |
+| `archive-receipt` | 首次终态的授权、实现边界、产物摘要、验证和 Knowledge Projection 快照 |
+| `lifecycle-event` | 首次终态之后的状态与关系变化，只追加不覆盖 |
+| `relation-transaction` | 两个终态事项之间父子或取代关系的互反校验与恢复依据 |
 
 生命周期为：
 
@@ -77,6 +80,7 @@ Agent 负责：
 - 理解目标、范围、风险和技术决策；
 - 生成或更新 Spec、Plan、Tasks；
 - 判断代码变化是否影响既有设计；
+- 编写或复核 Knowledge 正文与 Projection 动作；
 - 提出归档、取代或取消建议。
 
 程序负责：
@@ -85,6 +89,9 @@ Agent 负责：
 - 发现 Active 工作；
 - 为大型文档生成 Section Index；
 - 检查归档后的代码变化和新鲜度；
+- 计划、应用并验证 Knowledge Registry 的确定性投影；
+- 对完整不可变候选执行一个或多个 Spec 的显式集合关联和 Scope 并集覆盖，或者使用受控路径型豁免，并在交付阶段逐项复核 Receipt/Lifecycle 证据；
+- 对两个终态事项的父子或取代关系执行互反校验、证据先写和幂等补齐；
 - 输出 Provider Neutral 的 CI 报告。
 
 归档、取代和取消属于业务生命周期变更，应由用户或明确策略授权，不能从 Commit、Push 或 Draft PR 推断。
@@ -114,7 +121,9 @@ Agent 负责：
 - 模板：Spec、Plan、Tasks、Meta、Research 和 Validation Report；
 - 合成案例：继续开发、归档过期、取代关系和无 Active 工作；
 - Eval：完全合成的行为 Case 和 Rubric；
-- `scripts/` 和 `tests/`：首期不需要。
+- `scripts/` 和 `tests/`：已提供 Receipt/Event/Meta 生命周期、Relation Transaction 与合成测试；Harness 提供 Context/Knowledge、Projection Plan/Apply/Verify 和 Change Gate 命令。
+
+Change Gate 的工作阶段要求不可变 Merge Candidate 明确关联一个或多个 Active Spec，并由其 Scope 并集覆盖完整实现变更；也可以在没有 Spec 时满足一个受控路径型低风险豁免。交付阶段逐项要求 Archived Meta、可验证的 Receipt/Lifecycle 链，以及仍与同一最终候选一致的变更摘要。该检查不创建 Commit，不从 Commit/Push 推断终态授权，也不证明外部平台已经交付。
 
 ## 合成应用案例
 
@@ -123,7 +132,7 @@ Agent 负责：
 3. 合成新需求取代旧 Spec，应建立关系并经明确授权进入 Superseded。
 4. 合成仓库没有 Active 工作，应返回空结果而不是虚构任务。
 
-## 文档与模板首版验收
+## 当前验收
 
 - 核心字段说明与 Markdown 模板完整；
 - `meta` 被明确验证为业务生命周期的唯一事实来源；
@@ -131,10 +140,17 @@ Agent 负责：
 - 生命周期、关系和新鲜度规则可以人工走查；
 - 模板不依赖 Checkpoint 即可采用；
 - 行为 Eval Case 能够验证触发、证据、生命周期、授权和 Provider-neutral 边界。
+- 生命周期脚本能够确定性计算摘要、拒绝覆盖、连续追加 Event，并在证据回读后最后原子更新 Meta；中断后可用同一候选恢复。
+- Relation Transaction 能阻断单侧或夹带变化，在双方 Event 之后逐侧投影 Meta，并在任一侧中断后用同一候选补齐；不把跨文件过程表述为绝对原子写入。
+- Context Resolver 能按任务类型、相关路径和 Active Meta 返回最小加载计划，并按可配置预算在全文与真实 Markdown Section Index 间确定性选择；Knowledge Check 能以权威来源摘要暴露过期风险。
+- 本地 Git Provider 能从不可变 Base/Source 生成范围化 Merge Candidate 摘要，并阻断范围内脏内容和合并冲突。
+- Knowledge Projection 能检查路径反向命中、已准备正文、退役路由和取代关系，原子更新 Registry 来源证据，并以决策指纹支持幂等重试和独立验证。
+- `specflow check` 能校验完整 Meta、产物路径、本地关系互反、关系循环和终态证据链；12 个 Case 的正式脱敏回放可由通用 Runner 重算。
 
 ## 未来可选工程化
 
-- Schema、Parser 和 Validator；
-- Active Context 与 Section Index 生成器；
-- 新鲜度检查和 CI 报告；
-- 确定性程序测试。
+- Active 事项、三个及以上事项或跨仓库的关系事务；
+- 其他版本控制 Provider 和受保护历史检查；
+- Knowledge 正文生成；
+- 刷新触发语义检查和 CI 报告；
+- 更大事项集和更多 Provider 的确定性程序测试。

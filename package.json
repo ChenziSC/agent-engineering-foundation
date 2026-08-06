@@ -9,6 +9,6 @@
   "scripts": {
     "harness": "node packages/harness/bin/agent-foundation.mjs",
     "check": "node packages/harness/bin/agent-foundation.mjs repository check",
-    "test": "node --test packages/harness/test/*.test.mjs"
+    "test": "node --test packages/harness/test/*.test.mjs skills/*/tests/*.test.mjs frameworks/*/tests/*.test.mjs"
   }
 }

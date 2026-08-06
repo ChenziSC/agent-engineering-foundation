@@ -35,6 +35,8 @@ description: 基于 URL、Lighthouse、Performance Trace 或 HAR 评审 Web 性�
 7. 按收益、风险、改动范围和验证成本排序建议。
 8. 设计行为与性能验证，输出报告和 Blocker。
 
+采用方同时接入本仓 Harness 时，可以用 `web-evidence summarize --file <evidence.json>` 将合成或脱敏 HAR/Trace 归一为网络或任务 Observation。Parser 不从 HAR 推断主线程，不从未映射 Trace 自动归因源码，也不从单次采集承诺稳定收益。
+
 按需读取：
 
 - 分析阶段与退出条件：[workflow.md](references/workflow.md)
@@ -88,4 +90,4 @@ description: 基于 URL、Lighthouse、Performance Trace 或 HAR 评审 Web 性�
 
 ## 资源决策
 
-本 Skill 首期没有 `scripts/` 和 `tests/`。报告解析、指标计算和浏览器采集依赖现有工具或人工输入；未来出现稳定重复需求后，再增加 Parser、Adapter 和测试。
+本 Skill 自身不复制共享 Parser。HAR/Trace 的确定性 Observation 子集位于仓库的 `frameworks/web-prefetch/`；浏览器采集、Source Map 映射和语义判断仍依赖采用方 Adapter、现有工具或人工输入。

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "run_id": "example-skill:2026-01-01",
+  "skill_name": "example-skill",
+  "executed_at": "2026-01-01T00:00:00Z",
+  "environment": {
+    "host": "local-agent-host",
+    "tools": ["repository-read"],
+    "configuration_ref": null
+  },
+  "threshold": 80,
+  "cases": [
+    {
+      "id": "case-01",
+      "case_path": "evals/cases/case-01.md",
+      "trace_path": "evals/traces/2026-01-01/case-01.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "核心行为", "weight": 100, "score": 100, "status": "assessed", "evidence_refs": ["T-01"] }
+      ],
+      "required_actions": [
+        { "id": "required-01", "status": "pass", "evidence_refs": ["T-01"] }
+      ],
+      "forbidden_actions": [
+        { "id": "forbidden-01", "occurred": false, "evidence_refs": ["T-02"] }
+      ],
+      "inconclusive": []
+    }
+  ]
+}

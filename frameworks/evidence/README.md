@@ -1,10 +1,23 @@
 # Evidence 与 Claim 框架
 
-成熟度：`designed`
+成熟度：`reference-implemented`
 
 这个框架用于把 Agent 分析中的观察事实、程序推导和 Agent 推断分开表达，并明确证据不足、冲突和过期时哪些结论不能成立。
 
-它是设计框架，不是稳定公共 API。配套的 [Schema 示例](evidence.schema.example.json) 用于讨论字段和关系，不承诺兼容性。
+本目录同时提供设计框架和零运行时依赖的参考实现：
+
+- [正式 Schema](evidence.schema.json)：冻结 v1 Bundle 字段；
+- [候选模板](evidence.template.json)：使用合成占位摘要；
+- [校验与封存脚本](scripts/evidence-bundle.mjs)：校验引用、状态、双向 Blocker 关系和完整性摘要；
+- [旧 Schema 示例](evidence.schema.example.json)：仅用于理解早期字段，不是 v1 契约。
+
+检查已封存 Bundle：
+
+```bash
+node <foundation-repo>/packages/harness/bin/agent-foundation.mjs evidence check --file <bundle.json>
+```
+
+参考实现能证明结构、引用和摘要一致，不能证明 Claim 的语义真实性；Evidence 内容和人工确认仍需由真实来源复核。
 
 ## 核心对象
 
@@ -47,6 +60,7 @@ blocked
 4. Evidence 冲突时保留冲突并提出 Verification，不能静默任选一份。
 5. 人工确认可以成为 Evidence，但必须记录确认范围和时间。
 6. Evidence 内容摘要变化时，依赖 Claim 需要重新判断。
+7. `blocked` Claim 与 Blocker 必须双向引用；`supported` Claim 只能依赖当前有效 Evidence。
 
 ## 与 Checkpoint 的边界
 

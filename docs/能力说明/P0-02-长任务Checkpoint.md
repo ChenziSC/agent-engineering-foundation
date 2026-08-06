@@ -6,10 +6,10 @@
 
 ## 交付形态
 
-- 首期：设计框架 + 状态模型 + Schema 示例；
-- 成熟度目标：`designed`；
-- 首期不要求：可运行持久化、状态机 Package 或程序测试；
-- 未来可选：`checkpoint-core` 参考实现。
+- 当前：设计框架 + 稳定 v1 Schema + 模板 + 零依赖参考实现与测试；
+- 当前成熟度：`reference-implemented`；
+- 当前实现：完整性摘要、Event 连续性、引用状态与 Resume Plan；
+- 未提供：持久化、锁、外部动作确认和业务状态机 Adapter。
 
 当前产物：[长任务 Checkpoint 框架与 Schema 示例](../../frameworks/checkpoint/README.md)。
 
@@ -28,7 +28,7 @@
 - 只需要保存业务生命周期状态；
 - 调用方希望把聊天摘要直接当作完成证据。
 
-Checkpoint 是供上层 Skill 或应用采用的设计框架，不由用户单独触发。未来形成 Package 时继续遵守本说明。
+Checkpoint 是供上层 Skill 或应用采用的横向能力，也可以通过 Harness 的 `checkpoint check|resume` 复核文件；它不由用户单独触发业务动作。
 
 ## 输入
 
@@ -117,12 +117,12 @@ checkpoint-core
 - 不自动重放非幂等外部操作；
 - 不在日志中保存工具原始输入输出或敏感正文。
 
-## 首期资源
+## 当前资源
 
 - 框架文档：状态模型、幂等原则、恢复模式和失败模式；
-- Schema 示例：Run、Stage、Event、Decision 和 ExternalRef；
+- v1 Schema 与模板：Run、Stage、Event、Decision 和 ExternalRef；
 - 合成案例：中断、恢复、人工门禁和非幂等重放；
-- `scripts/`、`evals/` 和 `tests/`：首期不需要。
+- `scripts/` 和 `tests/`：封存、校验和恢复计划。
 
 ## 合成应用案例
 
@@ -131,20 +131,18 @@ checkpoint-core
 3. 合成 Claim 被 Evidence Core 标记失效，组合 Validator 必须阻止完成。
 4. 合成非幂等操作已经发出但结果未知，恢复计划必须要求人工确认而不是自动重放。
 
-## 文档首版验收
+## 当前验收
 
 - 核心对象、状态变化和恢复语义定义完整；
-- 提供可讨论的 JSON Schema 示例，不承诺稳定公共 API；
+- 提供稳定 v1 JSON Schema，精确校验字段、引用和摘要；
 - `ExternalRef` 不复制 Evidence 内容；
 - 明确与 Evidence Core、Specflow 的单向边界；
-- 四个合成案例可以按文档完成状态走查；
+- 合成测试覆盖继续、重验、人工确认、篡改和断序；
 - 文档不会把执行过的步骤自动视为业务完成。
 
 ## 未来可选工程化
 
-- `checkpoint-core`；
-- 状态转换与恢复计划函数；
 - 内存和文件持久化实现；
-- Schema 校验、迁移检查和日志完整性检查；
-- 状态机、幂等和恢复测试。
+- Schema 迁移工具和进程/分布式锁；
+- 采用方外部动作确认 Adapter。
 - 文档明确与 Evidence Core、Specflow 的单向边界。

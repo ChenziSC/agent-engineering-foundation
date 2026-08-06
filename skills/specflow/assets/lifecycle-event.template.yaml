@@ -21,6 +21,6 @@ evidence_refs:
   - "spec:replacement-work-item"
 integrity:
   algorithm: "sha256"
-  canonicalization: "future-validator-defined"
+  canonicalization: "canonical-json-v1"
   previous_digest: "sha256:<receipt-or-previous-event-digest>"
   event_digest: "sha256:<computed-value>"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "埋点治理"
+  short_description: "设计事件契约、代码落点、隐私边界和验证场景"
+  default_prompt: "使用 $tracking-governance 为这项需求设计或评审埋点，并输出可验证的事件契约。"

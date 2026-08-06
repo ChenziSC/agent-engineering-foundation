@@ -94,7 +94,11 @@ Skill 默认输出报告，不自动执行迁移或发布。
 
 ## 确定性门禁
 
-项目可以根据[校验配置示例](../../templates/project-component-governance/component-governance.config.example.yaml)实现检查器。
+项目把[校验配置示例](../../templates/project-component-governance/component-governance.config.example.yaml)复制为 `.component-governance/config.yaml` 后，可以直接运行本仓参考 Validator：
+
+```bash
+node <foundation-repo>/packages/harness/bin/agent-foundation.mjs component check --target <project-root>
+```
 
 ### 建议检查
 
@@ -155,10 +159,9 @@ Skill 默认输出报告，不自动执行迁移或发布。
 
 ## 生产化缺口
 
-本 Blueprint 没有提供通用 CLI 或 Validator。实现前仍需选择：
+当前通用 CLI/Validator 只覆盖确定性结构子集。采用方仍需按技术栈选择或实现：
 
 - 语言和目录解析方式；
-- Registry 格式；
 - 公开导出模型；
 - 深路径识别规则；
 - 测试与构建命令；
