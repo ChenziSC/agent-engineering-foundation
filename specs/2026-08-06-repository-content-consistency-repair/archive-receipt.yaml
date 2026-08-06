@@ -1,0 +1,84 @@
+schema_version: 1
+receipt_id: "2026-08-06-repository-content-consistency-repair:first-terminal"
+spec_id: "2026-08-06-repository-content-consistency-repair"
+created_at: "2026-08-06T07:59:06Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-06T07:59:06Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-06:commit-push-archive"
+snapshot:
+  source_revision: "1b250518ffee994e0501150322f9e373ad9cf618"
+  base_revision: "71a26b9ae577a8ae8dbc27783f38f746d9cd5db4"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:ff24e069edafc11938dee33b93d7ed9f6e880da1fd7d543b1ca0ae1345f4bd21"
+    excludes:
+      - "specs/2026-08-06-repository-content-consistency-repair"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:200ff52d0457a2c4496965d1edd8984778aacdcd5d3542bc51c3527968506ed1"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:2356d527f4f6b7cd17988fe1b8d357cf857f3c95e8d4f078ba820a3e60bf81d4"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:0013456edffbd115b939531865a2c992b29bf76bda7560f9c985d51812f28332"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:36eea4407a7a49d920a4f117520e8f1ae4af116917fbb0d618c7008fbfba7864"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:1b250518ffee994e0501150322f9e373ad9cf618"
+    - "test:npm-test-81-pass"
+    - "check:npm-run-check"
+    - "check:knowledge-projection-verify"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "Specflow 模板收敛了 Meta 动态事实的唯一所有权，长期自举治理 Knowledge 已明确 Spec 只引用而不复制状态、关系和影响范围。"
+      evidence_refs:
+        - "skills/specflow/SKILL.md"
+        - "skills/specflow/assets/spec.md"
+        - "knowledge/self-hosted-governance.md"
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "Framework 清单和成熟度说明仅校准当前证据，未改变仓库定位、产物分层或 Adapter 边界。"
+      evidence_refs:
+        - "docs/02-目标仓库设计.md"
+        - "docs/05-交付形态与成熟度.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "本次只修复公开自然语言内容的事实漂移与术语，没有改变公开处理等级、脱敏边界或权属规则。"
+      evidence_refs:
+        - "specs/2026-08-06-repository-content-consistency-repair/spec.md"
+        - "docs/03-公开化与权属规范.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:f00fed4248ab0c79d693a2af7fcc3e0e5a1d9d8fdd10fc67422b0262eb254852"
