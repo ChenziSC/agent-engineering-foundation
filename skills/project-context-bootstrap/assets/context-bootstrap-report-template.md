@@ -18,6 +18,25 @@
 | --- | --- | --- | --- | --- | --- | --- |
 |  | `create | update | still-valid | review-required | no-admission` |  |  | `observed | inferred | unresolved` |  |  |
 
+## 项目规则就绪度
+
+| 维度 | 状态 | 项目 Evidence | 观察层级 | 缺口 | 建议位置 | 完善阶段 | 需要维护者回答 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 项目心智模型与主要流程 | `ready | needs-project-config | not-applicable | unresolved` |  | `observed | inferred | unresolved` |  | 根 AGENTS / Knowledge | `initial | task-triggered | mature` | 是 / 否 |
+| 架构边界与任务路由 |  |  |  |  | 根 AGENTS / Knowledge / Code Entry Map |  |  |
+| 工具链、依赖安装与本地开发入口 |  |  |  |  | 根 AGENTS / Knowledge |  |  |
+| 构建、测试、静态检查与人工验证 |  |  |  |  | 根 AGENTS / 当前 Spec |  |  |
+| 跨仓库、外部服务、配置与敏感边界 |  |  |  |  | 根 AGENTS / Knowledge / Adapter |  |  |
+| 项目特有禁止事项 |  |  |  |  | 根 AGENTS / 模块 AGENTS |  |  |
+| 模块级密集稳定规则 |  |  |  |  | 模块 AGENTS / Knowledge |  |  |
+| Agent Host 规则入口或薄桥接 |  |  |  |  | 根入口 / Host Adapter |  |  |
+
+- 当前最低可开发基线：
+- 首次接入必须补齐的项目配置：
+- 留到真实任务触发时补充的规则：
+- 只有模式稳定后才建议建设的内容：
+- 规则就绪结论不能由文件存在、Doctor 或 Skill 安装状态替代。
+
 ## 稳定契约与 Knowledge 候选
 
 | 候选 | 建议动作 | 范围 | 权威来源 | 候选状态 | 刷新条件 | 审核责任人 |
@@ -71,6 +90,7 @@
 ## 采用建议
 
 - 建议新增或调整的规则草稿：
+- 项目规则就绪度与最低基线缺口：
 - 建议新增或更新的 Knowledge 草稿：
 - 建议调整的代码入口索引：
 - 建议更新的 Knowledge README 导航：

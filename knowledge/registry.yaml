@@ -42,10 +42,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-real-adoption-validation"
+      spec_id: "2026-08-07-progressive-project-rule-readiness"
       action: "still-valid"
       reviewed_at: "2026-08-07"
-      decision_digest: "sha256:82cece78fddc9cb2431f72e70e70100c35bf8f3e57b7313ab2d44e7f2663ff08"
+      decision_digest: "sha256:2eb9e27996c629ef6ce576fb3e22924c3cb1dfba7fe4a85edd180847876bd5df"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -85,10 +85,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-real-adoption-validation"
+      spec_id: "2026-08-07-progressive-project-rule-readiness"
       action: "still-valid"
       reviewed_at: "2026-08-07"
-      decision_digest: "sha256:1dce7885c54c6eae9f361f171e4d40b50130cc4f655e68a718eee3f1c5c2a597"
+      decision_digest: "sha256:d30672fa89f81d6069accfd742873897b2993ef184434cc1698c5de2f5e9f32f"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -172,7 +172,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-real-adoption-validation"
+      spec_id: "2026-08-07-progressive-project-rule-readiness"
       action: "still-valid"
       reviewed_at: "2026-08-07"
-      decision_digest: "sha256:32fef6415096db3d279d0cd4f8a02b3410bddc21cb5f3e36445b2b50a9e1f0fa"
+      decision_digest: "sha256:e9e377c1ad258ab64134b022c0d98610a18831ff9fc1d7b8a19b3faa455e11c4"

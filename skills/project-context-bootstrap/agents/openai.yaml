@@ -1,4 +1,4 @@
 interface:
-  display_name: "存量项目上下文与知识候选引导"
-  short_description: "从存量项目证据生成可审核的长期上下文候选"
-  default_prompt: "使用 $project-context-bootstrap 为这个存量项目生成可供维护者审核的规则、Knowledge 与代码入口候选。"
+  display_name: "存量项目上下文与规则就绪引导"
+  short_description: "生成长期上下文候选并评估项目规则就绪度"
+  default_prompt: "使用 $project-context-bootstrap 为这个存量项目生成可供维护者审核的规则、Knowledge 与代码入口候选，并评估最低开发规则是否就绪。"

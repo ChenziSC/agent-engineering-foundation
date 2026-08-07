@@ -1,6 +1,6 @@
 ---
 name: project-context-bootstrap
-description: 从存量项目的规则、长期文档、公开契约、代码入口和测试中推导可供维护者审核的项目规则、稳定契约、Knowledge 与代码入口候选。用于未 Harness 化项目完成只读接入计划后补齐项目特有候选、现有规则或 Knowledge 明显缺失、架构或公开契约变化后需要重建候选，或维护者明确要求审计长期项目上下文时。不用于新会话恢复、普通开发任务的代码调研、自动执行 Harness 化或批准 Knowledge，也不提供 AST 字段切片、完整调用图或运行态数据流分析。
+description: 从存量项目的规则、长期文档、公开契约、代码入口和测试中推导可供维护者审核的项目规则、稳定契约、Knowledge 与代码入口候选，并评估项目规则是否足以指导真实开发。用于未 Harness 化项目完成只读接入计划后补齐项目特有候选、治理文件存在但项目规则仍偏通用、现有规则或 Knowledge 明显缺失、架构或公开契约变化后需要重建候选，或维护者明确要求审计长期项目上下文时。不用于新会话恢复、普通开发任务的代码调研、自动执行 Harness 化或批准 Knowledge，也不提供 AST 字段切片、完整调用图或运行态数据流分析。
 ---
 
 # 存量项目上下文与知识候选引导
@@ -30,6 +30,7 @@ description: 从存量项目的规则、长期文档、公开契约、代码入�
 3. 只为证明候选而读取最小实现范围。可用入口、符号或数据元素定位真实定义及邻近测试；满足候选判断后立即停止，不把这一步扩展为普通任务调研或全仓调用图。
 4. 将每项结果分为：
    - 项目规则候选：仓库边界、目录职责、禁止事项和工作入口；
+   - 项目规则就绪候选：项目心智模型、任务路由、开发与验证入口、跨系统边界和项目特有约束是否达到当前适用的最低可开发基线；
    - 稳定契约候选：API/Schema、状态约束、不变量、兼容边界和关键流程；
    - 代码与验证入口候选：后续任务的公开入口、关键实现和契约测试；
    - Knowledge README 导航候选：项目知识库定位、已批准正文链接和常见任务路由的人类可读投影；
@@ -38,7 +39,9 @@ description: 从存量项目的规则、长期文档、公开契约、代码入�
    - 未确认项：证据冲突、来源缺失或必须由维护者裁决的内容。
 5. 为每项结论记录 Evidence 路径、定位信息、候选 revision，以及 `observed`、`inferred` 或 `unresolved`。Agent 推断不得提升为代码事实。
 6. 对每项候选建议 `create`、`update`、`still-valid`、`review-required` 或 `no-admission`，并给出目标位置、刷新条件和批准人。新候选只能是 `draft`；只有已存在且能找到批准证据的内容才能标为 `existing-approved`。
-7. 使用[报告模板](assets/context-bootstrap-report-template.md)输出审核材料。Registry 非空或本次建议创建 Knowledge 时，同时给出 Knowledge README 导航候选；README 只链接和解释，不复制 Digest、完整 Scope 或确定性路由事实。存在 Distribution Manifest 或受管安装记录时，动态枚举完整 Skill 集合，先用项目 Evidence 填写能力就绪矩阵，再合并只需维护者回答的最少问题。对接入前项目，将已审核候选整理为后续 Harness 化输入，并建议在结构接入后通过 Distribution 安装完整公开 Skill 集合；本 Skill 不执行 `init` 或安装。未获得写入授权时只报告建议；获得授权时也先生成草稿，维护者批准前不得写成已生效事实。
+7. 使用[报告模板](assets/context-bootstrap-report-template.md)输出审核材料。先独立填写项目规则就绪度，再填写 Skill 能力就绪矩阵；前者回答 Agent 是否知道怎样开发当前项目，后者回答各 Skill 是否具备长期前置条件，不能互相替代。Registry 非空或本次建议创建 Knowledge 时，同时给出 Knowledge README 导航候选；README 只链接和解释，不复制 Digest、完整 Scope 或确定性路由事实。存在 Distribution Manifest 或受管安装记录时，动态枚举完整 Skill 集合，先用项目 Evidence 填写能力就绪矩阵，再合并只需维护者回答的最少问题。对接入前项目，将已审核候选整理为后续 Harness 化输入，并建议在结构接入后通过 Distribution 安装完整公开 Skill 集合；本 Skill 不执行 `init` 或安装。未获得写入授权时只报告建议；获得授权时也先生成草稿，维护者批准前不得写成已生效事实。
+
+项目规则按三个阶段渐进完善：首次接入确认项目适用的最低可开发基线；组件、设计、埋点、性能或发布等规则在真实任务触发时补充；只有某类模式反复出现且职责稳定后，才建议模块规则、Registry、CI 门禁或 Adapter。具体维度、状态和内容落点见[详细工作流](references/workflow-and-boundaries.md)。
 
 需要判断证据优先级、准入或停止边界时读取[详细工作流](references/workflow-and-boundaries.md)。遇到扫描失控、错误批准或职责混淆时读取[失败模式](references/failure-modes.md)。
 
@@ -60,6 +63,9 @@ description: 从存量项目的规则、长期文档、公开契约、代码入�
 - 不把 Agent 推断、Active Spec 状态、当前任务调用链或未经批准的候选写成稳定事实。
 - 不把新候选标为 `approved`，也不因报告状态为 `ready-for-review` 推断已获批准。
 - 不把 Knowledge README 变成 Registry、Code Entry Map 或 Resolver 的第二机器事实源。
+- 不把 AGENTS、Knowledge、Doctor 或完整 Skill 安装的存在写成项目规则已经完整；最低开发与验证约定仍有缺口时使用 `needs-project-config` 或 `unresolved`。
+- 不要求每个项目预建模块规则、分支制度、组件 Registry、设计/埋点/性能配置或 Host 桥接；能够证明当前不需要时标为 `not-applicable`，真实触发后再复核。
+- 不把所有候选塞进根 AGENTS；全局必读约束、长期 WHY、局部密集规则、领域配置和当前任务决策分别进入根规则、Knowledge、模块规则、配置/Adapter 和当前 Spec。
 - 不把 Skill 已安装、目录存在或 Doctor 通过写成项目配置、Adapter 或外部基建已经就绪。
 - 不因仓库中未发现某类配置就直接判定 Skill `not-applicable`；缺少维护者决策时使用 `unresolved`。
 - 不读取或输出凭证、生产数据、个人信息和与目标无关的敏感配置。

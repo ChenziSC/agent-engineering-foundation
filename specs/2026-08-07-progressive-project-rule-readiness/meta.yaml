@@ -1,0 +1,37 @@
+id: "2026-08-07-progressive-project-rule-readiness"
+title: "补齐渐进式项目规则就绪评估"
+status: "in-progress"
+created_at: "2026-08-07"
+updated_at: "2026-08-07"
+scope:
+  - "skills/project-context-bootstrap/"
+  - "docs/能力地图.md"
+  - "docs/交付形态与成熟度.md"
+  - "distribution/manifest.yaml"
+  - "knowledge/registry.yaml"
+  - "specs/2026-08-07-progressive-project-rule-readiness/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-07"
+  refresh_triggers:
+    - "project-context-bootstrap 的规则候选职责或就绪状态变化"
+    - "Starter、Knowledge 或能力就绪矩阵的职责边界变化"
+    - "新增项目规则语义的确定性 Validator 或持久化契约"
+active_context:
+  summary: "项目规则就绪度、三阶段渐进完善和反例行为 Case 已实现，并通过整仓回归及真实采用项目的自动取证、维护者确认和长期投影闭环，等待维护者决定是否归档。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false
