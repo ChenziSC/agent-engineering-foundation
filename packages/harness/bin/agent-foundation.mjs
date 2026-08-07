@@ -2,6 +2,7 @@
 
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   FoundationError,
   applyDistribution,
@@ -34,6 +35,17 @@ import { validateDesignContract } from '../../../frameworks/design-to-code/scrip
 import { validateEventCatalog } from '../../../frameworks/tracking-governance/scripts/event-catalog.mjs';
 import { summarizeWebEvidence } from '../../../frameworks/web-evidence/scripts/web-evidence.mjs';
 import { evaluatePrefetchCandidate } from '../../../frameworks/web-prefetch/scripts/prefetch-candidate.mjs';
+
+const PACKAGE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const USAGE = '用法：init [plan] | doctor | specflow check | knowledge check | knowledge projection plan|apply|verify --projection <file> --spec-id <id> --reviewed-at <YYYY-MM-DD> [--paths <path,...>] | context resolve [--task-type <type>] [--paths <path,...>] | source-control inspect --base <ref> [--source <ref>] [--include <path,...>] [--exclude <path,...>] | change gate check --base <ref> (--spec-id <id> [--spec-id <id>...] | --exemption <code>) [--phase work|delivery] [--source <ref>] [--include <path,...>] [--exclude <path,...>] | repository check [--deny-file <file>] [--git-scope none|staged|reachable|all] | distribution plan|apply|verify [--manifest <file>] [--target <dir>] | evidence check --file <bundle.json> | checkpoint check|resume --file <checkpoint.json> [--input-digest <sha256>] | change-validation check --file <matrix.json> | web-evidence summarize --file <evidence.json> | prefetch check --file <candidate.json> | design check --file <contract.json> | tracking check --file <catalog.json> | component check [--target <project>] [--config <file>] | eval run --skill <name> [--target <repo>] [--replay <file>] | eval compare --baseline <report.json> --candidate <report.json> | skill list | skill check|plan|install|update --name <skill> [--target <dir>] [--host <adapter-id>]';
+
+async function readCliVersion() {
+  const packageJson = JSON.parse(await readFile(path.join(PACKAGE_ROOT, 'package.json'), 'utf8'));
+  if (typeof packageJson.version !== 'string' || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(packageJson.version)) {
+    throw new FoundationError('invalid-package-version', '根 package.json 缺少有效版本');
+  }
+  return packageJson.version;
+}
 
 function parseArgs(argv) {
   const positional = [];
@@ -71,7 +83,12 @@ function required(options, key) {
 }
 
 async function run() {
-  const { positional, options } = parseArgs(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  if (argv.length === 1 && ['--help', '-h'].includes(argv[0])) return { text: `${USAGE}\n` };
+  if (argv.length === 1 && ['--version', '-V'].includes(argv[0])) {
+    return { text: `agent-foundation ${await readCliVersion()}\n` };
+  }
+  const { positional, options } = parseArgs(argv);
   const [command, subcommand, operation] = positional;
   const target = options.target && options.target !== true ? options.target : process.cwd();
   const host = options.host && options.host !== true ? options.host : undefined;
@@ -203,13 +220,14 @@ async function run() {
 
   throw new FoundationError(
     'invalid-arguments',
-    '用法：init [plan] | doctor | specflow check | knowledge check | knowledge projection plan|apply|verify --projection <file> --spec-id <id> --reviewed-at <YYYY-MM-DD> [--paths <path,...>] | context resolve [--task-type <type>] [--paths <path,...>] | source-control inspect --base <ref> [--source <ref>] [--include <path,...>] [--exclude <path,...>] | change gate check --base <ref> (--spec-id <id> [--spec-id <id>...] | --exemption <code>) [--phase work|delivery] [--source <ref>] [--include <path,...>] [--exclude <path,...>] | repository check [--deny-file <file>] [--git-scope none|staged|reachable|all] | distribution plan|apply|verify [--manifest <file>] [--target <dir>] | evidence check --file <bundle.json> | checkpoint check|resume --file <checkpoint.json> [--input-digest <sha256>] | change-validation check --file <matrix.json> | web-evidence summarize --file <evidence.json> | prefetch check --file <candidate.json> | design check --file <contract.json> | tracking check --file <catalog.json> | component check [--target <project>] [--config <file>] | eval run --skill <name> [--target <repo>] [--replay <file>] | eval compare --baseline <report.json> --candidate <report.json> | skill list | skill check|plan|install|update --name <skill> [--target <dir>] [--host <adapter-id>]',
+    USAGE,
   );
 }
 
 try {
   const result = await run();
-  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+  if (result?.text !== undefined) process.stdout.write(result.text);
+  else process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   if (result.ok === false) process.exitCode = 1;
 } catch (error) {
   const known = error instanceof FoundationError;

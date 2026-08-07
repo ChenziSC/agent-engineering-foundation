@@ -1,0 +1,35 @@
+id: "2026-08-07-consumer-cli-delivery-scale"
+title: "消费级 CLI、交付门禁与规模回归"
+status: "in-progress"
+created_at: "2026-08-07"
+updated_at: "2026-08-07"
+scope:
+  - "package.json"
+  - "packages/harness/"
+  - "templates/ai-friendly-repository/"
+  - "docs/"
+  - "knowledge/"
+  - "specs/2026-08-07-consumer-cli-delivery-scale/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-07"
+  refresh_triggers:
+    - "CLI 版本契约、采用阶段、Context 规模假设或 CI 模板变化"
+active_context:
+  summary: "消费级 CLI 版本契约、三级采用路径和 Active Spec 不超过 3 的合成规模回归已实现并通过验证，等待维护者决定是否收口。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false

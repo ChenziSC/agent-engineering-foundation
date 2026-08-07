@@ -1,0 +1,34 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "独立 pack CLI、可解释 Context 路由、运行时 Skill 分发和可选 CI 已形成可运行的最小接入闭环，需要同步仓库当前交付边界。"
+    evidence_refs:
+      - "package.json"
+      - "packages/harness/README.md"
+      - "templates/ai-friendly-repository/README.md"
+      - "knowledge/repository-positioning.md"
+  - action: "update"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "Distribution 摘要已收敛到 Manifest 声明的运行时文件，并补齐旧受管文件安全迁移；该边界需要作为长期依赖和宿主职责事实保存。"
+    evidence_refs:
+      - "distribution/manifest.yaml"
+      - "distribution/README.md"
+      - "knowledge/deterministic-core-boundary.md"
+  - action: "update"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "Context Resolver 新增路径优先、代码入口和选择器诊断，Distribution 新增运行时边界与迁移保护，改变自举治理的稳定执行契约。"
+    evidence_refs:
+      - "packages/harness/src/harness.mjs"
+      - "packages/harness/README.md"
+      - "knowledge/self-hosted-governance.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "真实样本仅用于执行验证，公开记录保持脱敏，不保存样本名称、绝对路径、远端、业务代码、接口或配置值。"
+    evidence_refs:
+      - "specs/2026-08-07-standalone-adoption-closure/validation-report.md"
+      - "knowledge/public-generalization-policy.md"

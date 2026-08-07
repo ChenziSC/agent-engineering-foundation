@@ -86,10 +86,10 @@ Skill 只编排公开入口或携带真正自包含的脚本
 ## Skill 发布边界
 
 - Skill 源内容尽量遵循开放格式，由各 Agent Host 的原生目录、Plugin 或 Marketplace 负责安装和更新。
-- `distribution/manifest.yaml` 只作为本仓发布白名单和内容摘要，不演进为通用安装协议或运行时能力协商层。
+- `distribution/manifest.yaml` 只作为本仓运行时发布白名单和声明文件摘要；默认分发不包含 Eval、Trace、Replay、运行报告或测试，也不演进为通用安装协议或运行时能力协商层。
 - Skill 内脚本必须自包含，或通过宿主原生机制声明外部命令、MCP、Package 或 Plugin 依赖；不能依赖本仓未随包发布的相对路径。
 - 跨宿主差异优先通过相同内容兼容；只有经过真实宿主验证且无法消除的差异才增加薄 Adapter。
-- 现有项目级 `skill install/update` 与 `distribution apply` 是参考兼容实现，可以维护安全性和回归测试，但不继续扩展用户级安装、动态插件、通用 Hook、权限、Sandbox 或 Capability Registry。
+- 现有项目级 `skill install/update` 与 `distribution apply` 是参考兼容实现，可以维护受管摘要、安全迁移和回归测试；它们只清理未被采用方修改的旧受管文件，不继续扩展用户级安装、动态插件、通用 Hook、权限、Sandbox 或 Capability Registry。
 
 ## 成熟度与名称
 

@@ -4,7 +4,7 @@ skills:
     source: skills/design-to-code
     version:
       type: content-hash
-      value: sha256:d6adac16e501393ecefc83014f07a9e5b4d89fb9838ccefe88849d635ebb3e33
+      value: sha256:d5022977c8def96cf45e40da52d20b280b33bf957a95c5ade1c2a3f50f0d5a48
     distributable: true
     required_files:
       - SKILL.md
@@ -12,12 +12,11 @@ skills:
       - agents
       - references
       - assets
-      - evals
   - name: project-component-governance
     source: skills/project-component-governance
     version:
       type: content-hash
-      value: sha256:493040c2f8630721713c106a7b72be2ddf7b5cf149ecfea1619577886c8cbf4f
+      value: sha256:9377ec98756a001489e1796115740c5330fcf908d4e3d7030e3c26a73b54f811
     distributable: true
     required_files:
       - SKILL.md
@@ -26,13 +25,11 @@ skills:
       - references
       - assets
       - scripts
-      - evals
-      - tests
   - name: project-context-bootstrap
     source: skills/project-context-bootstrap
     version:
       type: content-hash
-      value: sha256:1a32c0d6557d11b73aff84c8565cc3e4d8c15af709a9ea086345281dcaa8bf8e
+      value: sha256:1a1fe7a42fdfc12a367540be43ec2419b2b875b0d0b7b67dc89c607e46141cd8
     distributable: true
     required_files:
       - SKILL.md
@@ -40,24 +37,22 @@ skills:
       - agents
       - references
       - assets
-      - evals
   - name: refactor-natural-language-content
     source: skills/refactor-natural-language-content
     version:
       type: content-hash
-      value: sha256:68c58b95c45699134cf771fa872a845e90bacd14d691c8feaad5fd2f72a791e6
+      value: sha256:40e18fb192ca24e33c6eee7facfa32ec55c32041adc3041ea060d527089ee130
     distributable: true
     required_files:
       - SKILL.md
     optional_resources:
       - agents
       - references
-      - evals
   - name: safe-change
     source: skills/safe-change
     version:
       type: content-hash
-      value: sha256:e4c0e99418eec73fa5cd878022e0f3a679ddc3da9ac619b86260cbfd62cc33be
+      value: sha256:e88ba5f99bba0a7005ad3fb4d5f96fb742dd2ee07a473d1bbd0fadce0f162195
     distributable: true
     required_files:
       - SKILL.md
@@ -65,12 +60,11 @@ skills:
       - agents
       - references
       - assets
-      - evals
   - name: specflow
     source: skills/specflow
     version:
       type: content-hash
-      value: sha256:8843db6b5eba008d3c07bd9fce6a14b41855328a0c22a1e78e98e6119b511972
+      value: sha256:ccb6665606208fcb78892b53f20519d109f44e456fde486f6c8859eb66a5e2a4
     distributable: true
     required_files:
       - SKILL.md
@@ -79,13 +73,11 @@ skills:
       - references
       - assets
       - scripts
-      - evals
-      - tests
   - name: tracking-governance
     source: skills/tracking-governance
     version:
       type: content-hash
-      value: sha256:bc4c1ad2a1aa39585f549e69f40c9e06e4d109cfc142b36845c1a2232a1d2552
+      value: sha256:6bfdbe7db6264041a1307f0a1d01dc2f1a9568d213ed0b9125a419fb3189f7be
     distributable: true
     required_files:
       - SKILL.md
@@ -93,12 +85,11 @@ skills:
       - agents
       - references
       - assets
-      - evals
   - name: web-first-screen-prefetch
     source: skills/web-first-screen-prefetch
     version:
       type: content-hash
-      value: sha256:726386b0cf98b8e9ba0c7b3747bf4181e3dbb42db73eef2705af5c8cf0f46d33
+      value: sha256:88dbc4ef72fd378055cc01dd2f1de0f8e7ab06c6cf6e4764d3eebad1cdb92209
     distributable: true
     required_files:
       - SKILL.md
@@ -106,12 +97,11 @@ skills:
       - agents
       - references
       - assets
-      - evals
   - name: web-performance-review
     source: skills/web-performance-review
     version:
       type: content-hash
-      value: sha256:aee7fc1ca7796ac2f2624762d0f56de6aef1d09035aa9388d50eeedc6def2492
+      value: sha256:68af605cb4fb1278f01687329b145fd90d4faa46c9425de732ad3b8c4a9d20af
     distributable: true
     required_files:
       - SKILL.md
@@ -119,4 +109,3 @@ skills:
       - agents
       - references
       - assets
-      - evals

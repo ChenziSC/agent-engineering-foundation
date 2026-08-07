@@ -21,13 +21,14 @@
 - 不为历史批量伪造 Spec、Plan、Tasks、归档回执或验证证据；
 - 普通提交、推送和 PR/MR 不构成归档授权。
 - 单事项目录内 Receipt、Lifecycle Event 和 Meta 的确定性生命周期由 Specflow 自带脚本负责：先不可覆盖地写入并回读证据，再最后原子更新 Meta；脚本不计算未知版本变化，也不自行确认授权。
-- Harness 根据任务类型、相关路径、Active Meta、Knowledge Registry 和 Code Entry Map 生成最小加载计划；Active Spec 核心 Markdown 在可配置预算内全文加载，超限时只返回确定性的章节与未完成项位置索引；Registry 使用权威来源摘要暴露知识过期风险，但不自动改写知识状态或正文。
+- Harness 根据任务类型、相关路径、Active Meta、Knowledge Registry 和 Code Entry Map 生成最小加载计划；同时提供任务类型和路径时以路径 Route 为更具体选择器，并返回匹配原因、代码入口和未知或冲突 warning；Active Spec 核心 Markdown 在可配置预算内全文加载，超限时只返回确定性的章节与未完成项位置索引；Registry 使用权威来源摘要暴露知识过期风险，但不自动改写知识状态或正文。
+- Context、Specflow 和 Knowledge 的容量回归使用临时生成的三档合成项目；历史 Spec 可扩展到 1000 个，但正常 Active Spec 固定不超过 3 个，并通过尾部失效回执、来源摘要和悬空 Route 验证完整集合不会漏检。该测试规模不是采用项目的硬性并发门禁。
 - Context Resolver 按请求路径加载根级与祖先规则；Doctor 检查规则文件预算、失效入口、结构性路由矛盾和已登记规则的精确继承重复。精确重复只产生不回显正文的警告，自然语言语义冲突仍由 Agent 或人工判断。
 - 本地 Git Source Control Adapter 使用显式 Include/Exclude 范围，从不可变 Base/Source 计算 Merge Candidate 摘要；范围内脏内容或候选冲突会阻断，且不会自行 Stage、Commit 或 Push。
 - 当存在不可变 Base/Source 时，Change Gate 对完整候选执行一个或多个 Spec 的显式集合关联和 Scope 并集覆盖，或者使用受控路径型豁免；交付阶段逐项复核 Archived Receipt、Lifecycle 摘要链和同一最终候选摘要。Include/Exclude 只限定 Receipt 摘要复核范围，不能缩小关联检查范围。
 - Change Gate 结果是仓库内可复核证据，不是终态授权或外部交付成功证明；当前工作区没有获准形成不可变版本时，应明确记录“未执行”，不得自行提交以让门禁通过。
 - Skill 行为成熟度使用 Case、Rubric、脱敏 Trace 和 Replay 配置形成可重算证据；Runner 动态读取真实目录并执行阻塞优先评分，但不把评分者的语义判断伪装成确定性事实，也不固定模型或推理强度。
-- Distribution Manifest 以内容摘要声明允许分发的 Skill；Plan/Verify 只读，Apply 只写项目级受管目录，进程中断后依靠已有安装状态幂等继续。
+- Distribution Manifest 以运行时文件摘要声明允许分发的 Skill；Plan/Verify 只读，Apply 只写项目级受管目录，升级时保护采用方修改和未知文件，进程中断后依靠已有安装状态幂等继续。
 
 ## 设计原因
 

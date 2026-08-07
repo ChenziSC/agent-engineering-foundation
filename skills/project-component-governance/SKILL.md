@@ -40,7 +40,7 @@ description: 基于可访问的代码仓库和组件证据，评估项目组件�
 项目已接入 `.component-governance/config.yaml` 时，可运行确定性结构检查：
 
 ```bash
-node <foundation-repo>/packages/harness/bin/agent-foundation.mjs component check --target <project-root>
+agent-foundation component check --target <project-root>
 ```
 
 程序默认验证 Registry、路径、Contract、稳定入口、替代项和禁止深路径导入；显式启用语言分析后，还验证 JavaScript/TypeScript 静态导出、公共入口消费者和兼容基线。它不替代复用价值、抽象边界、动态语义和兼容策略判断。

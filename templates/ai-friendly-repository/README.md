@@ -15,6 +15,8 @@
 - [代码入口映射示例](knowledge-registry/code-entry-map.example.yaml)
 - [人工检查清单](review-checklist/repository-context-checklist.md)
 - [检查报告模板](review-checklist/repository-context-review-report.template.md)
+- [可选的 GitHub Actions 持续治理模板](ci/github-actions.yml)
+- [可选的 GitHub Actions 交付门禁模板](ci/github-actions-delivery.yml)
 
 ## 使用顺序
 
@@ -28,6 +30,18 @@
 8. 有长期知识变化时先完成人工或 Agent 语义复核，再通过 Projection Plan/Apply/Verify 维护 Registry 状态和来源证据。
 9. 完成 Harness 化后，日常任务与新会话使用 `context resolve`；使用 Doctor 检查规则预算、失效入口、路由结构矛盾和精确继承重复。
 10. 发布或大规模调整前使用人工检查清单复核自然语言语义冲突。
+11. 需要持续门禁时，显式复制持续治理模板，并把 `REPLACE_WITH_EXACT_PACKAGE_SPEC` 替换为已批准的精确 CLI 包版本、不可变 tarball URL 或 Commit SHA；当前仓不会自动写入 Workflow，也不会替采用方选择发布渠道。
+12. 需要交付门禁时，再显式复制 Delivery 模板；由采用方工作流传入目标和候选的 40 位 Commit SHA 及本次 Spec ID，模板复用现有只读 Change Gate，不从分支名或聊天推断交付关联。
+
+## 三级采用路径
+
+| 阶段 | 目的 | 主要命令 | 写入边界 |
+| --- | --- | --- | --- |
+| Bootstrap | 首次建立项目规则、Knowledge、Specflow 和运行时 Skill | `init plan`、经授权的 `init`、`distribution apply`、`doctor`、`context resolve` | 只有 `init` 和 `distribution apply` 写入明确受管路径 |
+| Continuous | 日常任务或普通 CI 持续发现结构、摘要和路由漂移 | `doctor`、`knowledge check`、`specflow check`、`distribution verify`、`git diff --exit-code` | 全部只读 |
+| Delivery | 对不可变 Git 候选复核 Spec Scope、Receipt、Projection 与最终差异 | Continuous 全部命令，加 `change gate check --phase delivery` | 全部只读，不推断终态授权 |
+
+两个 CI 模板只提供 GitHub Actions 外壳，内部命令保持 Provider 无关。它们不运行 Distribution Apply，不创建 Hook，也不执行 Commit、Push、归档、发布或外部平台写入。Delivery 模板是可复用或手动调用的门禁单元；采用方负责从自身 PR/MR 事件安全解析不可变 SHA 和 Spec ID。CLI 包尚未进入采用方批准的发布渠道时，不应删除精确版本占位保护。
 
 ## 分层原则
 

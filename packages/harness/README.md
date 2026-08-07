@@ -5,7 +5,7 @@
 ## 使用边界
 
 - Node.js 20+，零运行时依赖；
-- 所有命令输出结构化 JSON；
+- 普通治理命令输出结构化 JSON；`--help` 与 `--version` 输出稳定单行文本；
 - 冲突时停止并保留既有内容；
 - 不自动执行 Stage、Commit、Push、PR/MR、部署或发布；
 - 外部系统通过显式 Adapter Registry 接入，不动态加载未知插件。
@@ -38,6 +38,8 @@ node packages/harness/bin/agent-foundation.mjs knowledge projection verify --tar
 
 `context resolve --paths .` 明确表示以整个项目根目录作为选择范围；具体文件或目录路径仍只选择与其范围相交的 Active Spec、Knowledge 和规则文件。Projection 的 `apply` 只更新已经由人或 Agent 准备好的正文和 Registry 投影，不生成长期知识。Context Resolver 只基于真实文件生成全文加载计划或 Section Index，不生成第二份摘要事实源。
 
+Context Resolver 同时收到任务类型和路径时，以路径作为更具体的 Route 选择器；任务类型用于补充匹配原因并诊断未知值或冲突。结果中的 `matchedRoutes` 说明选中的任务 Route 和 `matchReasons`，`startPaths` 聚合这些 Route 声明的代码入口，`warnings` 暴露 `unknown-task-type`、`path-route-not-found` 或 `context-selector-conflict`。代码入口只用于后续定位，不会自动进入 Markdown `loadPlan`；旧有 `ruleFiles`、`knowledge`、`activeSpecs` 和 `excludeByDefault` 字段保持兼容。
+
 ### Skill 与 Distribution
 
 ```bash
@@ -49,7 +51,7 @@ node packages/harness/bin/agent-foundation.mjs distribution apply --target /path
 node packages/harness/bin/agent-foundation.mjs distribution verify --target /path/to/project
 ```
 
-`list`、`check`、`plan` 和 `verify` 只读；`install`、`update` 和 Distribution `apply` 只操作 Manifest 明确纳管且未被采用方修改的内容。完整底座接入默认使用 Distribution；单项 `skill install` 仅用于明确的局部采用或维护。安装成功只证明内容、受管记录和 Host 目录一致，不证明项目配置、外部 Adapter 或运行环境已经就绪。确定性核心与可分发 Skill 的依赖方向见[长期依赖契约](../../knowledge/deterministic-core-boundary.md)。
+`list`、`check`、`plan` 和 `verify` 只读；`install`、`update` 和 Distribution `apply` 只操作 Manifest 明确纳管且未被采用方修改的内容。完整底座接入默认使用 Distribution；单项 `skill install` 仅用于明确的局部采用或维护。Distribution 安装状态在顶层保存生成它的 Foundation 版本；`verify` 同时复核工具版本来源、Manifest、受管记录和目标内容。安装成功只证明这些内容一致，不证明项目配置、外部 Adapter 或运行环境已经就绪。确定性核心与可分发 Skill 的依赖方向见[长期依赖契约](../../knowledge/deterministic-core-boundary.md)。
 
 ### 变更与交付门禁
 
@@ -59,6 +61,8 @@ node packages/harness/bin/agent-foundation.mjs change gate check --target /path/
 ```
 
 Source Control Adapter 计算不可变 Merge Candidate 和范围摘要；Change Gate 检查候选与 Active Spec Scope 或受控豁免的关系。两者均不创建 Commit，也不推断事项终态或外部发布成功。
+
+采用方应区分 Bootstrap、Continuous 与 Delivery。Bootstrap 允许经授权的初始化和运行时分发；Continuous 只运行 Doctor、Knowledge、Specflow、Distribution Verify 等结构检查；Delivery 在不可变 Base/Source SHA 上增加 `change gate check --phase delivery`。可选模板见[采用项目 CI](../../templates/ai-friendly-repository/ci/)。
 
 ### 确定性契约
 
@@ -75,6 +79,16 @@ node packages/harness/bin/agent-foundation.mjs tracking check --file /path/to/ev
 ```
 
 这些命令只验证各自声明的窄契约。程序通过不证明业务判断、Evidence 独立性、发布授权或真实环境行为正确。
+
+### 规模回归
+
+默认 `npm test` 包含 small 档，覆盖 10 个历史 Spec、3 个 Active Spec、5 个 Knowledge、10 条 Route 和 1 层规则。维护 Harness、Context、Specflow 或 Knowledge 时，额外运行：
+
+```bash
+npm run test:scale
+```
+
+独立规模回归生成 mature/large 临时项目，最高覆盖 1000 个历史 Spec、3 个 Active Spec、200 个 Knowledge、500 条 Route 和 6 层祖先规则；它验证 Context 只加载 Active Spec、预算降级与排序稳定，并在集合尾部注入失效回执和来源摘要。夹具完全合成、测试后删除，不保存真实项目内容，也不把 Active Spec 数量设为产品硬门禁。
 
 ## 内部模块边界
 

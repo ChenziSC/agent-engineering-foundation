@@ -1,0 +1,35 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "CLI 版本来源、三级采用路径和完全合成的规模回归已成为当前最小交付与验证边界，需要同步长期仓库定位。"
+    evidence_refs:
+      - "package.json"
+      - "packages/harness/README.md"
+      - "templates/ai-friendly-repository/README.md"
+      - "packages/harness/scale/governance-scale.test.mjs"
+      - "knowledge/repository-positioning.md"
+  - action: "still-valid"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "新增内容只扩展既有 CLI 元数据、采用模板和测试夹具，没有改变 Host、Skill、Harness 与 Adapter 的依赖方向。"
+    evidence_refs:
+      - "packages/harness/src/harness.mjs"
+      - "templates/ai-friendly-repository/README.md"
+      - "knowledge/deterministic-core-boundary.md"
+  - action: "update"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "三档合成规模回归成为仓库验证自身 Context、Specflow 和 Knowledge 容量与尾部错误检测的稳定机制。"
+    evidence_refs:
+      - "packages/harness/test/fixtures/synthetic-governance-project.mjs"
+      - "packages/harness/scale/governance-scale.test.mjs"
+      - "knowledge/self-hosted-governance.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "规模夹具完全由测试生成，不含真实项目代码、配置、名称、路径或数据，现有公开与脱敏边界仍然成立。"
+    evidence_refs:
+      - "packages/harness/test/fixtures/synthetic-governance-project.mjs"
+      - "knowledge/public-generalization-policy.md"

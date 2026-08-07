@@ -53,7 +53,7 @@ Spec 模式在 `work` 的基础上还要求：
 关联单个 Active Spec：
 
 ```bash
-node <foundation-repo>/packages/harness/bin/agent-foundation.mjs change gate check \
+agent-foundation change gate check \
   --target <project-root> \
   --base <base-ref> \
   --source HEAD \
@@ -64,7 +64,7 @@ node <foundation-repo>/packages/harness/bin/agent-foundation.mjs change gate che
 同一候选关联多个 Active Spec 时重复传入 `--spec-id`；参数顺序不影响关联集合和门禁摘要：
 
 ```bash
-node <foundation-repo>/packages/harness/bin/agent-foundation.mjs change gate check \
+agent-foundation change gate check \
   --target <project-root> \
   --base <base-ref> \
   --source HEAD \
@@ -76,7 +76,7 @@ node <foundation-repo>/packages/harness/bin/agent-foundation.mjs change gate che
 复核交付候选；关联 Spec 目录只从 Receipt 摘要范围排除，仍会出现在完整候选证据中。多 Spec 时应排除全部关联事项目录，使每份 Receipt 复核同一个摘要范围：
 
 ```bash
-node <foundation-repo>/packages/harness/bin/agent-foundation.mjs change gate check \
+agent-foundation change gate check \
   --target <project-root> \
   --base <base-ref> \
   --source HEAD \
@@ -89,7 +89,7 @@ node <foundation-repo>/packages/harness/bin/agent-foundation.mjs change gate che
 无 Spec 的确定性低风险候选：
 
 ```bash
-node <foundation-repo>/packages/harness/bin/agent-foundation.mjs change gate check \
+agent-foundation change gate check \
   --target <project-root> \
   --base <base-ref> \
   --source HEAD \

@@ -1,14 +1,31 @@
 {
   "name": "agent-engineering-foundation",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "agent-foundation": "packages/harness/bin/agent-foundation.mjs"
+  },
+  "files": [
+    "adapters/**/*.mjs",
+    "distribution/manifest.yaml",
+    "frameworks/*/scripts/**/*.mjs",
+    "packages/harness/bin",
+    "packages/harness/src",
+    "skills/*/SKILL.md",
+    "skills/*/agents/**",
+    "skills/*/assets/**",
+    "skills/*/references/**",
+    "skills/*/scripts/**",
+    "starter/minimal"
+  ],
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "harness": "node packages/harness/bin/agent-foundation.mjs",
     "check": "node packages/harness/bin/agent-foundation.mjs repository check",
-    "test": "node --test packages/harness/test/*.test.mjs skills/*/tests/*.test.mjs frameworks/*/tests/*.test.mjs"
+    "test": "node --test packages/harness/test/*.test.mjs skills/*/tests/*.test.mjs frameworks/*/tests/*.test.mjs",
+    "test:scale": "node --test packages/harness/scale/*.test.mjs"
   }
 }

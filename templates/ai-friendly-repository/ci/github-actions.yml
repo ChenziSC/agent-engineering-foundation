@@ -1,0 +1,34 @@
+name: agent-foundation
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+env:
+  AGENT_FOUNDATION_PACKAGE: "REPLACE_WITH_EXACT_PACKAGE_SPEC"
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 安装固定版本 Agent Foundation CLI
+        run: test "$AGENT_FOUNDATION_PACKAGE" != "REPLACE_WITH_EXACT_PACKAGE_SPEC" && npm install --global --ignore-scripts --no-audit --no-fund "$AGENT_FOUNDATION_PACKAGE"
+      - name: 检查项目结构和受管 Skill
+        run: agent-foundation doctor
+      - name: 检查长期知识
+        run: agent-foundation knowledge check
+      - name: 检查 Active Spec
+        run: agent-foundation specflow check
+      - name: 验证运行时 Skill 分发
+        run: agent-foundation distribution verify
+      - name: 确认检查没有改写项目
+        run: git diff --exit-code

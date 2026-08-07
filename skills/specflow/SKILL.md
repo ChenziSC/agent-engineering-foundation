@@ -14,7 +14,7 @@ description: 将 PRD、Figma 设计稿、Issue、评审纪要或自然语言需�
 `meta.yaml` 使用 [meta.schema.json](assets/meta.schema.json) 的完整契约。采用本仓 Harness 时，使用以下只读命令校验所有事项的 Meta、产物路径、终态链和本地关系互反性：
 
 ```bash
-node <foundation-repo>/packages/harness/bin/agent-foundation.mjs specflow check --target <project-root>
+agent-foundation specflow check --target <project-root>
 ```
 
 ## 开始条件
@@ -45,7 +45,7 @@ node <foundation-repo>/packages/harness/bin/agent-foundation.mjs specflow check 
 首次终态收口时，把 [archive-receipt.template.yaml](assets/archive-receipt.template.yaml) 复制为事项目录内的候选文件，填写授权、版本边界、变更摘要、验证和 Knowledge Projection。采用本仓 Harness 且项目使用 Git 时，先从 Meta Scope 中确认实际实现范围，排除当前 Spec 目录等已由产物摘要覆盖的路径，再运行：
 
 ```bash
-node <foundation-repo>/packages/harness/bin/agent-foundation.mjs source-control inspect --target <project-root> --base <base-ref> --source HEAD --include <path,...> --exclude <path,...>
+agent-foundation source-control inspect --target <project-root> --base <base-ref> --source HEAD --include <path,...> --exclude <path,...>
 ```
 
 把输出的不可变 `baseRevision`、`sourceRevision` 和 `change.digest` 写入候选 Receipt。Provider 会在临时对象库中计算 Merge Candidate；范围内存在未提交内容或合并冲突时阻断，不会自行提交、暂存或选择范围。使用其他版本控制系统时，由采用方 Adapter 产生同一中立契约。
@@ -53,9 +53,9 @@ node <foundation-repo>/packages/harness/bin/agent-foundation.mjs source-control 
 接着由 Agent 或人工完成 Knowledge 语义判断：先更新或创建正文和 Registry 候选条目，再填写 [knowledge-projection.template.yaml](assets/knowledge-projection.template.yaml)。采用本仓 Harness 时，按真实实现范围依次运行：
 
 ```bash
-node <foundation-repo>/packages/harness/bin/agent-foundation.mjs knowledge projection plan --target <project-root> --projection <project-relative-projection> --spec-id <spec-id> --reviewed-at <YYYY-MM-DD> --paths <path,...>
-node <foundation-repo>/packages/harness/bin/agent-foundation.mjs knowledge projection apply --target <project-root> --projection <project-relative-projection> --spec-id <spec-id> --reviewed-at <YYYY-MM-DD> --paths <path,...>
-node <foundation-repo>/packages/harness/bin/agent-foundation.mjs knowledge projection verify --target <project-root> --projection <project-relative-projection> --spec-id <spec-id> --reviewed-at <YYYY-MM-DD> --paths <path,...>
+agent-foundation knowledge projection plan --target <project-root> --projection <project-relative-projection> --spec-id <spec-id> --reviewed-at <YYYY-MM-DD> --paths <path,...>
+agent-foundation knowledge projection apply --target <project-root> --projection <project-relative-projection> --spec-id <spec-id> --reviewed-at <YYYY-MM-DD> --paths <path,...>
+agent-foundation knowledge projection verify --target <project-root> --projection <project-relative-projection> --spec-id <spec-id> --reviewed-at <YYYY-MM-DD> --paths <path,...>
 ```
 
 `plan` 和 `verify` 只读；`apply` 只机械更新 Registry 状态、来源摘要、取代关系和可复核的 `last_projection` 指纹。它不会撰写正文、决定动作或推断 `impact: none`。路径反向命中未被决策覆盖、退役知识仍被代码入口引用、正文未准备或取代关系无效都会阻断。省略 `--paths` 会保留覆盖范围未提供的警告。

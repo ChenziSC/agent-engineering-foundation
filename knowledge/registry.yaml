@@ -23,12 +23,15 @@ entries:
     authoritative_sources:
       - "AGENTS.md"
       - "README.md"
+      - "packages/harness/README.md"
       - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
     source_evidence:
       - path: "AGENTS.md"
         digest: "sha256:6e0b75a996d79e6c8f4e57a69d22672851441ca998b4afe3cb29668ab25b585b"
       - path: "README.md"
         digest: "sha256:b42bba31d0512d4f7335a0772bdbc832854bbc38698e18f446211bc7ca51123d"
+      - path: "packages/harness/README.md"
+        digest: "sha256:de192a628c978c85812bbb0ea8333911b1c6109da61305ace6dab69cc2cda502"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
         digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
     refresh_triggers:
@@ -42,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-progressive-project-rule-readiness"
-      action: "still-valid"
+      spec_id: "2026-08-07-consumer-cli-delivery-scale"
+      action: "update"
       reviewed_at: "2026-08-07"
-      decision_digest: "sha256:2eb9e27996c629ef6ce576fb3e22924c3cb1dfba7fe4a85edd180847876bd5df"
+      decision_digest: "sha256:81bdb4dc4417d90ee5c5d1483e36046e20a1e953eb762441fd3a738c2dbe9c56"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -73,7 +76,7 @@ entries:
       - path: "blueprints/skill-runtime/README.md"
         digest: "sha256:d6af9c65590f8f726d0885493453cea492c9c29d2d732b7fd1d54c7a711f6736"
       - path: "distribution/README.md"
-        digest: "sha256:8cdd2afc727ea96dd6e86788c6801dcf68be1bbfe1183758cc486a367b1e17e9"
+        digest: "sha256:41be4580bfa7a2aa3eb85a62da317b0c8c059a121c259bbf29dbec07a1253996"
     refresh_triggers:
       - "主流 Agent Host 原生能力边界变化"
       - "Harness、Framework、Skill、Package 或 Adapter 依赖方向变化"
@@ -85,10 +88,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-progressive-project-rule-readiness"
+      spec_id: "2026-08-07-consumer-cli-delivery-scale"
       action: "still-valid"
       reviewed_at: "2026-08-07"
-      decision_digest: "sha256:d30672fa89f81d6069accfd742873897b2993ef184434cc1698c5de2f5e9f32f"
+      decision_digest: "sha256:4195ed4199e0fb5716e2cd64232faec3a8374603f103cf5f625763d9488cc865"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -102,7 +105,7 @@ entries:
       - "specflow"
       - "knowledge-governance"
       - "traceability"
-    last_reviewed_at: "2026-08-06"
+    last_reviewed_at: "2026-08-07"
     authoritative_sources:
       - "AGENTS.md"
       - "specs/README.md"
@@ -114,7 +117,7 @@ entries:
       - path: "specs/README.md"
         digest: "sha256:79f9ac67d1365a6397dd928adf5dbbef7d233498408e91c70687b8795d784b8b"
       - path: "skills/specflow/SKILL.md"
-        digest: "sha256:ed3862665fad7782fe87f699bca04a989536bc880103024f991fc88eeee99ef9"
+        digest: "sha256:37dc8ed8e918f032ae5be2d3cfdf68b87c9663921013ca7c082b380c4262e1b1"
       - path: "skills/specflow/scripts/archive-receipt.mjs"
         digest: "sha256:d394e322fa802ff2bb6beccfc45af27286d23a0550b2b168b12a633c8e2f48ad"
     refresh_triggers:
@@ -128,10 +131,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-docs-layer-consolidation"
-      action: "still-valid"
-      reviewed_at: "2026-08-06"
-      decision_digest: "sha256:902636918537f5688e2f912234d20e951e6d7a94b43bcfaeb3cf1cb3d4497237"
+      spec_id: "2026-08-07-consumer-cli-delivery-scale"
+      action: "update"
+      reviewed_at: "2026-08-07"
+      decision_digest: "sha256:aea3885e0126ab0c9c102ce017254285cf51924002e2323a7de8cc2fbfab7b1c"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -172,7 +175,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-progressive-project-rule-readiness"
+      spec_id: "2026-08-07-consumer-cli-delivery-scale"
       action: "still-valid"
       reviewed_at: "2026-08-07"
-      decision_digest: "sha256:e9e377c1ad258ab64134b022c0d98610a18831ff9fc1d7b8a19b3faa455e11c4"
+      decision_digest: "sha256:e8a7303f044293e0062184bcfead9ecc71242b498b196808e253ac68993b7c7c"

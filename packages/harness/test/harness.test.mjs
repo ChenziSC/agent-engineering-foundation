@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtemp, mkdir, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
+import { lstat, mkdtemp, mkdir, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, test } from 'node:test';
@@ -43,6 +43,20 @@ function runCli(args) {
   };
 }
 
+function runCommand(command, args, options = {}) {
+  const result = spawnSync(command, args, { encoding: 'utf8', ...options });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  return result;
+}
+
+function runPackedCli(cliPath, args, cwd) {
+  const result = spawnSync(cliPath, args, { cwd, encoding: 'utf8' });
+  return {
+    ...result,
+    json: result.stdout ? JSON.parse(result.stdout) : null,
+  };
+}
+
 async function makeTemporaryRoot() {
   const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'agent-foundation-test-')));
   temporaryRoots.push(root);
@@ -56,6 +70,7 @@ afterEach(async () => {
 async function makeFakeSkillRepo(root, content = '# Demo\n') {
   const skillRoot = path.join(root, 'skills', 'demo-skill');
   await mkdir(skillRoot, { recursive: true });
+  await writeFile(path.join(root, 'package.json'), '{"name":"synthetic-foundation","version":"9.9.9","private":true}\n');
   await writeFile(
     path.join(skillRoot, 'SKILL.md'),
     `---\nname: demo-skill\ndescription: 在合成测试中执行一个通用演示任务。\n---\n\n${content}`,
@@ -98,6 +113,17 @@ function runGit(root, args) {
 
 function sourceEvidence(source, content) {
   return [{ path: source, digest: `sha256:${createHash('sha256').update(content).digest('hex')}` }];
+}
+
+async function digestRelativeFiles(root, files) {
+  const hash = createHash('sha256');
+  for (const relative of [...files].sort((left, right) => left.localeCompare(right))) {
+    hash.update(relative.split(path.sep).join('/'));
+    hash.update('\0');
+    hash.update(await readFile(path.join(root, relative)));
+    hash.update('\0');
+  }
+  return `sha256:${hash.digest('hex')}`;
 }
 
 function syntheticKnowledgeEntry({ id, status, scope, sourceContent, pathName = `${id}.md` }) {
@@ -318,6 +344,95 @@ test('Context 按路径解析 Active Spec 与 Knowledge，并由来源摘要检�
   assert.equal((await doctorProject(target)).ok, false);
 });
 
+test('Context Resolver 以路径优先选择 Route 并返回代码入口、匹配原因和诊断', async () => {
+  const root = await makeTemporaryRoot();
+  const target = path.join(root, 'project');
+  await initProject(target);
+  const sourceContent = await readFile(path.join(target, 'AGENTS.md'), 'utf8');
+  for (const name of ['alpha', 'beta']) {
+    await mkdir(path.join(target, 'src', name, 'generated'), { recursive: true });
+    await writeFile(path.join(target, 'src', name, 'entry.mjs'), `export const name = '${name}';\n`);
+    await writeFile(path.join(target, 'src', name, 'AGENTS.md'), `# ${name} rules\n`);
+    await writeFile(path.join(target, 'knowledge', `${name}-knowledge.md`), `# ${name} knowledge\n`);
+  }
+  await writeFile(
+    path.join(target, 'knowledge', 'registry.json'),
+    `${JSON.stringify({
+      schemaVersion: 1,
+      entries: ['alpha', 'beta'].map((name) => syntheticKnowledgeEntry({
+        id: `${name}-knowledge`,
+        status: 'current',
+        scope: [`src/${name}/`],
+        sourceContent,
+      })),
+    }, null, 2)}\n`,
+  );
+  await writeFile(
+    path.join(target, 'knowledge', 'code-entry-map.json'),
+    `${JSON.stringify({
+      schemaVersion: 1,
+      entries: ['alpha', 'beta'].map((name) => ({
+        task_type: `修改 ${name}`,
+        start_paths: [`src/${name}/entry.mjs`],
+        module_rules: [`src/${name}/AGENTS.md`],
+        knowledge: [`${name}-knowledge`],
+        exclude_by_default: [`src/${name}/generated/`],
+      })),
+    }, null, 2)}\n`,
+  );
+  assert.equal((await checkKnowledgeGovernance(target)).ok, true);
+
+  const taskOnly = await resolveProjectContext(target, { taskType: '修改 alpha' });
+  assert.deepEqual(taskOnly.matchedRoutes, [
+    { taskType: '修改 alpha', matchReasons: [{ selector: 'task-type', value: '修改 alpha' }] },
+  ]);
+  assert.deepEqual(taskOnly.startPaths, ['src/alpha/entry.mjs']);
+  assert.deepEqual(taskOnly.warnings, []);
+
+  const pathOnly = await resolveProjectContext(target, { paths: ['src/alpha/entry.mjs'] });
+  assert.deepEqual(pathOnly.matchedRoutes, [
+    { taskType: '修改 alpha', matchReasons: [{ selector: 'path', values: ['src/alpha/entry.mjs'] }] },
+  ]);
+  assert.equal(pathOnly.loadPlan.includes('src/alpha/entry.mjs'), false);
+
+  const consistent = await resolveProjectContext(target, {
+    taskType: '修改 alpha',
+    paths: ['src/alpha/entry.mjs'],
+  });
+  assert.deepEqual(consistent.matchedRoutes[0].matchReasons, [
+    { selector: 'task-type', value: '修改 alpha' },
+    { selector: 'path', values: ['src/alpha/entry.mjs'] },
+  ]);
+
+  const unknownTask = await resolveProjectContext(target, {
+    taskType: '自然语言近义描述',
+    paths: ['src/alpha/entry.mjs'],
+  });
+  assert.deepEqual(unknownTask.matchedRoutes.map(({ taskType }) => taskType), ['修改 alpha']);
+  assert.deepEqual(unknownTask.ruleFiles.map(({ path: rulePath }) => rulePath), ['AGENTS.md', 'src/alpha/AGENTS.md']);
+  assert.deepEqual(unknownTask.knowledge.map(({ id }) => id), ['alpha-knowledge']);
+  assert.deepEqual(unknownTask.excludeByDefault, ['src/alpha/generated']);
+  assert.deepEqual(unknownTask.warnings, [{ code: 'unknown-task-type', taskType: '自然语言近义描述' }]);
+
+  const conflict = await resolveProjectContext(target, {
+    taskType: '修改 beta',
+    paths: ['src/alpha/entry.mjs'],
+  });
+  assert.deepEqual(conflict.matchedRoutes.map(({ taskType }) => taskType), ['修改 alpha']);
+  assert.deepEqual(conflict.startPaths, ['src/alpha/entry.mjs']);
+  assert.deepEqual(conflict.warnings, [{
+    code: 'context-selector-conflict',
+    taskType: '修改 beta',
+    taskTypeRoutes: ['修改 beta'],
+    pathRoutes: ['修改 alpha'],
+  }]);
+
+  const unmatchedPath = await resolveProjectContext(target, { paths: ['src/unmapped/file.mjs'] });
+  assert.deepEqual(unmatchedPath.matchedRoutes, []);
+  assert.deepEqual(unmatchedPath.startPaths, []);
+  assert.deepEqual(unmatchedPath.warnings, [{ code: 'path-route-not-found', paths: ['src/unmapped/file.mjs'] }]);
+});
+
 test('Specflow Check 校验完整 Meta、产物与本地关系互反', async () => {
   const root = await makeTemporaryRoot();
   const target = path.join(root, 'project');
@@ -430,6 +545,83 @@ test('Context 按可配置预算确定性降级为真实 Markdown Section Index'
     individuallyLimited.activeSpecs.find((entry) => entry.id === 'large-work').loadReason,
     'per-spec-budget-exceeded',
   );
+});
+
+test('成熟项目夹具端到端覆盖嵌套规则、多 Active Spec、Section Index 和选择器降级', async () => {
+  const root = await makeTemporaryRoot();
+  const target = path.join(root, 'mature-project');
+  await initProject(target);
+  await mkdir(path.join(target, 'src', 'mature', 'nested'), { recursive: true });
+  await mkdir(path.join(target, 'src', 'mature', 'generated'), { recursive: true });
+  await writeFile(path.join(target, 'src', 'mature', 'nested', 'entry.mjs'), 'export const mature = true;\n');
+  await writeFile(path.join(target, 'src', 'mature', 'AGENTS.md'), '# Mature module rules\n');
+  await writeFile(path.join(target, 'knowledge', 'mature-contract.md'), '# Mature contract\n');
+  const sourceContent = await readFile(path.join(target, 'AGENTS.md'), 'utf8');
+  const reviewRequiredKnowledge = syntheticKnowledgeEntry({
+    id: 'mature-contract',
+    status: 'review-required',
+    scope: ['src/mature/'],
+    sourceContent,
+  });
+  reviewRequiredKnowledge.source_evidence = sourceEvidence('AGENTS.md', sourceContent);
+  await writeFile(
+    path.join(target, 'knowledge', 'registry.json'),
+    `${JSON.stringify({
+      schemaVersion: 1,
+      entries: [reviewRequiredKnowledge],
+    }, null, 2)}\n`,
+  );
+  await writeFile(
+    path.join(target, 'knowledge', 'code-entry-map.json'),
+    `${JSON.stringify({
+      schemaVersion: 1,
+      entries: [{
+        task_type: '修改成熟模块',
+        start_paths: ['src/mature/nested/entry.mjs'],
+        module_rules: ['src/mature/AGENTS.md'],
+        knowledge: ['mature-contract'],
+        exclude_by_default: ['src/mature/generated/'],
+      }],
+    }, null, 2)}\n`,
+  );
+  const small = await writeSyntheticGateSpec(target, { id: 'small-work', scope: ['src/mature/'] });
+  const large = await writeSyntheticGateSpec(target, { id: 'large-work', scope: ['src/mature/'] });
+  await writeFile(
+    path.join(large.specDirectory, 'spec.md'),
+    `# Large Spec\n\n## AC-201 大型事项\n\n${'x'.repeat(700)}\n`,
+  );
+  assert.ok(small.specDirectory);
+  const manifestPath = path.join(target, 'agent-foundation.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.context.perSpecFullTextBytes = 300;
+  manifest.context.totalFullTextBytes = 600;
+  manifest.context.maxIndexEntriesPerArtifact = 16;
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
+  assert.equal((await checkSpecflowGovernance(target)).status, 'pass');
+  assert.equal((await applyDistribution({ target })).status, 'applied');
+  assert.equal((await verifyDistribution({ target })).status, 'pass');
+
+  const context = await resolveProjectContext(target, {
+    taskType: '未登记的自然语言描述',
+    paths: ['src/mature/nested/entry.mjs'],
+  });
+  assert.equal(context.status, 'review-required');
+  assert.deepEqual(context.activeSpecs.map(({ id }) => id), ['large-work', 'small-work']);
+  assert.equal(context.activeSpecs.find(({ id }) => id === 'large-work').loadMode, 'sectioned');
+  assert.ok(
+    context.activeSpecs
+      .find(({ id }) => id === 'large-work')
+      .contextIndex.artifacts.some(({ headings }) => headings.length > 0),
+  );
+  assert.equal(context.activeSpecs.find(({ id }) => id === 'small-work').loadMode, 'full');
+  assert.deepEqual(context.ruleFiles.map(({ path: rulePath }) => rulePath), ['AGENTS.md', 'src/mature/AGENTS.md']);
+  assert.deepEqual(context.knowledge.map(({ id }) => id), ['mature-contract']);
+  assert.deepEqual(context.matchedRoutes.map(({ taskType }) => taskType), ['修改成熟模块']);
+  assert.deepEqual(context.startPaths, ['src/mature/nested/entry.mjs']);
+  assert.deepEqual(context.excludeByDefault, ['src/mature/generated']);
+  assert.deepEqual(context.warnings, [{ code: 'unknown-task-type', taskType: '未登记的自然语言描述' }]);
+  assert.equal(context.loadPlan.includes('src/mature/nested/entry.mjs'), false);
 });
 
 test('Repository Doctor 检查继承规则精确重复并按请求路径加载祖先规则', async () => {
@@ -1214,6 +1406,7 @@ test('存量项目采用闭环串联 Starter、Knowledge、完整 Skill Distribu
   assert.equal((await applyDistribution({ target })).status, 'applied');
   assert.equal((await verifyDistribution({ target })).status, 'pass');
   const state = JSON.parse(await readFile(path.join(target, '.agent-foundation', 'installed-skills.json'), 'utf8'));
+  assert.equal(state.foundationVersion, JSON.parse(await readFile(path.resolve('package.json'), 'utf8')).version);
   assert.deepEqual(Object.keys(state.records).sort(), availableSkills.map(({ name }) => name));
   const record = state.records['project-context-bootstrap'];
   assert.equal(record.host, 'open-agent');
@@ -1227,6 +1420,10 @@ test('存量项目采用闭环串联 Starter、Knowledge、完整 Skill Distribu
     await readFile(path.join(target, record.path, 'assets', 'context-bootstrap-report-template.md'), 'utf8'),
     /needs-project-config/u,
   );
+  for (const installed of Object.values(state.records)) {
+    await assert.rejects(readFile(path.join(target, installed.path, 'evals', 'rubric.md')), { code: 'ENOENT' });
+    await assert.rejects(readFile(path.join(target, installed.path, 'tests', 'test.mjs')), { code: 'ENOENT' });
+  }
 
   const doctor = await doctorProject(target);
   assert.equal(doctor.status, 'pass', JSON.stringify(doctor, null, 2));
@@ -1329,7 +1526,15 @@ test('Distribution Manifest 以内容摘要执行 Plan、Apply 和 Verify', asyn
   assert.equal(plan.items[0].action, 'add');
   assert.equal((await applyDistribution({ target, repoRoot: fakeRepo })).status, 'applied');
   assert.equal((await verifyDistribution({ target, repoRoot: fakeRepo })).status, 'pass');
+  const statePath = path.join(target, '.agent-foundation', 'installed-skills.json');
+  const state = JSON.parse(await readFile(statePath, 'utf8'));
+  assert.equal(state.foundationVersion, '9.9.9');
+  delete state.foundationVersion;
+  await writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`);
+  const legacyVerification = await verifyDistribution({ target, repoRoot: fakeRepo });
+  assert.ok(legacyVerification.errors.some(({ code }) => code === 'distribution-foundation-version-mismatch'));
   assert.equal((await applyDistribution({ target, repoRoot: fakeRepo })).status, 'unchanged');
+  assert.equal((await verifyDistribution({ target, repoRoot: fakeRepo })).status, 'pass');
 
   const skillPath = path.join(fakeRepo, 'skills', 'demo-skill', 'SKILL.md');
   await writeFile(skillPath, `${await readFile(skillPath, 'utf8')}\nchanged\n`);
@@ -1338,6 +1543,66 @@ test('Distribution Manifest 以内容摘要执行 Plan、Apply 和 Verify', asyn
     (error) => error instanceof FoundationError && error.code === 'distribution-source-mismatch',
   );
   assert.equal((await verifyDistribution({ target, repoRoot: fakeRepo })).ok, false);
+});
+
+test('Distribution Update 只清理摘要一致的旧受管文件并阻断用户修改和未知文件', async () => {
+  const root = await makeTemporaryRoot();
+  const fakeRepo = path.join(root, 'source');
+  const sourceSkill = await makeFakeSkillRepo(fakeRepo, '[运行时说明](references/runtime.md)\n');
+  await mkdir(path.join(sourceSkill, 'references'));
+  await mkdir(path.join(sourceSkill, 'evals'));
+  await mkdir(path.join(sourceSkill, 'tests'));
+  await writeFile(path.join(sourceSkill, 'references', 'runtime.md'), '# Runtime\n');
+  await writeFile(path.join(sourceSkill, 'evals', 'case.md'), '# Author eval\n');
+  await writeFile(path.join(sourceSkill, 'tests', 'test.mjs'), 'export const authorTest = true;\n');
+  const manifestPath = path.join(fakeRepo, 'distribution', 'manifest.yaml');
+  await mkdir(path.dirname(manifestPath), { recursive: true });
+  const writeManifest = async (digest, resources) => writeFile(
+    manifestPath,
+    [
+      'version: 1',
+      'skills:',
+      '  - name: demo-skill',
+      '    source: skills/demo-skill',
+      '    version:',
+      '      type: content-hash',
+      `      value: ${digest}`,
+      '    distributable: true',
+      '    required_files:',
+      '      - SKILL.md',
+      ...(resources.length ? ['    optional_resources:', ...resources.map((resource) => `      - ${resource}`)] : ['    optional_resources: []']),
+      '',
+    ].join('\n'),
+  );
+
+  const fullSource = await checkSkill('demo-skill', { repoRoot: fakeRepo });
+  await writeManifest(fullSource.digest, ['references', 'evals', 'tests']);
+  const targets = ['clean', 'modified', 'unknown'].map((name) => path.join(root, name));
+  for (const target of targets) {
+    await initProject(target);
+    assert.equal((await applyDistribution({ target, repoRoot: fakeRepo })).status, 'applied');
+  }
+  const destination = (target) => path.join(target, '.agents', 'skills', 'demo-skill');
+  await writeFile(
+    path.join(destination(targets[1]), 'SKILL.md'),
+    `${await readFile(path.join(destination(targets[1]), 'SKILL.md'), 'utf8')}\n用户修改\n`,
+  );
+  await writeFile(path.join(destination(targets[2]), 'KEEP.txt'), 'unknown file\n');
+
+  const runtimeFiles = ['SKILL.md', path.join('references', 'runtime.md')];
+  await writeManifest(await digestRelativeFiles(sourceSkill, runtimeFiles), ['references']);
+  assert.equal((await applyDistribution({ target: targets[0], repoRoot: fakeRepo })).status, 'applied');
+  await assert.rejects(readFile(path.join(destination(targets[0]), 'evals', 'case.md')), { code: 'ENOENT' });
+  await assert.rejects(readFile(path.join(destination(targets[0]), 'tests', 'test.mjs')), { code: 'ENOENT' });
+  assert.equal((await verifyDistribution({ target: targets[0], repoRoot: fakeRepo })).status, 'pass');
+
+  for (const target of targets.slice(1)) {
+    const plan = await planDistribution({ target, repoRoot: fakeRepo });
+    assert.equal(plan.status, 'blocked');
+    assert.ok(plan.conflicts.some(({ type }) => type === 'user-modified-skill'));
+  }
+  assert.match(await readFile(path.join(destination(targets[1]), 'SKILL.md'), 'utf8'), /用户修改/u);
+  assert.equal(await readFile(path.join(destination(targets[2]), 'KEEP.txt'), 'utf8'), 'unknown file\n');
 });
 
 test('未知 Skill 和 Symlink 目标均在写入前阻断', async () => {
@@ -1363,6 +1628,12 @@ test('未知 Skill 和 Symlink 目标均在写入前阻断', async () => {
 test('CLI 暴露初始化、Doctor、Skill 列表和参数错误退出码', async () => {
   const root = await makeTemporaryRoot();
   const target = path.join(root, 'project');
+
+  const packageVersion = JSON.parse(await readFile(path.resolve('package.json'), 'utf8')).version;
+  const help = runCommand(process.execPath, [CLI, '--help']);
+  assert.match(help.stdout, /^用法：init/u);
+  const version = runCommand(process.execPath, [CLI, '--version']);
+  assert.equal(version.stdout.trim(), `agent-foundation ${packageVersion}`);
 
   const initialized = runCli(['init', '--target', target]);
   assert.equal(initialized.status, 0, initialized.stderr);
@@ -1399,6 +1670,118 @@ test('CLI 暴露初始化、Doctor、Skill 列表和参数错误退出码', asyn
   const missingDenyFile = runCli(['repository', 'check', '--deny-file']);
   assert.equal(missingDenyFile.status, 2);
   assert.equal(missingDenyFile.json.error.code, 'invalid-arguments');
+});
+
+test('npm pack 产物可在源码仓外独立完成治理命令闭环', async () => {
+  const root = await makeTemporaryRoot();
+  const packRoot = path.join(root, 'pack');
+  const toolRoot = path.join(root, 'tool');
+  const target = path.join(root, 'adopted-project');
+  const unrelatedCwd = path.join(root, 'unrelated-working-directory');
+  await mkdir(packRoot);
+  await mkdir(toolRoot);
+  await mkdir(unrelatedCwd);
+  await writeFile(path.join(toolRoot, 'package.json'), '{"private":true}\n');
+
+  const packed = runCommand(
+    'npm',
+    ['pack', '--json', '--pack-destination', packRoot],
+    { cwd: path.resolve('.') },
+  );
+  const packResult = JSON.parse(packed.stdout);
+  assert.equal(packResult.length, 1);
+  assert.equal(packResult[0].files.some(({ path: packedPath }) => /\/evals\//u.test(packedPath)), false);
+  assert.equal(packResult[0].files.some(({ path: packedPath }) => /\/tests\//u.test(packedPath)), false);
+  assert.ok(packResult[0].files.some(({ path: packedPath }) => packedPath === 'skills/specflow/scripts/archive-receipt.mjs'));
+  const tarball = path.join(packRoot, packResult[0].filename);
+  runCommand(
+    'npm',
+    ['install', '--ignore-scripts', '--no-audit', '--no-fund', tarball],
+    { cwd: toolRoot },
+  );
+
+  const cliPath = path.join(toolRoot, 'node_modules', '.bin', 'agent-foundation');
+  assert.equal((await lstat(cliPath)).isSymbolicLink(), true);
+  const run = (args) => runPackedCli(cliPath, args, unrelatedCwd);
+
+  const packageVersion = JSON.parse(await readFile(path.resolve('package.json'), 'utf8')).version;
+  const packedHelp = runCommand(cliPath, ['--help'], { cwd: unrelatedCwd });
+  assert.match(packedHelp.stdout, /^用法：init/u);
+  const packedVersion = runCommand(cliPath, ['--version'], { cwd: unrelatedCwd });
+  assert.equal(packedVersion.stdout.trim(), `agent-foundation ${packageVersion}`);
+
+  const initialized = run(['init', '--target', target]);
+  assert.equal(initialized.status, 0, initialized.stderr);
+  assert.equal(initialized.json.status, 'initialized');
+
+  const distributed = run(['distribution', 'apply', '--target', target]);
+  assert.equal(distributed.status, 0, distributed.stderr);
+  assert.equal(distributed.json.status, 'applied');
+  assert.equal(distributed.json.results.length, 9);
+  assert.equal(distributed.json.foundationVersion, packageVersion);
+  const installedState = JSON.parse(
+    await readFile(path.join(target, '.agent-foundation', 'installed-skills.json'), 'utf8'),
+  );
+  assert.equal(installedState.foundationVersion, packageVersion);
+
+  for (const args of [
+    ['doctor', '--target', target],
+    ['knowledge', 'check', '--target', target],
+    ['specflow', 'check', '--target', target],
+    ['distribution', 'verify', '--target', target],
+    ['context', 'resolve', '--target', target, '--paths', '.'],
+  ]) {
+    const result = run(args);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.json.ok, true);
+  }
+});
+
+test('采用项目 Continuous CI 模板只调用固定版本 CLI 的只读治理命令', async () => {
+  const template = await readFile(
+    path.resolve('templates/ai-friendly-repository/ci/github-actions.yml'),
+    'utf8',
+  );
+  assert.match(template, /AGENT_FOUNDATION_PACKAGE: "REPLACE_WITH_EXACT_PACKAGE_SPEC"/u);
+  for (const command of [
+    'agent-foundation doctor',
+    'agent-foundation knowledge check',
+    'agent-foundation specflow check',
+    'agent-foundation distribution verify',
+    'git diff --exit-code',
+  ]) {
+    assert.ok(template.includes(command), command);
+  }
+  assert.doesNotMatch(template, /agent-foundation (?:init|distribution apply|skill install|skill update)/u);
+  assert.doesNotMatch(template, /\b(?:git commit|git push|npm publish|gh pr)\b/u);
+});
+
+test('采用项目 Delivery CI 模板只接受不可变 Git 候选并调用只读交付门禁', async () => {
+  const template = await readFile(
+    path.resolve('templates/ai-friendly-repository/ci/github-actions-delivery.yml'),
+    'utf8',
+  );
+  assert.match(template, /AGENT_FOUNDATION_PACKAGE: "REPLACE_WITH_EXACT_PACKAGE_SPEC"/u);
+  assert.match(template, /base_sha:/u);
+  assert.match(template, /source_sha:/u);
+  assert.match(template, /spec_id:/u);
+  assert.match(template, /test "\$\{#BASE_SHA\}" -eq 40/u);
+  assert.match(template, /test "\$\{#SOURCE_SHA\}" -eq 40/u);
+  assert.match(
+    template,
+    /agent-foundation change gate check --base "\$BASE_SHA" --source "\$SOURCE_SHA" --spec-id "\$SPEC_ID" --phase delivery/u,
+  );
+  for (const command of [
+    'agent-foundation doctor',
+    'agent-foundation knowledge check',
+    'agent-foundation specflow check',
+    'agent-foundation distribution verify',
+    'git diff --exit-code',
+  ]) {
+    assert.ok(template.includes(command), command);
+  }
+  assert.doesNotMatch(template, /agent-foundation (?:init|distribution apply|skill install|skill update)/u);
+  assert.doesNotMatch(template, /\b(?:git commit|git push|npm publish|gh pr)\b/u);
 });
 
 test('CLI 暴露 Checkpoint、增量验证、Web、Design 与埋点确定性契约', async () => {

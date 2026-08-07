@@ -178,6 +178,10 @@ async function collectRepositoryFiles(root) {
 
 async function digestTree(root) {
   const files = await collectFiles(root);
+  return digestFiles(root, files);
+}
+
+async function digestFiles(root, files) {
   const hash = createHash('sha256');
   for (const relative of files) {
     hash.update(relative.split(path.sep).join('/'));
@@ -203,9 +207,13 @@ function parseFrontmatter(markdown, source) {
   return values;
 }
 
-async function validateMarkdownLinks(skillRoot) {
+async function validateMarkdownLinks(skillRoot, includedFiles) {
   const missing = [];
-  for (const relative of await collectFiles(skillRoot)) {
+  const files = includedFiles || await collectFiles(skillRoot);
+  const included = includedFiles
+    ? new Set(includedFiles.map((relative) => relative.split(path.sep).join('/')))
+    : null;
+  for (const relative of files) {
     if (!relative.endsWith('.md')) continue;
     const markdown = await readFile(path.join(skillRoot, relative), 'utf8');
     for (const match of markdown.matchAll(/\[[^\]]*\]\(([^)]+)\)/gu)) {
@@ -220,7 +228,14 @@ async function validateMarkdownLinks(skillRoot) {
         missing.push({ from: relative, target, reason: 'outside-skill' });
         continue;
       }
-      if (!existsSync(resolved)) missing.push({ from: relative, target, reason: 'missing' });
+      if (!existsSync(resolved)) {
+        missing.push({ from: relative, target, reason: 'missing' });
+        continue;
+      }
+      if (included) {
+        const targetRelative = path.relative(skillRoot, resolved).split(path.sep).join('/');
+        if (!included.has(targetRelative)) missing.push({ from: relative, target, reason: 'not-distributed' });
+      }
     }
   }
   return missing;
@@ -1409,11 +1424,42 @@ export async function resolveProjectContext(target, { taskType, paths = [] } = {
     safeProjectPath(projectRoot, candidate, 'Context 路径');
     return candidate;
   });
-  const mappings = loaded.codeEntryMap.entries.filter(
-    (entry) =>
-      (!taskType || entry.task_type === taskType) &&
-      (!requestedPaths.length || entry.start_paths.some((start) => requestedPaths.some((candidate) => pathsOverlap(start, candidate)))),
-  );
+  const taskTypeRoutes = taskType
+    ? loaded.codeEntryMap.entries.filter((entry) => entry.task_type === taskType)
+    : [];
+  const pathRoutes = requestedPaths.length
+    ? loaded.codeEntryMap.entries.filter((entry) =>
+        entry.start_paths.some((start) => requestedPaths.some((candidate) => pathsOverlap(start, candidate))))
+    : [];
+  const mappings = [...(requestedPaths.length ? pathRoutes : taskTypeRoutes)]
+    .sort((left, right) => left.task_type.localeCompare(right.task_type));
+  const warnings = [];
+  if (taskType && taskTypeRoutes.length === 0) {
+    warnings.push({ code: 'unknown-task-type', taskType });
+  }
+  if (requestedPaths.length && pathRoutes.length === 0) {
+    warnings.push({ code: 'path-route-not-found', paths: requestedPaths });
+  }
+  if (
+    taskTypeRoutes.length &&
+    requestedPaths.length &&
+    !taskTypeRoutes.some((taskRoute) => pathRoutes.includes(taskRoute))
+  ) {
+    warnings.push({
+      code: 'context-selector-conflict',
+      taskType,
+      taskTypeRoutes: taskTypeRoutes.map((entry) => entry.task_type).sort((left, right) => left.localeCompare(right)),
+      pathRoutes: pathRoutes.map((entry) => entry.task_type).sort((left, right) => left.localeCompare(right)),
+    });
+  }
+  const matchedRoutes = mappings.map((entry) => {
+    const matchingPaths = requestedPaths.filter((candidate) =>
+      entry.start_paths.some((start) => pathsOverlap(start, candidate)));
+    const matchReasons = [];
+    if (taskType === entry.task_type) matchReasons.push({ selector: 'task-type', value: taskType });
+    if (matchingPaths.length) matchReasons.push({ selector: 'path', values: matchingPaths });
+    return { taskType: entry.task_type, matchReasons };
+  });
   const selectedIds = new Set(mappings.flatMap((entry) => entry.knowledge));
   if (!taskType && !requestedPaths.length) {
     for (const entry of loaded.registry.entries) if (entry.status !== 'retired') selectedIds.add(entry.id);
@@ -1531,6 +1577,11 @@ export async function resolveProjectContext(target, { taskType, paths = [] } = {
     status: knowledge.some((entry) => entry.status === 'review-required') ? 'review-required' : 'resolved',
     target: projectRoot,
     selectors: { taskType: taskType || null, paths: requestedPaths },
+    matchedRoutes,
+    startPaths: [
+      ...new Set(mappings.flatMap((entry) => entry.start_paths.map((candidate) => posixProjectPath(candidate) || '.'))),
+    ].sort((left, right) => left.localeCompare(right)),
+    warnings,
     contextBudget: {
       ...loaded.context,
       activeSpecCount: activeSpecs.length,
@@ -1544,7 +1595,9 @@ export async function resolveProjectContext(target, { taskType, paths = [] } = {
     ruleFiles,
     knowledge,
     loadPlan,
-    excludeByDefault: [...new Set(mappings.flatMap((entry) => entry.exclude_by_default))],
+    excludeByDefault: [
+      ...new Set(mappings.flatMap((entry) => entry.exclude_by_default.map((candidate) => posixProjectPath(candidate) || '.'))),
+    ].sort((left, right) => left.localeCompare(right)),
   };
 }
 
@@ -2124,6 +2177,44 @@ export async function checkSkill(name, { repoRoot = REPO_ROOT } = {}) {
   };
 }
 
+async function describeSkillSource(name, { repoRoot = REPO_ROOT, files } = {}) {
+  const checked = await checkSkill(name, { repoRoot });
+  const skillRoot = path.join(repoRoot, 'skills', name);
+  if (files === undefined) return { ...checked, files: await collectFiles(skillRoot) };
+  if (!Array.isArray(files) || files.length === 0 || files.some((relative) => typeof relative !== 'string')) {
+    throw new FoundationError('invalid-skill-file-set', 'Skill 运行时文件集合必须是非空相对路径数组', { name });
+  }
+  const normalizedFiles = [...new Set(files.map((relative) => relative.split('/').join(path.sep)))]
+    .sort((left, right) => left.localeCompare(right));
+  if (normalizedFiles.length !== files.length) {
+    throw new FoundationError('invalid-skill-file-set', 'Skill 运行时文件集合不能包含重复路径', { name });
+  }
+  for (const relative of normalizedFiles) {
+    const absolute = path.resolve(skillRoot, relative);
+    relativeInside(skillRoot, absolute);
+    await assertNoSymlinkSegments(skillRoot, absolute);
+    const stat = await statOrNull(absolute);
+    if (!stat?.isFile() || stat.isSymbolicLink()) {
+      throw new FoundationError('invalid-skill-file-set', 'Skill 运行时文件必须是源目录内的普通文件', {
+        name,
+        path: relative.split(path.sep).join('/'),
+      });
+    }
+  }
+  const missingLinks = await validateMarkdownLinks(skillRoot, normalizedFiles);
+  if (missingLinks.length) {
+    throw new FoundationError('invalid-skill-links', 'Skill 运行时文件集合包含未分发的本地链接', {
+      name,
+      links: missingLinks,
+    });
+  }
+  return {
+    ...checked,
+    digest: await digestFiles(skillRoot, normalizedFiles),
+    files: normalizedFiles,
+  };
+}
+
 export async function discoverSkills({ repoRoot = REPO_ROOT } = {}) {
   const skillsRoot = path.join(repoRoot, 'skills');
   const entries = await readdir(skillsRoot, { withFileTypes: true });
@@ -2403,10 +2494,24 @@ async function readInstallState(projectRoot) {
     throw new FoundationError('invalid-install-state', 'Skill 安装状态必须是普通文件', { path: statePath });
   }
   const state = await readJson(statePath, 'Skill 安装状态');
-  if (state.schemaVersion !== 1 || !state.records || typeof state.records !== 'object' || Array.isArray(state.records)) {
+  if (
+    state.schemaVersion !== 1 ||
+    (state.foundationVersion !== undefined && typeof state.foundationVersion !== 'string') ||
+    !state.records ||
+    typeof state.records !== 'object' ||
+    Array.isArray(state.records)
+  ) {
     throw new FoundationError('invalid-install-state', 'Skill 安装状态结构不受支持', { path: statePath });
   }
   return state;
+}
+
+async function readFoundationVersion(repoRoot = REPO_ROOT) {
+  const packageJson = await readJson(path.join(repoRoot, 'package.json'), 'Foundation Package');
+  if (typeof packageJson.version !== 'string' || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(packageJson.version)) {
+    throw new FoundationError('invalid-foundation-version', 'Foundation Package 必须声明有效版本');
+  }
+  return packageJson.version;
 }
 
 async function writeInstallState(projectRoot, state) {
@@ -2464,6 +2569,7 @@ export async function planSkill({
   operation = 'install',
   repoRoot = REPO_ROOT,
   adapterRegistry = defaultAdapterRegistry,
+  sourceFiles,
 }) {
   assertSimpleName(name, 'Skill 名称');
   if (!['install', 'update'].includes(operation)) {
@@ -2484,7 +2590,7 @@ export async function planSkill({
   }
   const hostId = host || hostIntegration.adapterId;
   const hostAdapter = resolveHost(adapterRegistry, hostId);
-  const source = await checkSkill(name, { repoRoot });
+  const source = await describeSkillSource(name, { repoRoot, files: sourceFiles });
   const skillsDirectory = resolveHostSkillsDirectory(hostAdapter, projectRoot, hostIntegration);
   const destination = path.join(skillsDirectory, name);
   await assertNoSymlinkSegments(projectRoot, destination);
@@ -2532,6 +2638,7 @@ export async function planSkill({
     name,
     source: source.source,
     sourceDigest: source.digest,
+    sourceFileCount: source.files.length,
     target: path.relative(projectRoot, destination).split(path.sep).join('/'),
     targetDigest,
     managed: Boolean(record),
@@ -2546,9 +2653,10 @@ async function applySkill({
   operation,
   repoRoot,
   adapterRegistry = defaultAdapterRegistry,
+  sourceFiles,
 }) {
   const projectRoot = path.resolve(target);
-  const plan = await planSkill({ target: projectRoot, name, host, operation, repoRoot, adapterRegistry });
+  const plan = await planSkill({ target: projectRoot, name, host, operation, repoRoot, adapterRegistry, sourceFiles });
   if (!plan.ok) {
     throw new FoundationError('skill-conflict', 'Skill 计划存在冲突，目标保持不变', { plan });
   }
@@ -2569,7 +2677,19 @@ async function applySkill({
   const now = new Date().toISOString();
 
   try {
-    await cp(sourceRoot, temporary, { recursive: true, errorOnExist: true, force: false });
+    if (sourceFiles === undefined) {
+      await cp(sourceRoot, temporary, { recursive: true, errorOnExist: true, force: false });
+    } else {
+      await mkdir(temporary);
+      for (const relative of sourceFiles) {
+        const source = path.resolve(sourceRoot, relative);
+        relativeInside(sourceRoot, source);
+        const destinationFile = path.resolve(temporary, relative);
+        relativeInside(temporary, destinationFile);
+        await mkdir(path.dirname(destinationFile), { recursive: true });
+        await cp(source, destinationFile, { errorOnExist: true, force: false });
+      }
+    }
     const copiedDigest = await digestTree(temporary);
     if (copiedDigest !== plan.sourceDigest) {
       throw new FoundationError('source-changed', 'Skill 源在计划后发生变化，拒绝 Apply', {
@@ -2655,6 +2775,7 @@ async function readDistributionManifest(repoRoot, manifestPath) {
   }
 
   const names = new Set();
+  const runtimeSkills = new Map();
   for (const entry of manifest.skills) {
     assertExactObjectKeys(
       entry,
@@ -2715,11 +2836,30 @@ async function readDistributionManifest(repoRoot, manifestPath) {
         });
       }
     }
+    const runtimeFiles = [...entry.required_files];
+    for (const resource of entry.optional_resources) {
+      const resourceRoot = path.resolve(root, entry.source, resource);
+      relativeInside(path.join(root, entry.source), resourceRoot);
+      const resourceStat = await statOrNull(resourceRoot);
+      if (!resourceStat) continue;
+      if (!resourceStat.isDirectory() || resourceStat.isSymbolicLink()) {
+        throw new FoundationError('invalid-distribution-manifest', 'optional_resources 必须引用 Skill 内的普通目录', {
+          name: entry.name,
+          resource,
+        });
+      }
+      for (const relative of await collectFiles(resourceRoot)) {
+        runtimeFiles.push(path.join(resource, relative));
+      }
+    }
+    const runtime = await describeSkillSource(entry.name, { repoRoot: root, files: runtimeFiles });
+    runtimeSkills.set(entry.name, runtime);
   }
   return {
     path: path.relative(root, absolute).split(path.sep).join('/'),
     digest: `sha256:${createHash('sha256').update(canonicalJson(manifest)).digest('hex')}`,
     manifest,
+    runtimeSkills,
   };
 }
 
@@ -2730,11 +2870,12 @@ export async function planDistribution({
   adapterRegistry = defaultAdapterRegistry,
 } = {}) {
   const distribution = await readDistributionManifest(repoRoot, manifestPath);
+  const foundationVersion = await readFoundationVersion(repoRoot);
   const projectRoot = path.resolve(target);
   const installState = await readInstallState(projectRoot);
   const items = [];
   for (const entry of distribution.manifest.skills) {
-    const source = await checkSkill(entry.name, { repoRoot });
+    const source = distribution.runtimeSkills.get(entry.name);
     if (source.digest !== entry.version.value) {
       throw new FoundationError('distribution-source-mismatch', 'Distribution Manifest 的版本摘要与 Skill 内容不一致', {
         name: entry.name,
@@ -2743,7 +2884,18 @@ export async function planDistribution({
       });
     }
     const operation = installState.records[entry.name] ? 'update' : 'install';
-    items.push({ entry, plan: await planSkill({ target: projectRoot, name: entry.name, operation, repoRoot, adapterRegistry }) });
+    items.push({
+      entry,
+      sourceFiles: source.files,
+      plan: await planSkill({
+        target: projectRoot,
+        name: entry.name,
+        operation,
+        repoRoot,
+        adapterRegistry,
+        sourceFiles: source.files,
+      }),
+    });
   }
   const conflicts = items.flatMap(({ entry, plan }) => plan.conflicts.map((conflict) => ({ name: entry.name, ...conflict })));
   return {
@@ -2752,6 +2904,8 @@ export async function planDistribution({
     status: conflicts.length ? 'blocked' : 'planned',
     manifest: distribution.path,
     manifestDigest: distribution.digest,
+    foundationVersion,
+    installedFoundationVersion: installState.foundationVersion || null,
     target: projectRoot,
     items: items.map(({ entry, plan }) => ({ name: entry.name, version: entry.version.value, action: plan.action, plan })),
     conflicts,
@@ -2763,9 +2917,13 @@ export async function applyDistribution(options = {}) {
   if (!plan.ok) {
     throw new FoundationError('distribution-conflict', 'Distribution 计划存在冲突，未开始写入', { plan });
   }
+  const distribution = await readDistributionManifest(
+    options.repoRoot || REPO_ROOT,
+    options.manifestPath || 'distribution/manifest.yaml',
+  );
   const results = [];
   for (const item of plan.items) {
-    const currentSource = await checkSkill(item.name, { repoRoot: options.repoRoot || REPO_ROOT });
+    const currentSource = distribution.runtimeSkills.get(item.name);
     if (currentSource.digest !== item.version) {
       throw new FoundationError('distribution-source-mismatch', 'Distribution Apply 前 Skill 内容已偏离 Manifest', {
         name: item.name,
@@ -2780,8 +2938,14 @@ export async function applyDistribution(options = {}) {
         name: item.name,
         repoRoot: options.repoRoot || REPO_ROOT,
         adapterRegistry: options.adapterRegistry || defaultAdapterRegistry,
+        sourceFiles: currentSource.files,
       }),
     );
+  }
+  const installState = await readInstallState(plan.target);
+  if (installState.foundationVersion !== plan.foundationVersion) {
+    installState.foundationVersion = plan.foundationVersion;
+    await writeInstallState(plan.target, installState);
   }
   const verification = await verifyDistribution(options);
   if (!verification.ok) {
@@ -2795,6 +2959,7 @@ export async function applyDistribution(options = {}) {
     status: results.every((result) => result.status === 'unchanged') ? 'unchanged' : 'applied',
     manifest: plan.manifest,
     manifestDigest: plan.manifestDigest,
+    foundationVersion: plan.foundationVersion,
     target: plan.target,
     results,
   };
@@ -2807,6 +2972,7 @@ export async function verifyDistribution({
   adapterRegistry = defaultAdapterRegistry,
 } = {}) {
   const distribution = await readDistributionManifest(repoRoot, manifestPath);
+  const foundationVersion = await readFoundationVersion(repoRoot);
   const projectRoot = path.resolve(target);
   const state = await readInstallState(projectRoot);
   const projectManifest = await readProjectManifest(projectRoot);
@@ -2815,8 +2981,17 @@ export async function verifyDistribution({
   const skillsRoot = resolveHostSkillsDirectory(hostAdapter, projectRoot, hostIntegration);
   const errors = [];
   const checks = [];
+  if (state.foundationVersion !== foundationVersion) {
+    errors.push({
+      code: 'distribution-foundation-version-mismatch',
+      expected: foundationVersion,
+      actual: state.foundationVersion || null,
+    });
+  } else {
+    checks.push({ code: 'distribution-foundation-version', version: foundationVersion, status: 'pass' });
+  }
   for (const entry of distribution.manifest.skills) {
-    const source = await checkSkill(entry.name, { repoRoot });
+    const source = distribution.runtimeSkills.get(entry.name);
     if (source.digest !== entry.version.value) {
       errors.push({ code: 'distribution-source-mismatch', name: entry.name, declared: entry.version.value, actual: source.digest });
       continue;
@@ -2852,6 +3027,7 @@ export async function verifyDistribution({
     status: errors.length ? 'fail' : 'pass',
     manifest: distribution.path,
     manifestDigest: distribution.digest,
+    foundationVersion,
     target: projectRoot,
     errors,
     checks,
@@ -3113,7 +3289,7 @@ export async function checkRepository({ repoRoot = REPO_ROOT, denyTerms = [], gi
       const distribution = await readDistributionManifest(root, 'distribution/manifest.yaml');
       const mismatchStart = errors.length;
       for (const entry of distribution.manifest.skills) {
-        const source = await checkSkill(entry.name, { repoRoot: root });
+        const source = distribution.runtimeSkills.get(entry.name);
         if (source.digest !== entry.version.value) {
           errors.push({
             code: 'distribution-source-mismatch',

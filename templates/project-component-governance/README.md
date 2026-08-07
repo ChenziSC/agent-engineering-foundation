@@ -22,7 +22,7 @@ Skill 的决策报告、迁移计划和废弃记录位于 [`skills/project-compo
 5. 将配置复制为 `.component-governance/config.yaml`、Registry 放到配置声明的位置后，运行：
 
    ```bash
-   node <foundation-repo>/packages/harness/bin/agent-foundation.mjs component check --target <project-root>
+   agent-foundation component check --target <project-root>
    ```
 
 Validator 会检查 Registry 唯一性、Source 与路径归属、标准目录登记、Contract、稳定入口、废弃替代项和代码中的禁止深路径导入。启用 `language_analysis` 时，还检查 JavaScript/TypeScript 静态导出、公共入口消费者及兼容基线。复杂重导出、运行时路径和其他语言仍需专用 Parser；组件是否值得复用或提升层级仍由 Agent 或人工判断。
