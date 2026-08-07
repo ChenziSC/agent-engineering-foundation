@@ -19,7 +19,7 @@ entries:
       - "repository-positioning"
       - "agent-harness"
       - "content-layering"
-    last_reviewed_at: "2026-08-06"
+    last_reviewed_at: "2026-08-07"
     authoritative_sources:
       - "AGENTS.md"
       - "README.md"
@@ -42,10 +42,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-docs-layer-consolidation"
-      action: "update"
-      reviewed_at: "2026-08-06"
-      decision_digest: "sha256:e7acc842ceb7732ccb6ab2da6be156e3eddb0fbb0b7c164ddc20d8f073a014b1"
+      spec_id: "2026-08-06-real-adoption-validation"
+      action: "still-valid"
+      reviewed_at: "2026-08-07"
+      decision_digest: "sha256:82cece78fddc9cb2431f72e70e70100c35bf8f3e57b7313ab2d44e7f2663ff08"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -62,7 +62,7 @@ entries:
       - "host-boundary"
       - "skill-publication"
       - "dependency-direction"
-    last_reviewed_at: "2026-08-06"
+    last_reviewed_at: "2026-08-07"
     authoritative_sources:
       - "AGENTS.md"
       - "blueprints/skill-runtime/README.md"
@@ -85,10 +85,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-docs-layer-consolidation"
-      action: "update"
-      reviewed_at: "2026-08-06"
-      decision_digest: "sha256:7a8fbbeaf79a861a0585c8270037e4eab1a9b11e61d5377e3b4925d9162135bb"
+      spec_id: "2026-08-06-real-adoption-validation"
+      action: "still-valid"
+      reviewed_at: "2026-08-07"
+      decision_digest: "sha256:1dce7885c54c6eae9f361f171e4d40b50130cc4f655e68a718eee3f1c5c2a597"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -149,7 +149,7 @@ entries:
       - "public-generalization"
       - "rights-and-redaction"
       - "release-safety"
-    last_reviewed_at: "2026-08-06"
+    last_reviewed_at: "2026-08-07"
     authoritative_sources:
       - "AGENTS.md"
       - "docs/公开发布检查清单.md"
@@ -172,7 +172,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-06-docs-layer-consolidation"
-      action: "update"
-      reviewed_at: "2026-08-06"
-      decision_digest: "sha256:974083e736c20f6c9ff0dddc15bf597431fb292c906019fced69fbb8efe8a408"
+      spec_id: "2026-08-06-real-adoption-validation"
+      action: "still-valid"
+      reviewed_at: "2026-08-07"
+      decision_digest: "sha256:32fef6415096db3d279d0cd4f8a02b3410bddc21cb5f3e36445b2b50a9e1f0fa"

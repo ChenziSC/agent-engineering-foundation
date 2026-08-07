@@ -51,5 +51,5 @@
 ## T-09 补齐安装后能力就绪评估
 
 - 状态：`completed`
-- 产物：Bootstrap 就绪矩阵规则、报告模板、专项 Case、真实样本接入 Spec 与未决问题。
-- 验证：动态覆盖 Manifest 全集；状态、Evidence、缺口和建议落点齐全；未发现配置不会直接判为不适用；样本业务源码与后端仓无变化。
+- 产物：Bootstrap 就绪矩阵规则、报告模板、专项 Case、真实样本接入 Spec 与维护者决策记录。
+- 验证：动态覆盖 Manifest 全集；状态、Evidence、缺口和建议落点齐全；维护者决策后为 7 项 `ready`、2 项 `not-applicable`；样本业务源码与后端仓无变化。

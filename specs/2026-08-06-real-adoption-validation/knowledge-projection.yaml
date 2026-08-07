@@ -1,0 +1,25 @@
+impact: "reviewed"
+decisions:
+  - action: "still-valid"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "完整 Skill Distribution、真实项目采用验证和安装后就绪评估继续遵守 Framework 与 Knowledge 解释问题、Skill 编排领域流程、Harness 提供确定性检查、采用项目补充自身语义的既有分层，没有引入新的顶层产物职责。"
+    evidence_refs:
+      - "skills/project-context-bootstrap/SKILL.md"
+      - "packages/harness/README.md"
+      - "docs/目标仓库设计.md"
+  - action: "still-valid"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "就绪矩阵由 Agent 结合仓库证据和维护者决策完成语义判断，Distribution、Doctor 与 Context Resolver 只提供可复核事实；本次没有建设平行 Runtime、Capability Registry 或替代 Agent Host 的通用能力。"
+    evidence_refs:
+      - "skills/project-context-bootstrap/references/workflow-and-boundaries.md"
+      - "skills/project-context-bootstrap/assets/context-bootstrap-report-template.md"
+      - "packages/harness/test/harness.test.mjs"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "真实采用证据只保留通用问题、状态和验证边界，不保存样本仓名称、路径、业务配置、凭证或完整日志；公开仓敏感扫描继续通过。"
+    evidence_refs:
+      - "skills/project-context-bootstrap/evals/traces/2026-08-06/adoption-validation.md"
+      - "specs/2026-08-06-real-adoption-validation/validation-report.md"

@@ -18,7 +18,7 @@
 | AC-008 | Starter 说明接入后的项目化导航要求；空 Registry 不制造虚假项目条目 | pass |
 | AC-009 | 样本 README 可人工导航 2 份已批准 Knowledge 与 4 类常见任务，未复制摘要、完整 Scope、Resolver 输出或配置值 | pass |
 | AC-010 | 默认接入说明使用完整 Distribution；合成回归动态比较真实 Skill 目录与 Manifest；样本仓 9/9 Apply/Verify、再次 Plan 全部为 `noop` | pass |
-| AC-011 | Bootstrap 增加五态能力就绪矩阵、自动取证与最少提问规则；样本接入 Spec 动态覆盖完整安装集合并保留五组维护者问题 | pass |
+| AC-011 | Bootstrap 增加五态能力就绪矩阵、自动取证与最少提问规则；样本接入 Spec 动态覆盖完整安装集合，维护者决策后收敛为 7 项 `ready`、2 项 `not-applicable` | pass |
 
 ## 执行结果
 
@@ -32,7 +32,7 @@
 - 样本仓 Doctor 与 Knowledge Check：通过，识别 2 个 Knowledge 条目、4 个任务入口、1 个规则文件和 9 个受管 Skill；
 - 样本仓 Context Resolve：通过；接口与环境连接任务确定性加载根规则、前端架构和服务边界两份 Knowledge，并保留默认排除路径；
 - 样本仓 Knowledge README 提供项目总览、正文入口、常见任务路由与事实来源边界；Registry、Code Entry Map 和 Resolver 继续分别承担机器状态、确定性路由与本次选择结果；
-- 安装后能力就绪评估：样本仓当前接入 Spec 覆盖 9 个 Skill，其中 2 个 `ready`、3 个 `needs-project-config`、4 个 `unresolved`；没有用搜索无结果推断 `not-applicable`，也没有把任务特有输入固化为项目配置；
+- 安装后能力就绪评估：样本仓当前接入 Spec 覆盖 9 个 Skill；维护者完成项目级决策后收敛为 7 个 `ready`、2 个 `not-applicable`，没有 `needs-project-config`、`needs-adapter` 或 `unresolved`；没有把安装成功等同于能力就绪，也没有把任务特有输入固化为项目配置；
 - 样本仓首次真实 Specflow 事项：Meta、Spec、Plan、Tasks、Research 与 Validation Report 完整，Specflow Check 与 Context Resolve 均通过；
 - 临时真实路径上的 Distribution Plan/Apply/Verify：通过；未经 `realpath` 规范化的 macOS `/var` 临时路径被 Symlink 门禁正确拒绝；
 - 基础仓定向标识扫描与双仓 `git diff --check`：通过；样本后端仓保持无本地变化；
@@ -46,5 +46,5 @@
 
 - 当前职责版本五个行为 Case 的独立正式 Replay；
 - 除本次已观察 Host 外的原生发现与安装行为；
-- 样本仓新装 8 个 Skill 在真实新会话中的逐项触发，以及各 Skill 所需项目配置、工具和外部 Adapter 是否就绪；
+- 样本仓新装 8 个 Skill 在未来真实任务中的逐项触发；当前标为 `not-applicable` 的能力重新启用时，仍需独立验证项目配置、工具和外部 Adapter；
 - 真实采用项目的长期治理收益和维护成本。
