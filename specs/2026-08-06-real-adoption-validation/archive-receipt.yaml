@@ -1,0 +1,91 @@
+schema_version: 1
+receipt_id: "2026-08-06-real-adoption-validation:first-terminal"
+spec_id: "2026-08-06-real-adoption-validation"
+created_at: "2026-08-07T03:51:52Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-07T03:51:52Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-07:commit-push-archive"
+snapshot:
+  source_revision: "46eb8de15e3d16de87db6ef471cd1c4095327c33"
+  base_revision: "a3a74f54e13ce26b8c9662961abb126ba3fc6f6c"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:d2a6aea57f6817c49cb44513b83e1ccad4571074b6ff2d898a883900d1c16bf8"
+    excludes:
+      - "specs/2026-08-06-real-adoption-validation"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:a1b97ec3cb8a4822e8007f40897eea20b0cfac0249e863cd4d3005387dc9243b"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:56369e3648ff2dc309ae41c56bd4a31fc9a50a361666b5251912338b6187e747"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:273b348036262e8356c9937f86fbb81ea681989d9f3821a0daf523898b5d9a6e"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:89e58cb8f7564a44f3f5dccbbdd5cc58ff85c717ca9d7abd9c1ecd24ea5fe69b"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+    - "AC-009"
+    - "AC-010"
+    - "AC-011"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:46eb8de15e3d16de87db6ef471cd1c4095327c33"
+    - "test:npm-test-82-pass"
+    - "check:repository"
+    - "check:distribution"
+    - "check:sample-doctor-specflow-knowledge-context"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "完整 Skill Distribution、真实项目采用验证和安装后就绪评估继续遵守 Framework 与 Knowledge 解释问题、Skill 编排领域流程、Harness 提供确定性检查、采用项目补充自身语义的既有分层，没有引入新的顶层产物职责。"
+      evidence_refs:
+        - "skills/project-context-bootstrap/SKILL.md"
+        - "packages/harness/README.md"
+        - "docs/目标仓库设计.md"
+    - action: "still-valid"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "就绪矩阵由 Agent 结合仓库证据和维护者决策完成语义判断，Distribution、Doctor 与 Context Resolver 只提供可复核事实；本次没有建设平行 Runtime、Capability Registry 或替代 Agent Host 的通用能力。"
+      evidence_refs:
+        - "skills/project-context-bootstrap/references/workflow-and-boundaries.md"
+        - "skills/project-context-bootstrap/assets/context-bootstrap-report-template.md"
+        - "packages/harness/test/harness.test.mjs"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "真实采用证据只保留通用问题、状态和验证边界，不保存样本仓名称、路径、业务配置、凭证或完整日志；公开仓敏感扫描继续通过。"
+      evidence_refs:
+        - "skills/project-context-bootstrap/evals/traces/2026-08-06/adoption-validation.md"
+        - "specs/2026-08-06-real-adoption-validation/validation-report.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:df2211146065ad6a274326bf00343771098e9cd471b953cac75f4bc2fd28f1a0"

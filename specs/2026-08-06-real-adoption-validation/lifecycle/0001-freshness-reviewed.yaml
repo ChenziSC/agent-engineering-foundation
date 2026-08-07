@@ -1,0 +1,24 @@
+schema_version: 1
+event_id: "2026-08-06-real-adoption-validation:0001"
+spec_id: "2026-08-06-real-adoption-validation"
+sequence: 1
+event_type: "freshness-reviewed"
+created_at: "2026-08-07T03:53:38Z"
+transition:
+  from: "archived"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-07T03:53:38Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-07:commit-push-archive"
+reason: "首次归档后复核发现 Active Context 仍保留等待归档的旧摘要；更新为已归档事实，不改变范围、关系、完成条件或实现快照。"
+relation_changes: {}
+evidence_refs:
+  - "archive-receipt.yaml"
+  - "validation-report.md"
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  previous_digest: "sha256:df2211146065ad6a274326bf00343771098e9cd471b953cac75f4bc2fd28f1a0"
+  event_digest: "sha256:b647a2e0120311d4916622967264ac07077d4a37334c04c6b51aca18545e2c67"

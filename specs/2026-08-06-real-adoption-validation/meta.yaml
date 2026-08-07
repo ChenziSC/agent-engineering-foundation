@@ -1,8 +1,8 @@
 id: "2026-08-06-real-adoption-validation"
 title: "补齐真实项目采用与宿主接入验证证据"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-06"
-updated_at: "2026-08-06"
+updated_at: "2026-08-07"
 scope:
   - "skills/project-context-bootstrap/"
   - "packages/harness/README.md"
@@ -27,7 +27,7 @@ artifacts:
   tasks: "./tasks.md"
   research: null
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -37,7 +37,7 @@ freshness:
     - "Host Adapter 的安装目标或 Harness CLI 边界变化"
     - "真实采用验证结论或能力成熟度变化"
 active_context:
-  summary: "完整 Skill 安装与安装后能力就绪评估均已通过基础仓和真实样本验证；等待维护者决定是否归档。"
+  summary: "事项已归档：完整 Skill 安装与安装后能力就绪评估均已通过基础仓和真实样本验证。"
   next_task_id: null
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true
