@@ -1,0 +1,33 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "已有多个真实消费者的错误、路径安全、摘要和结构化文档解析已迁移到稳定共享所有者，需要记录新的确定性依赖边界。"
+    evidence_refs:
+      - "packages/harness/src/shared/errors.mjs"
+      - "packages/harness/src/shared/filesystem.mjs"
+      - "packages/harness/src/shared/structured-document.mjs"
+      - "packages/harness/README.md"
+      - "knowledge/deterministic-core-boundary.md"
+  - action: "still-valid"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "本次只调整单一 Harness Package 内部所有权，不改变仓库使用方、公开能力或交付形态。"
+    evidence_refs:
+      - "packages/harness/README.md"
+      - "knowledge/repository-positioning.md"
+  - action: "still-valid"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "Specflow、Knowledge、Context、Distribution 和仓库检查的公开行为与状态所有权均保持不变。"
+    evidence_refs:
+      - "packages/harness/test/shared-modules.test.mjs"
+      - "knowledge/self-hosted-governance.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "抽取内容均为本仓通用确定性实现，不新增受限来源事实、内部标识或真实项目数据。"
+    evidence_refs:
+      - "packages/harness/src/shared/"
+      - "knowledge/public-generalization-policy.md"

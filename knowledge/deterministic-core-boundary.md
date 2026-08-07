@@ -83,6 +83,8 @@ Skill 只编排公开入口或携带真正自包含的脚本
 
 当前已存在的 `packages/** → skills/**` 导入属于待迁移债务，不得新增。迁移顺序是先把共享 Parser、Validator 或事务原语移到稳定所有者，再保留必要的 Skill 薄入口，最后增加静态依赖门禁。
 
+Harness 内已有多个真实消费者的统一错误、项目内路径与 Symlink 安全、稳定文件树摘要和 JSON/YAML 子集解析由 `packages/harness/src/shared/` 持有；共享模块不反向导入 Harness 聚合入口、Adapter、Framework 或 Skill。`harness.mjs` 继续作为兼容聚合入口，模块抽取不能要求采用方改写公共导入路径。
+
 ## Skill 发布边界
 
 - Skill 源内容尽量遵循开放格式，由各 Agent Host 的原生目录、Plugin 或 Marketplace 负责安装和更新。

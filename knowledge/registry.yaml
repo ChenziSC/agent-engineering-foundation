@@ -31,7 +31,7 @@ entries:
       - path: "README.md"
         digest: "sha256:b42bba31d0512d4f7335a0772bdbc832854bbc38698e18f446211bc7ca51123d"
       - path: "packages/harness/README.md"
-        digest: "sha256:de192a628c978c85812bbb0ea8333911b1c6109da61305ace6dab69cc2cda502"
+        digest: "sha256:f72d01e94d853c27eb457cfe13f9eb1ffedc2176f275294ee5d83bebc87de877"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
         digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
     refresh_triggers:
@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-consumer-cli-delivery-scale"
-      action: "update"
+      spec_id: "2026-08-07-harness-shared-modules"
+      action: "still-valid"
       reviewed_at: "2026-08-07"
-      decision_digest: "sha256:81bdb4dc4417d90ee5c5d1483e36046e20a1e953eb762441fd3a738c2dbe9c56"
+      decision_digest: "sha256:cbf049f3387f819622856ff8950fd22d3437cf9a8b9e527df3adf653abb9ab19"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -70,6 +70,7 @@ entries:
       - "AGENTS.md"
       - "blueprints/skill-runtime/README.md"
       - "distribution/README.md"
+      - "packages/harness/README.md"
     source_evidence:
       - path: "AGENTS.md"
         digest: "sha256:6e0b75a996d79e6c8f4e57a69d22672851441ca998b4afe3cb29668ab25b585b"
@@ -77,6 +78,8 @@ entries:
         digest: "sha256:d6af9c65590f8f726d0885493453cea492c9c29d2d732b7fd1d54c7a711f6736"
       - path: "distribution/README.md"
         digest: "sha256:41be4580bfa7a2aa3eb85a62da317b0c8c059a121c259bbf29dbec07a1253996"
+      - path: "packages/harness/README.md"
+        digest: "sha256:f72d01e94d853c27eb457cfe13f9eb1ffedc2176f275294ee5d83bebc87de877"
     refresh_triggers:
       - "主流 Agent Host 原生能力边界变化"
       - "Harness、Framework、Skill、Package 或 Adapter 依赖方向变化"
@@ -88,10 +91,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-consumer-cli-delivery-scale"
-      action: "still-valid"
+      spec_id: "2026-08-07-harness-shared-modules"
+      action: "update"
       reviewed_at: "2026-08-07"
-      decision_digest: "sha256:4195ed4199e0fb5716e2cd64232faec3a8374603f103cf5f625763d9488cc865"
+      decision_digest: "sha256:aeacbdbe9b0e9d90420e5d2ec0137a804d0ddf3b00311dfc19111b91d413b229"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -131,10 +134,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-consumer-cli-delivery-scale"
-      action: "update"
+      spec_id: "2026-08-07-harness-shared-modules"
+      action: "still-valid"
       reviewed_at: "2026-08-07"
-      decision_digest: "sha256:aea3885e0126ab0c9c102ce017254285cf51924002e2323a7de8cc2fbfab7b1c"
+      decision_digest: "sha256:0f1b1601801646fe8a28f70b1ea61704b156181d836fe13bd9009854f3260938"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -175,7 +178,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-consumer-cli-delivery-scale"
+      spec_id: "2026-08-07-harness-shared-modules"
       action: "still-valid"
       reviewed_at: "2026-08-07"
-      decision_digest: "sha256:e8a7303f044293e0062184bcfead9ecc71242b498b196808e253ac68993b7c7c"
+      decision_digest: "sha256:f504cb09faad1c9f888cd47a8c81557baf8bc75a1eaa6d0d490062cc8d2a4a05"

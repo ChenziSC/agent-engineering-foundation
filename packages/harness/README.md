@@ -94,4 +94,6 @@ npm run test:scale
 
 Harness 保持一个 Package 和一个 CLI，对内按以下职责组织：项目接入、Specflow、Knowledge、Context、Skill Distribution、Source Control、Change Gate、Repository Check 和共享基础设施。CLI 只做参数解析与结果输出，领域模块不读取进程参数。
 
+`src/shared/` 只拥有已有多个领域消费者的无状态原语：统一错误类型、项目内路径与 Symlink 安全、稳定文件树摘要，以及受支持 JSON/YAML 子集的解析和序列化。共享模块不得反向导入 `harness.mjs`、Adapter、Framework 或 Skill；`harness.mjs` 继续作为兼容聚合入口，不要求采用方改写导入路径。
+
 共享确定性实现不得以 `skills/*/scripts/` 的私有路径作为未声明库接口；Skill 自包含脚本和 Harness 共享核心的关系由 Distribution 依赖契约约束。
