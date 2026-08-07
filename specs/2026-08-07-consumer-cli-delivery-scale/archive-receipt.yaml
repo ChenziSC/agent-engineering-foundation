@@ -1,0 +1,99 @@
+schema_version: 1
+receipt_id: "2026-08-07-consumer-cli-delivery-scale:first-terminal"
+spec_id: "2026-08-07-consumer-cli-delivery-scale"
+created_at: "2026-08-07T09:28:18Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-07T09:28:18Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-07:archive-three-items"
+snapshot:
+  source_revision: "24483be870673aa327e4ecf378fdfa2eba108d2b"
+  base_revision: "e22a0c538dd701af76950b0e9da5058c3249d926"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:a75aba40deaeb35b4b13ceae1de4e5370015b0cd13190e92c30626db20554357"
+    excludes:
+      - "specs/2026-08-07-consumer-cli-delivery-scale"
+      - "specs/2026-08-07-standalone-adoption-closure"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:06f8d9cbc3c4f9052ac3afd48157312850a314ed61481c73c33bb622f8ffacb9"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:efbd62426df3f3023d7bbc8c07ba72d1b0337fbf5bb5c5d8d1d4a3a5d479b546"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:6e7f51458b4526e6a42da025ccb51e7e671930bb1e3a7184f0ef7630143d2a80"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:ae46f4e1cb6ee7ea961838da5360c5bdf4501e84ae24c57c6f86777491ea37b6"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:24483be870673aa327e4ecf378fdfa2eba108d2b"
+    - "snapshot:sha256:a75aba40deaeb35b4b13ceae1de4e5370015b0cd13190e92c30626db20554357"
+    - "test:npm-test-89-pass"
+    - "test:npm-run-test-scale"
+    - "check:npm-run-check"
+    - "check:knowledge-projection-verified"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "CLI 版本来源、三级采用路径和完全合成的规模回归已成为当前最小交付与验证边界，需要同步长期仓库定位。"
+      evidence_refs:
+        - "package.json"
+        - "packages/harness/README.md"
+        - "templates/ai-friendly-repository/README.md"
+        - "packages/harness/scale/governance-scale.test.mjs"
+        - "knowledge/repository-positioning.md"
+    - action: "still-valid"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "新增内容只扩展既有 CLI 元数据、采用模板和测试夹具，没有改变 Host、Skill、Harness 与 Adapter 的依赖方向。"
+      evidence_refs:
+        - "packages/harness/src/harness.mjs"
+        - "templates/ai-friendly-repository/README.md"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "三档合成规模回归成为仓库验证自身 Context、Specflow 和 Knowledge 容量与尾部错误检测的稳定机制。"
+      evidence_refs:
+        - "packages/harness/test/fixtures/synthetic-governance-project.mjs"
+        - "packages/harness/scale/governance-scale.test.mjs"
+        - "knowledge/self-hosted-governance.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "规模夹具完全由测试生成，不含真实项目代码、配置、名称、路径或数据，现有公开与脱敏边界仍然成立。"
+      evidence_refs:
+        - "packages/harness/test/fixtures/synthetic-governance-project.mjs"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:504175df12228b4a6e7de7a0bba9eb9642b4a33f1730393b05f9a7608025fc0b"

@@ -1,0 +1,95 @@
+schema_version: 1
+receipt_id: "2026-08-07-harness-shared-modules:first-terminal"
+spec_id: "2026-08-07-harness-shared-modules"
+created_at: "2026-08-07T09:28:18Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-07T09:28:18Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-07:archive-three-items"
+snapshot:
+  source_revision: "c4e6284e4ea567d88c8cba67c84cf1bdc6d408ec"
+  base_revision: "24483be870673aa327e4ecf378fdfa2eba108d2b"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:c1ba65e4ddee7e6715a4784b721d91019135c27dcc57a0933372007a1b416a8b"
+    excludes:
+      - "specs/2026-08-07-harness-shared-modules"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:6de965160b7d32424fc977cb38fc1e70fd5cb734f0c1ddc0180cf37a5b089ae4"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:140d9ceba1dc6cdda40950559ca04c2403b5607f1fdc0adbf6e5f3153132a759"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:58c13a908dc30a9eb3936990486351ec8fe5396d2c92931a57ca1ff94e034e34"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:93b053bb1a875f613f2b0e7dfa66aa90bc8b3da4ec7b9700da6a104fb2c7fc82"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:c4e6284e4ea567d88c8cba67c84cf1bdc6d408ec"
+    - "gate:work:sha256:e4bddc54b2f2987fe192a73c0c249afc5132d45ff4ce5846b0c1ee3463a8a3a2"
+    - "snapshot:sha256:c1ba65e4ddee7e6715a4784b721d91019135c27dcc57a0933372007a1b416a8b"
+    - "test:npm-test-93-pass"
+    - "test:npm-run-test-scale"
+    - "check:npm-run-check"
+    - "check:knowledge-projection-verified"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "已有多个真实消费者的错误、路径安全、摘要和结构化文档解析已迁移到稳定共享所有者，需要记录新的确定性依赖边界。"
+      evidence_refs:
+        - "packages/harness/src/shared/errors.mjs"
+        - "packages/harness/src/shared/filesystem.mjs"
+        - "packages/harness/src/shared/structured-document.mjs"
+        - "packages/harness/README.md"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "本次只调整单一 Harness Package 内部所有权，不改变仓库使用方、公开能力或交付形态。"
+      evidence_refs:
+        - "packages/harness/README.md"
+        - "knowledge/repository-positioning.md"
+    - action: "still-valid"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "Specflow、Knowledge、Context、Distribution 和仓库检查的公开行为与状态所有权均保持不变。"
+      evidence_refs:
+        - "packages/harness/test/shared-modules.test.mjs"
+        - "knowledge/self-hosted-governance.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "抽取内容均为本仓通用确定性实现，不新增受限来源事实、内部标识或真实项目数据。"
+      evidence_refs:
+        - "packages/harness/src/shared/"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:9c7cad7c3966fc025326279f0862695d194ae3643ab7edb893657405227db7ef"

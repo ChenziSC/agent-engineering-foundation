@@ -1,6 +1,6 @@
 id: "2026-08-07-standalone-adoption-closure"
 title: "补齐采用项目独立治理闭环"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-07"
 updated_at: "2026-08-07"
 scope:
@@ -11,6 +11,7 @@ scope:
   - "distribution/"
   - "skills/"
   - "templates/ai-friendly-repository/"
+  - "templates/project-component-governance/README.md"
   - "docs/"
   - "knowledge/"
   - "specs/2026-08-07-standalone-adoption-closure/"
@@ -25,7 +26,7 @@ artifacts:
   tasks: "./tasks.md"
   research: "./research.md"
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -36,7 +37,7 @@ freshness:
     - "Skill Distribution 的运行时资源边界变化"
     - "采用项目 CI 与 Host/Harness 职责边界变化"
 active_context:
-  summary: "全部完成条件与验证任务已通过；事项保持 Active，等待维护者另行决定归档、Commit、Push 或发布。"
+  summary: "全部完成条件、验证、Knowledge Projection 与归档回执均已通过；事项已归档，Commit、Push 或发布仍需分别授权。"
   next_task_id: null
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true

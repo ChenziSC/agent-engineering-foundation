@@ -1,0 +1,103 @@
+schema_version: 1
+receipt_id: "2026-08-07-standalone-adoption-closure:first-terminal"
+spec_id: "2026-08-07-standalone-adoption-closure"
+created_at: "2026-08-07T09:28:18Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-07T09:28:18Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-07:archive-three-items"
+snapshot:
+  source_revision: "24483be870673aa327e4ecf378fdfa2eba108d2b"
+  base_revision: "e22a0c538dd701af76950b0e9da5058c3249d926"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:a75aba40deaeb35b4b13ceae1de4e5370015b0cd13190e92c30626db20554357"
+    excludes:
+      - "specs/2026-08-07-consumer-cli-delivery-scale"
+      - "specs/2026-08-07-standalone-adoption-closure"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:abe4b36cd3fa13a5ed2bd25cd9bbe49ae9963450c10743254333bf204b52b165"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:cc9209c9991627c16e359f0bad4c9caf26a94d1f0ddf95bb37e2fc2a35e89259"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:a94061c947ad7b6059b06dce8ad525b877fce2bc353997a1ab65316d2968d2db"
+    - role: "research"
+      path: "./research.md"
+      digest: "sha256:ed7d0c2584a6985340dcd4c38eebd0f39f65a5d68592690781e5b5325a6944b2"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:a8b1fbf9f96c05acb983f35e6d6554a701d8599f70150599604455f12dacdae5"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+    - "AC-009"
+    - "AC-010"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:24483be870673aa327e4ecf378fdfa2eba108d2b"
+    - "snapshot:sha256:a75aba40deaeb35b4b13ceae1de4e5370015b0cd13190e92c30626db20554357"
+    - "test:npm-test-87-pass"
+    - "check:npm-run-check"
+    - "check:knowledge-projection-verified"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "独立 pack CLI、可解释 Context 路由、运行时 Skill 分发和可选 CI 已形成可运行的最小接入闭环，需要同步仓库当前交付边界。"
+      evidence_refs:
+        - "package.json"
+        - "packages/harness/README.md"
+        - "templates/ai-friendly-repository/README.md"
+        - "knowledge/repository-positioning.md"
+    - action: "update"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "Distribution 摘要已收敛到 Manifest 声明的运行时文件，并补齐旧受管文件安全迁移；该边界需要作为长期依赖和宿主职责事实保存。"
+      evidence_refs:
+        - "distribution/manifest.yaml"
+        - "distribution/README.md"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "Context Resolver 新增路径优先、代码入口和选择器诊断，Distribution 新增运行时边界与迁移保护，改变自举治理的稳定执行契约。"
+      evidence_refs:
+        - "packages/harness/src/harness.mjs"
+        - "packages/harness/README.md"
+        - "knowledge/self-hosted-governance.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "真实样本仅用于执行验证，公开记录保持脱敏，不保存样本名称、绝对路径、远端、业务代码、接口或配置值。"
+      evidence_refs:
+        - "specs/2026-08-07-standalone-adoption-closure/validation-report.md"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:1e76d83f3f8ebb228c5efa2df820b01f78aa8f684b40aa4e9a36f68755329074"
