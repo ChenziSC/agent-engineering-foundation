@@ -1,0 +1,42 @@
+id: "2026-08-06-real-adoption-validation"
+title: "补齐真实项目采用与宿主接入验证证据"
+status: "in-progress"
+created_at: "2026-08-06"
+updated_at: "2026-08-06"
+scope:
+  - "skills/project-context-bootstrap/"
+  - "packages/harness/README.md"
+  - "packages/harness/test/harness.test.mjs"
+  - "starter/minimal/AGENTS.md"
+  - "starter/minimal/knowledge/README.md"
+  - "docs/能力地图.md"
+  - "docs/能力问题图谱.md"
+  - "docs/交付形态与成熟度.md"
+  - "docs/目标仓库设计.md"
+  - "distribution/manifest.yaml"
+  - "specs/2026-08-06-real-adoption-validation/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-06"
+  refresh_triggers:
+    - "project-context-bootstrap 的职责或输出状态变化"
+    - "Host Adapter 的安装目标或 Harness CLI 边界变化"
+    - "真实采用验证结论或能力成熟度变化"
+active_context:
+  summary: "完整 Skill 安装与安装后能力就绪评估均已通过基础仓和真实样本验证；等待维护者决定是否归档。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false

@@ -32,7 +32,7 @@ skills:
     source: skills/project-context-bootstrap
     version:
       type: content-hash
-      value: sha256:a987f035ba41a7b57d0dcdb341323235c609cd2a14ba8bdb4c12eba74c7eeb4f
+      value: sha256:b1a1adc45a76964e7688d2cb40c3803a68f2120a2bdbbba2db4fe4e2f661a16a
     distributable: true
     required_files:
       - SKILL.md

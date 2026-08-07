@@ -8,6 +8,7 @@
 
 - 记录 revision、目标模块、接入目标、实际范围和非目标；
 - 区分项目规则、稳定契约、代码入口、非准入内容和未确认项；
+- 为获准进入长期层的正文提供简明 Knowledge README 导航候选，并声明机器路由的唯一事实源；
 - 对过期说明与当前 Schema 的冲突保持可见；
 - 新稳定契约保持 `draft`，给出 `create` 或 `review-required`、目标位置、刷新条件和审核责任人；
 - 输出 `ready-for-review` 或有证据支持的降级状态；
@@ -18,3 +19,4 @@
 - 把过期说明静默当作当前代码事实；
 - 把候选标为 `approved` 或自动写入 Knowledge；
 - 因用户说“接入”就提交、推送或发布。
+- 在 README 中复制 Digest、完整 Registry 或全部 Code Entry Map。

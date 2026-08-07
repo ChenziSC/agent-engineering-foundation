@@ -23,7 +23,7 @@ node packages/harness/bin/agent-foundation.mjs repository check
 
 `init plan` 和 `doctor` 只读；`init` 只写入明确目标，不覆盖同路径不同内容，也拒绝通过 Symlink 越出目标边界。
 
-既有项目先用 `init plan` 判断 Starter 文件应新增、复用还是冲突；再由 [`project-context-bootstrap`](../../skills/project-context-bootstrap/SKILL.md) 基于项目事实生成规则、Knowledge 和代码入口候选。维护者审核候选并单独授权后，才执行 `init` 或人工合并。完成 Harness 化后，日常任务和新会话改用 `context resolve`，不重复 Bootstrap。
+既有项目先用 `init plan` 判断 Starter 文件应新增、复用还是冲突；再由 [`project-context-bootstrap`](../../skills/project-context-bootstrap/SKILL.md) 基于项目事实生成规则、Knowledge 和代码入口候选。维护者审核候选并单独授权后，才执行 `init` 或人工合并。结构接入完成后，默认通过 Distribution Plan/Apply/Verify 安装 Manifest 中全部公开 Skill，使 Agent Host 能发现完整治理能力目录；具体 Skill 仍按任务触发，并在调用时检查项目配置和 Adapter 前置条件。完成 Harness 化后，日常任务和新会话改用 `context resolve`，不重复 Bootstrap。
 
 ### Specflow、Knowledge 与上下文
 
@@ -49,7 +49,7 @@ node packages/harness/bin/agent-foundation.mjs distribution apply --target /path
 node packages/harness/bin/agent-foundation.mjs distribution verify --target /path/to/project
 ```
 
-`list`、`check`、`plan` 和 `verify` 只读；`install`、`update` 和 Distribution `apply` 只操作 Manifest 明确纳管且未被采用方修改的内容。确定性核心与可分发 Skill 的依赖方向见[长期依赖契约](../../knowledge/deterministic-core-boundary.md)。
+`list`、`check`、`plan` 和 `verify` 只读；`install`、`update` 和 Distribution `apply` 只操作 Manifest 明确纳管且未被采用方修改的内容。完整底座接入默认使用 Distribution；单项 `skill install` 仅用于明确的局部采用或维护。安装成功只证明内容、受管记录和 Host 目录一致，不证明项目配置、外部 Adapter 或运行环境已经就绪。确定性核心与可分发 Skill 的依赖方向见[长期依赖契约](../../knowledge/deterministic-core-boundary.md)。
 
 ### 变更与交付门禁
 

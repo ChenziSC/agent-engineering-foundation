@@ -1165,6 +1165,87 @@ test('Skill Plan 是只读操作，Install 幂等并被 Doctor 复核', async ()
   assert.ok(doctor.checks.some((check) => check.code === 'installed-skill'));
 });
 
+test('存量项目采用闭环串联 Starter、Knowledge、完整 Skill Distribution 与 Context', async () => {
+  const root = await makeTemporaryRoot();
+  const target = path.join(root, 'project');
+  await initProject(target);
+  assert.match(await readFile(path.join(target, 'knowledge', 'README.md'), 'utf8'), /接入后的项目导航/u);
+  assert.match(await readFile(path.join(target, 'AGENTS.md'), 'utf8'), /knowledge\/README\.md/u);
+
+  const sourceContent = await readFile(path.join(target, 'AGENTS.md'), 'utf8');
+  const knowledgeEntry = syntheticKnowledgeEntry({
+    id: 'adoption-boundary',
+    status: 'current',
+    scope: ['src/app/'],
+    sourceContent,
+  });
+  await mkdir(path.join(target, 'src', 'app'), { recursive: true });
+  await writeFile(path.join(target, 'src', 'app', 'entry.js'), 'export const ready = true;\n');
+  await writeFile(path.join(target, 'src', 'app', 'generated.js'), 'export const generated = true;\n');
+  await writeFile(path.join(target, 'knowledge', 'adoption-boundary.md'), '# 合成采用边界\n');
+  await writeFile(
+    path.join(target, 'knowledge', 'registry.json'),
+    `${JSON.stringify({ schemaVersion: 1, entries: [knowledgeEntry] }, null, 2)}\n`,
+  );
+  await writeFile(
+    path.join(target, 'knowledge', 'code-entry-map.json'),
+    `${JSON.stringify({
+      schemaVersion: 1,
+      entries: [
+        {
+          task_type: '修改合成应用入口',
+          start_paths: ['src/app/entry.js'],
+          module_rules: ['AGENTS.md'],
+          knowledge: ['adoption-boundary'],
+          exclude_by_default: ['src/app/generated.js'],
+        },
+      ],
+    }, null, 2)}\n`,
+  );
+
+  const availableSkills = await discoverSkills();
+  const distributionPlan = await planDistribution({ target });
+  assert.equal(distributionPlan.ok, true);
+  assert.deepEqual(
+    distributionPlan.items.map(({ name }) => name),
+    availableSkills.map(({ name }) => name),
+  );
+  assert.ok(distributionPlan.items.every(({ action }) => action === 'add'));
+  assert.equal((await applyDistribution({ target })).status, 'applied');
+  assert.equal((await verifyDistribution({ target })).status, 'pass');
+  const state = JSON.parse(await readFile(path.join(target, '.agent-foundation', 'installed-skills.json'), 'utf8'));
+  assert.deepEqual(Object.keys(state.records).sort(), availableSkills.map(({ name }) => name));
+  const record = state.records['project-context-bootstrap'];
+  assert.equal(record.host, 'open-agent');
+  assert.equal(record.path, '.agents/skills/project-context-bootstrap');
+  assert.match(record.digest, /^sha256:[a-f0-9]{64}$/u);
+  assert.match(
+    await readFile(path.join(target, record.path, 'SKILL.md'), 'utf8'),
+    /name: project-context-bootstrap/u,
+  );
+  assert.match(
+    await readFile(path.join(target, record.path, 'assets', 'context-bootstrap-report-template.md'), 'utf8'),
+    /needs-project-config/u,
+  );
+
+  const doctor = await doctorProject(target);
+  assert.equal(doctor.status, 'pass', JSON.stringify(doctor, null, 2));
+  assert.deepEqual(
+    doctor.checks.filter(({ code }) => code === 'installed-skill').map(({ name }) => name).sort(),
+    availableSkills.map(({ name }) => name),
+  );
+  assert.equal((await checkKnowledgeGovernance(target)).status, 'pass');
+
+  const context = await resolveProjectContext(target, {
+    taskType: '修改合成应用入口',
+    paths: ['src/app/entry.js'],
+  });
+  assert.deepEqual(context.activeSpecs, []);
+  assert.deepEqual(context.knowledge.map(({ id }) => id), ['adoption-boundary']);
+  assert.deepEqual(context.loadPlan, ['AGENTS.md', 'knowledge/adoption-boundary.md']);
+  assert.deepEqual(context.excludeByDefault, ['src/app/generated.js']);
+});
+
 test('Install 不覆盖未纳管的同名目录', async () => {
   const root = await makeTemporaryRoot();
   const target = path.join(root, 'project');
