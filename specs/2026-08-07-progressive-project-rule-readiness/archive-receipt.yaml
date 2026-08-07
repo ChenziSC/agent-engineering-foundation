@@ -1,0 +1,92 @@
+schema_version: 1
+receipt_id: "2026-08-07-progressive-project-rule-readiness:first-terminal"
+spec_id: "2026-08-07-progressive-project-rule-readiness"
+created_at: "2026-08-07T07:05:23Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-07T07:05:23Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-07:archive-commit-push"
+snapshot:
+  source_revision: "d144dc159bea7984de190cdcb235aa56d3cbf953"
+  base_revision: "3634c1557a58ce1d46d29367b8e67a4a3b8a81e0"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:b19970c8c065324c41cd038bdf0ed0eed886185dbb5f243cdcd2b164807b24ec"
+    excludes:
+      - "specs/2026-08-07-progressive-project-rule-readiness"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:0a32d63bfd83e81ebd1356004c3fca53d2c28386f7b0100ebd29edf3d56bb3f2"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:dd4a6bbdcd7cf747cf1ddcc985310387c0b77ae3c6014bab40ed868f090b7cf0"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:4f8912e368c7683d3e98b83f57ecedfef443aa44daa9c4bf885c6992e74b27b0"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:5dc885741b9245abaf8a8aac1c89a0bc0aa793c42b8673b1259650b7cc193ce5"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+    - "AC-009"
+    - "AC-010"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:d144dc159bea7984de190cdcb235aa56d3cbf953"
+    - "test:npm-test-82-pass"
+    - "check:repository"
+    - "check:distribution"
+    - "check:specflow-knowledge-context"
+    - "check:knowledge-projection"
+    - "check:real-adoption"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "渐进式项目规则就绪评估仍属于项目级 Harness 化接入与长期上下文候选能力，没有把本仓扩张为通用 Agent Runtime 或企业平台。"
+      evidence_refs:
+        - "skills/project-context-bootstrap/SKILL.md"
+        - "skills/project-context-bootstrap/references/workflow-and-boundaries.md"
+        - "docs/能力地图.md"
+    - action: "still-valid"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "项目规则语义完整度继续由 Agent 结合 Evidence 和维护者确认判断；Doctor、Distribution、Knowledge 与 Specflow 只提供结构和摘要门禁，没有伪装成自然语言正确性证明。"
+      evidence_refs:
+        - "skills/project-context-bootstrap/SKILL.md"
+        - "skills/project-context-bootstrap/evals/cases/06-generic-rules-not-ready.md"
+        - "specs/2026-08-07-progressive-project-rule-readiness/validation-report.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "真实采用验证只保存脱敏结构、状态和问题类型，不保存目标项目名称、revision、业务组件、接口、配置值或受限来源内容。"
+      evidence_refs:
+        - "specs/2026-08-07-progressive-project-rule-readiness/validation-report.md"
+        - "skills/project-context-bootstrap/evals/cases/06-generic-rules-not-ready.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:6d9a622bc4d9afb91406931b3b57f454b681c3e5900de0e705cc889ad577d3e7"

@@ -1,6 +1,6 @@
 id: "2026-08-07-progressive-project-rule-readiness"
 title: "补齐渐进式项目规则就绪评估"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-07"
 updated_at: "2026-08-07"
 scope:
@@ -21,7 +21,7 @@ artifacts:
   tasks: "./tasks.md"
   research: null
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -34,4 +34,4 @@ active_context:
   summary: "项目规则就绪度、三阶段渐进完善和反例行为 Case 已实现，并通过整仓回归及真实采用项目的自动取证、维护者确认和长期投影闭环，等待维护者决定是否归档。"
   next_task_id: null
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true
