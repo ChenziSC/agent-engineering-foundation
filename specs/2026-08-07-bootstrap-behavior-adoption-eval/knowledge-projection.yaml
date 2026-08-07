@@ -1,0 +1,33 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "若 Bootstrap 正式 Replay 和同条件采用对照成立，需要同步该 Skill 的证据边界与成熟度；若未成立则记录仍有效的现有定位。"
+    evidence_refs:
+      - "skills/project-context-bootstrap/evals/"
+      - "docs/能力地图.md"
+      - "docs/交付形态与成熟度.md"
+      - "knowledge/repository-positioning.md"
+  - action: "update"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "跨新会话采用观察将验证 Bootstrap 与日常 Context Resolver 的职责切换以及真实项目首批复用表现。"
+    evidence_refs:
+      - "skills/project-context-bootstrap/SKILL.md"
+      - "skills/project-context-bootstrap/evals/"
+      - "knowledge/self-hosted-governance.md"
+  - action: "still-valid"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "首个消费者继续使用 Skill 内 Trace 和现有 Runner，不新增通用 Runtime、Trace 平台或无消费者抽象。"
+    evidence_refs:
+      - "frameworks/skill-eval/README.md"
+      - "knowledge/deterministic-core-boundary.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "真实样本只用于本地只读执行，公开材料仅保存脱敏行为摘要和自行构造的 Case。"
+    evidence_refs:
+      - "skills/project-context-bootstrap/evals/traces/"
+      - "knowledge/public-generalization-policy.md"

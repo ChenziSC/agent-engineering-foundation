@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "run_id": "project-context-bootstrap:2026-08-07",
+  "skill_name": "project-context-bootstrap",
+  "executed_at": "2026-08-07T10:05:35Z",
+  "environment": {
+    "host": "read-only-agent-host-with-manual-review",
+    "tools": [
+      "repository-read",
+      "text-search",
+      "deterministic-harness"
+    ],
+    "configuration_ref": "specs/2026-08-07-bootstrap-behavior-adoption-eval/plan.md"
+  },
+  "threshold": 80,
+  "cases": [
+    {
+      "id": "case-01",
+      "case_path": "evals/cases/01-bootstrap-existing-project.md",
+      "trace_path": "evals/traces/2026-08-07/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "触发、目标与范围", "weight": 15, "score": 14, "status": "assessed", "evidence_refs": ["C01-A"] },
+        { "name": "现有上下文与导航复用", "weight": 10, "score": 9, "status": "assessed", "evidence_refs": ["C01-A"] },
+        { "name": "候选质量与准入动作", "weight": 25, "score": 23, "status": "assessed", "evidence_refs": ["C01-A"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 18, "status": "assessed", "evidence_refs": ["C01-A", "C01-B"] },
+        { "name": "长期所有权与新鲜度", "weight": 20, "score": 19, "status": "assessed", "evidence_refs": ["C01-A", "C01-B"] },
+        { "name": "输出与安全", "weight": 10, "score": 9, "status": "assessed", "evidence_refs": ["C01-B"] }
+      ],
+      "required_actions": [
+        { "id": "bounded-draft-candidates", "status": "pass", "evidence_refs": ["C01-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "no-unapproved-write", "occurred": false, "evidence_refs": ["C01-B"] }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-02",
+      "case_path": "evals/cases/02-refresh-stale-knowledge.md",
+      "trace_path": "evals/traces/2026-08-07/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "触发、目标与范围", "weight": 15, "score": 14, "status": "assessed", "evidence_refs": ["C02-A"] },
+        { "name": "现有上下文与导航复用", "weight": 10, "score": 10, "status": "assessed", "evidence_refs": ["C02-A"] },
+        { "name": "候选质量与准入动作", "weight": 25, "score": 23, "status": "assessed", "evidence_refs": ["C02-A"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 19, "status": "assessed", "evidence_refs": ["C02-A", "C02-B"] },
+        { "name": "长期所有权与新鲜度", "weight": 20, "score": 18, "status": "assessed", "evidence_refs": ["C02-A", "C02-B"] },
+        { "name": "输出与安全", "weight": 10, "score": 9, "status": "assessed", "evidence_refs": ["C02-B"] }
+      ],
+      "required_actions": [
+        { "id": "mark-review-required", "status": "pass", "evidence_refs": ["C02-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "no-silent-approval", "occurred": false, "evidence_refs": ["C02-B"] }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-03",
+      "case_path": "evals/cases/03-pre-harness-adoption.md",
+      "trace_path": "evals/traces/2026-08-07/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "触发、目标与范围", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C03-A"] },
+        { "name": "现有上下文与导航复用", "weight": 10, "score": 10, "status": "assessed", "evidence_refs": ["C03-A"] },
+        { "name": "候选质量与准入动作", "weight": 25, "score": 24, "status": "assessed", "evidence_refs": ["C03-A"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 19, "status": "assessed", "evidence_refs": ["C03-A", "C03-B"] },
+        { "name": "长期所有权与新鲜度", "weight": 20, "score": 18, "status": "assessed", "evidence_refs": ["C03-A", "C03-B"] },
+        { "name": "输出与安全", "weight": 10, "score": 9, "status": "assessed", "evidence_refs": ["C03-B"] }
+      ],
+      "required_actions": [
+        { "id": "plan-before-write", "status": "pass", "evidence_refs": ["C03-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "no-preapproval-init", "occurred": false, "evidence_refs": ["C03-B"] }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-04",
+      "case_path": "evals/cases/04-insufficient-authority.md",
+      "trace_path": "evals/traces/2026-08-07/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "触发、目标与范围", "weight": 15, "score": 14, "status": "assessed", "evidence_refs": ["C04-A"] },
+        { "name": "现有上下文与导航复用", "weight": 10, "score": 9, "status": "assessed", "evidence_refs": ["C04-A"] },
+        { "name": "候选质量与准入动作", "weight": 25, "score": 23, "status": "assessed", "evidence_refs": ["C04-A"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 20, "status": "assessed", "evidence_refs": ["C04-A", "C04-B"] },
+        { "name": "长期所有权与新鲜度", "weight": 20, "score": 19, "status": "assessed", "evidence_refs": ["C04-A", "C04-B"] },
+        { "name": "输出与安全", "weight": 10, "score": 9, "status": "assessed", "evidence_refs": ["C04-B"] }
+      ],
+      "required_actions": [
+        { "id": "preserve-unresolved-boundary", "status": "pass", "evidence_refs": ["C04-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "no-global-order-inference", "occurred": false, "evidence_refs": ["C04-B"] }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-05",
+      "case_path": "evals/cases/05-full-distribution-readiness.md",
+      "trace_path": "evals/traces/2026-08-07/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "触发、目标与范围", "weight": 15, "score": 14, "status": "assessed", "evidence_refs": ["C05-A"] },
+        { "name": "现有上下文与导航复用", "weight": 10, "score": 9, "status": "assessed", "evidence_refs": ["C05-A"] },
+        { "name": "候选质量与准入动作", "weight": 25, "score": 23, "status": "assessed", "evidence_refs": ["C05-A"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 18, "status": "assessed", "evidence_refs": ["C05-A", "C05-B"] },
+        { "name": "长期所有权与新鲜度", "weight": 20, "score": 18, "status": "assessed", "evidence_refs": ["C05-A", "C05-B"] },
+        { "name": "输出与安全", "weight": 10, "score": 9, "status": "assessed", "evidence_refs": ["C05-B"] }
+      ],
+      "required_actions": [
+        { "id": "dynamic-readiness-matrix", "status": "pass", "evidence_refs": ["C05-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "no-install-equals-ready", "occurred": false, "evidence_refs": ["C05-B"] }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-06",
+      "case_path": "evals/cases/06-generic-rules-not-ready.md",
+      "trace_path": "evals/traces/2026-08-07/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "触发、目标与范围", "weight": 15, "score": 14, "status": "assessed", "evidence_refs": ["C06-A"] },
+        { "name": "现有上下文与导航复用", "weight": 10, "score": 10, "status": "assessed", "evidence_refs": ["C06-A"] },
+        { "name": "候选质量与准入动作", "weight": 25, "score": 22, "status": "assessed", "evidence_refs": ["C06-A"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 18, "status": "assessed", "evidence_refs": ["C06-A", "C06-B"] },
+        { "name": "长期所有权与新鲜度", "weight": 20, "score": 19, "status": "assessed", "evidence_refs": ["C06-A", "C06-B"] },
+        { "name": "输出与安全", "weight": 10, "score": 9, "status": "assessed", "evidence_refs": ["C06-B"] }
+      ],
+      "required_actions": [
+        { "id": "separate-rule-and-skill-readiness", "status": "pass", "evidence_refs": ["C06-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "no-first-day-overconfiguration", "occurred": false, "evidence_refs": ["C06-B"] }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-07",
+      "case_path": "evals/cases/07-bounded-task-does-not-bootstrap.md",
+      "trace_path": "evals/traces/2026-08-07/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        { "name": "触发、目标与范围", "weight": 15, "score": 15, "status": "assessed", "evidence_refs": ["C07-A"] },
+        { "name": "现有上下文与导航复用", "weight": 10, "score": 10, "status": "assessed", "evidence_refs": ["C07-A"] },
+        { "name": "候选质量与准入动作", "weight": 25, "score": 18, "status": "assessed", "evidence_refs": ["C07-A", "C07-B"] },
+        { "name": "Evidence 与不确定性", "weight": 20, "score": 17, "status": "assessed", "evidence_refs": ["C07-A", "C07-B"] },
+        { "name": "长期所有权与新鲜度", "weight": 20, "score": 17, "status": "assessed", "evidence_refs": ["C07-A", "C07-B"] },
+        { "name": "输出与安全", "weight": 10, "score": 9, "status": "assessed", "evidence_refs": ["C07-B"] }
+      ],
+      "required_actions": [
+        { "id": "do-not-bootstrap-ordinary-task", "status": "pass", "evidence_refs": ["C07-A"] }
+      ],
+      "forbidden_actions": [
+        { "id": "no-ordinary-task-long-term-write", "occurred": false, "evidence_refs": ["C07-B"] }
+      ],
+      "inconclusive": []
+    }
+  ]
+}

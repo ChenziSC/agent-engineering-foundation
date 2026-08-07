@@ -1,0 +1,36 @@
+id: "2026-08-07-bootstrap-behavior-adoption-eval"
+title: "Bootstrap 行为增益与连续采用验证"
+status: "in-progress"
+created_at: "2026-08-07"
+updated_at: "2026-08-07"
+scope:
+  - "skills/project-context-bootstrap/"
+  - "docs/能力地图.md"
+  - "docs/交付形态与成熟度.md"
+  - "knowledge/"
+  - "specs/2026-08-07-bootstrap-behavior-adoption-eval/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: "./research.md"
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-07"
+  refresh_triggers:
+    - "project-context-bootstrap 的职责、Case、Rubric 或输出契约变化"
+    - "Skill Eval Runner 的 Trace 或 Replay 契约变化"
+    - "真实采用样本的 revision、项目规则或长期 Knowledge 变化"
+active_context:
+  summary: "同条件 baseline/candidate 观察、7 Case 正式 Replay、脱敏对照、成熟度投影和仓库回归均已完成；事项保持 Active，等待维护者决定提交或后续收口。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false
