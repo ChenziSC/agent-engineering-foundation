@@ -1,0 +1,101 @@
+schema_version: 1
+receipt_id: "2026-08-07-bootstrap-behavior-adoption-eval:first-terminal"
+spec_id: "2026-08-07-bootstrap-behavior-adoption-eval"
+created_at: "2026-08-10T03:05:06Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-10T03:05:06Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-10:continue-after-archive-plan"
+snapshot:
+  source_revision: "fb7e1b33daddfcede6c9adb487b74ca0c45d5d86"
+  base_revision: "1a3509109210c7f1e9c77c22443c107dd81f05af"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:6511355b8ffdcabf924e594288ecf1c5f0a6344eb8ee3979124931bf613744d6"
+    excludes:
+      - "specs/2026-08-07-bootstrap-behavior-adoption-eval"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:9ec4e2d6ede3ead76987bc960cede6d803bfcebfd50a73a89368f080102ec38c"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:e7c11052979cd9d46c8e9ced6a61c2447fb5e5d1e49c6c7a623c2aaaf72b8922"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:a84e295a7a6dae384b9077412318e5fb90f01d7113ca2546b7c061f84dc9ebfe"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:1c0a28d288675cc166d7b18006664566bdb944139103a32f858bfcf17a9f6364"
+    - role: "research"
+      path: "./research.md"
+      digest: "sha256:18d15852faa88aa07b13490e9174a65bdb8739b9d7497bd4976653bdf08076a2"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:fb7e1b33daddfcede6c9adb487b74ca0c45d5d86"
+    - "eval:project-context-bootstrap:7-of-7-pass"
+    - "test:npm-test-93-pass"
+    - "check:repository"
+    - "check:specflow-knowledge"
+    - "check:knowledge-projection"
+    - "check:sensitive-content"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "Bootstrap 正式 Replay 和同条件采用对照已同步该 Skill 的证据边界与成熟度，成本收益不稳定时保持 usable。"
+      evidence_refs:
+        - "skills/project-context-bootstrap/evals/"
+        - "docs/能力地图.md"
+        - "docs/交付形态与成熟度.md"
+        - "knowledge/repository-positioning.md"
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "跨新会话采用观察已验证 Bootstrap 与日常 Context Resolver 的职责切换，并保留真实项目首批复用的成本回归。"
+      evidence_refs:
+        - "skills/project-context-bootstrap/SKILL.md"
+        - "skills/project-context-bootstrap/evals/"
+        - "knowledge/self-hosted-governance.md"
+    - action: "still-valid"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "首个消费者继续使用 Skill 内 Trace 和现有 Runner，没有新增通用 Runtime、Trace 平台或无消费者抽象。"
+      evidence_refs:
+        - "frameworks/skill-eval/README.md"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "真实样本只用于本地只读执行，公开材料仅保存脱敏行为摘要和自行构造的 Case。"
+      evidence_refs:
+        - "skills/project-context-bootstrap/evals/traces/"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:30e7bbaeac8a4798bcdec38d1490bb22301cfd8ed45d4fd2b4f339b09d75bb47"
