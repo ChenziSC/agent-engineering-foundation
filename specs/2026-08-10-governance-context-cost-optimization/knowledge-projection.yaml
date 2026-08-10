@@ -1,0 +1,33 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "Specflow 高频主入口改为普通流程与终态材料渐进披露，并明确固定治理输入与端到端 Token 分层报告。"
+    evidence_refs:
+      - "skills/specflow/SKILL.md"
+      - "skills/specflow/evals/cases/13-ordinary-planning-progressive-disclosure.md"
+      - "skills/specflow/evals/traces/2026-08-10/replay.md"
+      - "specs/2026-08-10-governance-context-cost-optimization/research.md"
+  - action: "still-valid"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "本次只收敛既有 Skill 内容和验证边界，没有把仓库扩张为 Agent Runtime、通用 Skill 选择器或新平台。"
+    evidence_refs:
+      - "skills/specflow/SKILL.md"
+      - "knowledge/repository-positioning.md"
+  - action: "still-valid"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "选择性安装与 Resolver 新字段因缺少稳定收益被拒绝，最终没有新增 Host 抽象、Runtime 或无消费者 Schema。"
+    evidence_refs:
+      - "specs/2026-08-10-governance-context-cost-optimization/plan.md"
+      - "knowledge/deterministic-core-boundary.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "公开实验材料只保存脱敏聚合计量和行为摘要，原始会话日志保存在临时目录并在复核后删除。"
+    evidence_refs:
+      - "skills/specflow/evals/traces/2026-08-10/replay.md"
+      - "specs/2026-08-10-governance-context-cost-optimization/research.md"
+      - "knowledge/public-generalization-policy.md"

@@ -1,0 +1,41 @@
+id: "2026-08-10-governance-context-cost-optimization"
+title: "治理上下文成本归因与最小加载优化"
+status: "in-progress"
+created_at: "2026-08-10"
+updated_at: "2026-08-10"
+scope:
+  - "packages/harness/src/harness.mjs"
+  - "packages/harness/test/"
+  - "distribution/manifest.yaml"
+  - "skills/project-context-bootstrap/"
+  - "skills/specflow/"
+  - "templates/ai-friendly-repository/"
+  - "docs/能力地图.md"
+  - "docs/交付形态与成熟度.md"
+  - "knowledge/"
+  - "specs/2026-08-10-governance-context-cost-optimization/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: "./research.md"
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-10"
+  refresh_triggers:
+    - "Context Resolver 的路由、预算、Load Plan 或 Active Spec 契约变化"
+    - "Distribution 的项目级 Skill 安装边界或 Manifest 变化"
+    - "Bootstrap 行为 Replay、真实采用对照或目标 Agent Host 的上下文计量方式变化"
+active_context:
+  summary: "归因、最小实现、行为/成本回归和 Knowledge Projection 均已完成；只证明 Specflow 固定治理输入下降，不声称端到端 Token 已稳定下降，事项等待用户决定是否归档。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false

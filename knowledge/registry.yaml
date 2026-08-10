@@ -19,7 +19,7 @@ entries:
       - "repository-positioning"
       - "agent-harness"
       - "content-layering"
-    last_reviewed_at: "2026-08-07"
+    last_reviewed_at: "2026-08-10"
     authoritative_sources:
       - "AGENTS.md"
       - "README.md"
@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-bootstrap-behavior-adoption-eval"
-      action: "update"
-      reviewed_at: "2026-08-07"
-      decision_digest: "sha256:00cb8f79a17eb2b0d0ec3c381573bb332a20510f51f33cf83919bcd55e60a047"
+      spec_id: "2026-08-10-governance-context-cost-optimization"
+      action: "still-valid"
+      reviewed_at: "2026-08-10"
+      decision_digest: "sha256:3a59d44fd08e6010aec7e35c3d8a85786add9a8bdc9260a9645a11b8985f2186"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -65,7 +65,7 @@ entries:
       - "host-boundary"
       - "skill-publication"
       - "dependency-direction"
-    last_reviewed_at: "2026-08-07"
+    last_reviewed_at: "2026-08-10"
     authoritative_sources:
       - "AGENTS.md"
       - "blueprints/skill-runtime/README.md"
@@ -91,10 +91,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-bootstrap-behavior-adoption-eval"
+      spec_id: "2026-08-10-governance-context-cost-optimization"
       action: "still-valid"
-      reviewed_at: "2026-08-07"
-      decision_digest: "sha256:8dcfddd4fd83271e87c5cbc40e8d199c56d7a921785b0712c2722323a4bdef61"
+      reviewed_at: "2026-08-10"
+      decision_digest: "sha256:3f7352f036a7a3dcef94e88d814d3bacb95d614cc55baf8f2d6f3536eeb8f47c"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -108,7 +108,7 @@ entries:
       - "specflow"
       - "knowledge-governance"
       - "traceability"
-    last_reviewed_at: "2026-08-07"
+    last_reviewed_at: "2026-08-10"
     authoritative_sources:
       - "AGENTS.md"
       - "specs/README.md"
@@ -120,7 +120,7 @@ entries:
       - path: "specs/README.md"
         digest: "sha256:79f9ac67d1365a6397dd928adf5dbbef7d233498408e91c70687b8795d784b8b"
       - path: "skills/specflow/SKILL.md"
-        digest: "sha256:37dc8ed8e918f032ae5be2d3cfdf68b87c9663921013ca7c082b380c4262e1b1"
+        digest: "sha256:da860f5d28f71d0a76b23c070018d067fe7b3676eb498bccb462fc9469aa46e7"
       - path: "skills/specflow/scripts/archive-receipt.mjs"
         digest: "sha256:d394e322fa802ff2bb6beccfc45af27286d23a0550b2b168b12a633c8e2f48ad"
     refresh_triggers:
@@ -134,10 +134,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-bootstrap-behavior-adoption-eval"
+      spec_id: "2026-08-10-governance-context-cost-optimization"
       action: "update"
-      reviewed_at: "2026-08-07"
-      decision_digest: "sha256:d582c403d84e082ca77d508955b1205f616d601592d622885104ccde76b9ec96"
+      reviewed_at: "2026-08-10"
+      decision_digest: "sha256:cb1a6f836e5a7f9b30b295fcc95560f1df7baf226d72b8fa49c9b402b2144166"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -155,7 +155,7 @@ entries:
       - "public-generalization"
       - "rights-and-redaction"
       - "release-safety"
-    last_reviewed_at: "2026-08-07"
+    last_reviewed_at: "2026-08-10"
     authoritative_sources:
       - "AGENTS.md"
       - "docs/公开发布检查清单.md"
@@ -178,7 +178,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-07-bootstrap-behavior-adoption-eval"
+      spec_id: "2026-08-10-governance-context-cost-optimization"
       action: "still-valid"
-      reviewed_at: "2026-08-07"
-      decision_digest: "sha256:bda3589b492737a21891803aa523885d61bdd1bc3f10365f082a777b8232cb6a"
+      reviewed_at: "2026-08-10"
+      decision_digest: "sha256:ffe3efd24da827545114b67f8c1da25b4986d730f51380b4ec9fe587d6dae949"
