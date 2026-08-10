@@ -1,0 +1,49 @@
+id: "2026-08-10-self-hosted-adoption-closure"
+title: "Foundation 自举采用、持续交付与采用方回归闭环"
+status: "archived"
+created_at: "2026-08-10"
+updated_at: "2026-08-10"
+scope:
+  - "AGENTS.md"
+  - "agent-foundation.json"
+  - ".agent-foundation/"
+  - ".agents/"
+  - ".github/workflows/"
+  - ".github/scripts/"
+  - "package.json"
+  - "packages/harness/"
+  - "adapters/open-agent/"
+  - "adapters/README.md"
+  - "distribution/"
+  - "templates/ai-friendly-repository/"
+  - "skills/"
+  - "README.md"
+  - "docs/"
+  - "knowledge/"
+  - "specs/2026-08-10-self-hosted-adoption-closure/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: "./research.md"
+  validation_report: "./validation-report.md"
+  archive_receipt: "./archive-receipt.yaml"
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-10"
+  refresh_triggers:
+    - "Agent Host 的项目级 Skill 发现路径变化"
+    - "Starter、Doctor、Distribution 或安装状态契约变化"
+    - "Git Provider、CI 事件 SHA 或交付证据语义变化"
+    - "Foundation 包发布渠道或外部采用方升级策略变化"
+active_context:
+  summary: "本仓与 fwwb 的持续治理、真实 PR Active 负向门禁、不可变制品和 9 个 Skill Replay 已完成；下一步生成 Receipt 并复核最终不可变 Source。"
+  next_task_id: "V-01"
+authorization:
+  terminal_transition_confirmed: true

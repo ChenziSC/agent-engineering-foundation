@@ -1,0 +1,41 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "已存在且与 package.json 版本一致的 v<semver> Tag"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  package-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出已授权 Tag
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: "${{ inputs.tag }}"
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 校验 Tag 与包版本
+        env:
+          RELEASE_TAG: "${{ inputs.tag }}"
+        run: test "$RELEASE_TAG" = "v$(node -p 'require("./package.json").version')" && test "$(git describe --tags --exact-match HEAD)" = "$RELEASE_TAG"
+      - name: 执行发布前回归
+        run: npm test && npm run test:scale && npm run check
+      - name: 验证本仓采用状态
+        run: node packages/harness/bin/agent-foundation.mjs doctor --target . && node packages/harness/bin/agent-foundation.mjs distribution verify --target .
+      - name: 生成不可变包和摘要清单
+        run: npm run release:pack -- --target . --output "$RUNNER_TEMP/agent-foundation-release"
+      - name: 创建 GitHub Release
+        env:
+          GH_TOKEN: "${{ github.token }}"
+          RELEASE_TAG: "${{ inputs.tag }}"
+        run: gh release create "$RELEASE_TAG" "$RUNNER_TEMP"/agent-foundation-release/* --verify-tag --generate-notes

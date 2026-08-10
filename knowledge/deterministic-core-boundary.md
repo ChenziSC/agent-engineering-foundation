@@ -85,6 +85,8 @@ Skill 只编排公开入口或携带真正自包含的脚本
 
 Harness 内已有多个真实消费者的统一错误、项目内路径与 Symlink 安全、稳定文件树摘要和 JSON/YAML 子集解析由 `packages/harness/src/shared/` 持有；共享模块不反向导入 Harness 聚合入口、Adapter、Framework 或 Skill。`harness.mjs` 继续作为兼容聚合入口，模块抽取不能要求采用方改写公共导入路径。
 
+不可变包构建属于 `packages/` 的确定性边界：它只在干净 Git Commit 上调用标准 `npm pack`，计算并持久化 Source Revision、文件大小和摘要，且拒绝覆盖既有 Release Manifest。Tag 创建、Registry 上传、GitHub Release、权限与发布授权仍属于外部交付系统和维护者职责，不能下沉为构建器的隐式副作用。
+
 ## Skill 发布边界
 
 - Skill 源内容尽量遵循开放格式，由各 Agent Host 的原生目录、Plugin 或 Marketplace 负责安装和更新。
@@ -92,13 +94,14 @@ Harness 内已有多个真实消费者的统一错误、项目内路径与 Symli
 - Skill 内脚本必须自包含，或通过宿主原生机制声明外部命令、MCP、Package 或 Plugin 依赖；不能依赖本仓未随包发布的相对路径。
 - 跨宿主差异优先通过相同内容兼容；只有经过真实宿主验证且无法消除的差异才增加薄 Adapter。
 - 现有项目级 `skill install/update` 与 `distribution apply` 是参考兼容实现，可以维护受管摘要、安全迁移和回归测试；它们只清理未被采用方修改的旧受管文件，不继续扩展用户级安装、动态插件、通用 Hook、权限、Sandbox 或 Capability Registry。
+- Foundation 源码仓可通过 Open Agent 薄 Adapter 声明生产者 Source Link；Harness 只允许当前源码根的 `.agents/skills -> ../skills`，并继续以 Distribution Manifest 校验发布摘要。该特例不允许采用项目直接读取 Foundation 工作区，也不放宽其他 Symlink 或构成通用 Runtime。
 
 ## 成熟度与名称
 
 - 自然语言 Skill 的正式回放只证明所测行为，不证明底层静态分析、运行态或完整性语义。
 - 没有确定性实现时，可以称“调研”“审计”“候选生成”或 `designed`，不能称“AST 切片已实现”“完整调用图”“运行态验证”或 `reference-implemented`。
 - Adapter 支撑的能力必须分别标记核心契约与 Adapter 成熟度，不能用合成 Schema 测试替代真实 Provider Evidence。
-- 真实外部证据按能力拆分薄 Adapter：本地 Git 负责 Merge Candidate 与 Receipt Scope；Change Gate 从 Git Remote 与显式 Registry 自动选择唯一匹配的 Delivery Evidence Adapter，Core 不包含平台分支；GitHub Actions Adapter 只读复核同一最终 Source SHA 上 App、Check Name 与 Workflow Path 精确匹配的 Check/Workflow Run。平台路由不猜测 Required Checks，外部 Check 成功也不扩张为 Branch Protection、审批、合入、部署或发布语义。
+- 真实外部证据按能力拆分薄 Adapter：本地 Git 负责 Merge Candidate 与 Receipt Scope；Change Gate 从 Git Remote 与显式 Registry 自动选择唯一匹配的 Delivery Evidence Adapter，Core 不包含平台分支；GitHub Actions Adapter 只读复核同一最终 Source SHA 上 App、Check Name 与 Workflow Path 精确匹配的 Check，并用 Check Suite/Workflow Run 绑定来源。门禁结论只取显式 Required Check，不要求包含 Delivery 的整个 Workflow Run 先完成，也不把未被选择的 Job 结论扩张为门禁。平台路由不猜测 Required Checks，外部 Check 成功也不扩张为 Branch Protection、审批、合入、部署或发布语义。
 - 能力名称、Docs 投影、Eval Rubric 和实际代码必须指向同一层交付事实。
 
 以 Context 为例：`init plan` 只判断 Starter 的结构差异，`project-context-bootstrap` 只生成存量项目规则、稳定契约、Knowledge 与代码入口候选；候选经维护者审核并另行授权落地后，`context resolve` 才承担日常任务和新会话的最小上下文加载。局部代码阅读只是候选取证方法，普通任务代码探索由 Agent Host 和当前 Spec 承担，不形成独立 Skill 模式。字段级正反向 AST 数据流、读写/累加/透传边、风险规则和结构化时序尚无确定性实现；只有出现真实消费者、语言 Adapter 和相对 Host 基线的收益证据后，才作为独立能力建设。

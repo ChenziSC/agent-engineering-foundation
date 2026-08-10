@@ -1,0 +1,511 @@
+{
+  "schema_version": 1,
+  "run_id": "web-performance-review:2026-08-10-gpt56",
+  "skill_name": "web-performance-review",
+  "executed_at": "2026-08-10T09:13:32Z",
+  "environment": {
+    "host": "codex-cli-0.147.0-alpha.6.5-gpt-5.6-sol-read-only-ephemeral",
+    "tools": [
+      "repository-read"
+    ],
+    "configuration_ref": "specs/2026-08-10-self-hosted-adoption-closure/plan.md"
+  },
+  "threshold": 80,
+  "cases": [
+    {
+      "id": "case-01",
+      "case_path": "evals/cases/01-url-and-trace.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W01-A"
+          ]
+        },
+        {
+          "name": "场景与输入识别",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "W01-A"
+          ]
+        },
+        {
+          "name": "Evidence 纪律",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "W01-A"
+          ]
+        },
+        {
+          "name": "瓶颈分析",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "W01-A"
+          ]
+        },
+        {
+          "name": "代码映射",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W01-B"
+          ]
+        },
+        {
+          "name": "建议排序",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W01-A"
+          ]
+        },
+        {
+          "name": "验证计划",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W01-A"
+          ]
+        },
+        {
+          "name": "输出结构",
+          "weight": 5,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "W01-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "W01-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "W01-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-02",
+      "case_path": "evals/cases/02-lighthouse-only.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W02-A"
+          ]
+        },
+        {
+          "name": "场景与输入识别",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "W02-A"
+          ]
+        },
+        {
+          "name": "Evidence 纪律",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "W02-A"
+          ]
+        },
+        {
+          "name": "瓶颈分析",
+          "weight": 20,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "W02-A"
+          ]
+        },
+        {
+          "name": "代码映射",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W02-B"
+          ]
+        },
+        {
+          "name": "建议排序",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W02-A"
+          ]
+        },
+        {
+          "name": "验证计划",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W02-A"
+          ]
+        },
+        {
+          "name": "输出结构",
+          "weight": 5,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "W02-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "W02-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "W02-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-03",
+      "case_path": "evals/cases/03-har-only.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W03-A"
+          ]
+        },
+        {
+          "name": "场景与输入识别",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "W03-A"
+          ]
+        },
+        {
+          "name": "Evidence 纪律",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "W03-A"
+          ]
+        },
+        {
+          "name": "瓶颈分析",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "W03-A"
+          ]
+        },
+        {
+          "name": "代码映射",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W03-B"
+          ]
+        },
+        {
+          "name": "建议排序",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W03-A"
+          ]
+        },
+        {
+          "name": "验证计划",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W03-A"
+          ]
+        },
+        {
+          "name": "输出结构",
+          "weight": 5,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "W03-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "W03-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "W03-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-04",
+      "case_path": "evals/cases/04-repository-mapping.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W04-A"
+          ]
+        },
+        {
+          "name": "场景与输入识别",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "W04-A"
+          ]
+        },
+        {
+          "name": "Evidence 纪律",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "W04-A"
+          ]
+        },
+        {
+          "name": "瓶颈分析",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "W04-A"
+          ]
+        },
+        {
+          "name": "代码映射",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W04-A"
+          ]
+        },
+        {
+          "name": "建议排序",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W04-A"
+          ]
+        },
+        {
+          "name": "验证计划",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W04-A"
+          ]
+        },
+        {
+          "name": "输出结构",
+          "weight": 5,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "W04-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "W04-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "W04-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-05",
+      "case_path": "evals/cases/05-microfrontend-scope.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W05-A"
+          ]
+        },
+        {
+          "name": "场景与输入识别",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "W05-A"
+          ]
+        },
+        {
+          "name": "Evidence 纪律",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "W05-A"
+          ]
+        },
+        {
+          "name": "瓶颈分析",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "W05-A"
+          ]
+        },
+        {
+          "name": "代码映射",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W05-B"
+          ]
+        },
+        {
+          "name": "建议排序",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W05-A"
+          ]
+        },
+        {
+          "name": "验证计划",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "W05-A"
+          ]
+        },
+        {
+          "name": "输出结构",
+          "weight": 5,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "W05-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "W05-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "W05-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    }
+  ]
+}

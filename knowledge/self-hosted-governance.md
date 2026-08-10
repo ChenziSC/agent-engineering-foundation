@@ -20,6 +20,9 @@
 - 当前任务进度不能进入 Knowledge，长期设计原因不能只留在聊天；
 - 不为历史批量伪造 Spec、Plan、Tasks、归档回执或验证证据；
 - 普通提交、推送和 PR/MR 不构成归档授权。
+- `skills/` 是本仓唯一 Skill 源码；本仓根 Integration Manifest 通过受控 Source 配置让 `.agents/skills` 精确指向同仓 `skills/`，安装状态、Doctor、Distribution 和 Repository Check 共同验证该入口。采用项目不继承该特例，仍使用摘要约束的受管副本。
+- Continuous CI 固定执行单元测试、规模回归、Repository Check、Doctor、Distribution Verify、Knowledge 和 Specflow；功能分支只由 Pull Request 事件产生 Required Check，Push 事件限默认分支，避免同一 Source SHA 的同名 Check 形成歧义。PR Delivery Job 在 Continuous 成功后检出同一 Source SHA，并通过 PR 正文显式关联 1～3 个 Spec；门禁失败后仍执行只读工作区复核。平台由 Git Remote 与 Registry 路由，Workflow 不替代 Branch Protection、审批或合入授权。
+- 不可变包必须从干净 Commit 构建并记录 Source Revision 与制品摘要；手动 Release Workflow 仍要求独立的 Tag 与发布授权，不能因本地构建成功或 Workflow 存在而声称已发布。
 - 单事项目录内 Receipt、Lifecycle Event 和 Meta 的确定性生命周期由 Specflow 自带脚本负责：先不可覆盖地写入并回读证据，再最后原子更新 Meta；脚本不计算未知版本变化，也不自行确认授权。
 - Harness 根据任务类型、相关路径、Active Meta、Knowledge Registry 和 Code Entry Map 生成最小加载计划；同时提供任务类型和路径时以路径 Route 为更具体选择器，并返回匹配原因、代码入口和未知或冲突 warning；Active Spec 核心 Markdown 在可配置预算内全文加载，超限时只返回确定性的章节与未完成项位置索引；Registry 使用权威来源摘要暴露知识过期风险，但不自动改写知识状态或正文。
 - Context、Specflow 和 Knowledge 的容量回归使用临时生成的三档合成项目；历史 Spec 可扩展到 1000 个，但正常 Active Spec 固定不超过 3 个，并通过尾部失效回执、来源摘要和悬空 Route 验证完整集合不会漏检。该测试规模不是采用项目的硬性并发门禁。
@@ -27,11 +30,11 @@
 - 本地 Git Source Control Adapter 使用显式 Include/Exclude 范围，从不可变 Base/Source 计算 Merge Candidate 摘要；范围内脏内容或候选冲突会阻断，且不会自行 Stage、Commit 或 Push。
 - 当存在不可变 Base/Source 时，Change Gate 对完整候选执行一个或多个 Spec 的显式集合关联和 Scope 并集覆盖，或者使用受控路径型豁免；交付阶段逐项复核 Archived Receipt、Lifecycle 摘要链和同一最终候选摘要。Include/Exclude 只限定 Receipt 摘要复核范围，不能缩小关联检查范围。
 - Change Gate 结果是仓库内可复核证据，不是终态授权或外部交付成功证明；当前工作区没有获准形成不可变版本时，应明确记录“未执行”，不得自行提交以让门禁通过。
-- Delivery 阶段声明 Required Checks 后，Change Gate 从 Git Remote 与 Adapter Registry 自动选择平台 Provider；在本地候选、Scope 和 Receipt 均通过后，当前 GitHub Actions Adapter 只读复核同一最终 Source SHA 上 App、Check Name 与 Workflow Path 精确匹配的 Check/Workflow Run。平台路由不自动猜测门禁策略；该证据不等于 Branch Protection、PR 审批、合入、部署或发布，认证和原始 API 响应不进入结果。
+- Delivery 阶段声明 Required Checks 后，Change Gate 从 Git Remote 与 Adapter Registry 自动选择平台 Provider；在本地候选、Scope 和 Receipt 均通过后，当前 GitHub Actions Adapter 只读复核同一最终 Source SHA 上 App、Check Name 与 Workflow Path 精确匹配的 Check，并用 Check Suite/Workflow Run 绑定来源。门禁只取显式 Required Check 的结论，不等待包含当前 Delivery 的整个 Workflow Run 结束，避免自依赖；未被选择的 Job 不自动扩张为门禁。平台路由不自动猜测门禁策略；该证据不等于 Branch Protection、PR 审批、合入、部署或发布，认证和原始 API 响应不进入结果。
 - Skill 行为成熟度使用 Case、Rubric、脱敏 Trace 和 Replay 配置形成可重算证据；Runner 动态读取真实目录并执行阻塞优先评分，但不把评分者的语义判断伪装成确定性事实，也不固定模型或推理强度。
 - 行为 Replay 与真实采用观察分层保存：Replay 证明合成 Case 中所测行为，真实样本对照补充外部有效性和上下文成本；相同任务出现成本回归时必须保留该结果，不能因无阻塞级失败或平均分通过而升级成熟度。
 - 高频 Skill 主入口使用渐进披露：普通 Spec/Plan 任务只加载核心工作流，归档、Lifecycle、关系事务和 Delivery Gate 的完整契约仅在对应终态场景触发时读取既有 Reference；固定治理输入缩减与端到端 Token 必须分层报告，不能用前者推断后者稳定下降。
-- Distribution Manifest 以运行时文件摘要声明允许分发的 Skill；Plan/Verify 只读，Apply 只写项目级受管目录，升级时保护采用方修改和未知文件，进程中断后依靠已有安装状态幂等继续。
+- Distribution Manifest 以运行时文件摘要声明允许分发的 Skill；采用方的 Plan/Verify 只读，Apply 只写项目级受管目录，升级时保护采用方修改和未知文件。Foundation 生产者模式只迁移摘要一致的受管副本，并严格校验 `.agents/skills -> ../skills`；源码修改可由 Host 下次读取直接可见，但发布检查仍要求 Manifest 摘要同步。
 
 ## 设计原因
 
@@ -74,4 +77,7 @@
 | 为旧提交补齐漂亮历史 | 追求形式完整 | 只从真实采用时点开始，历史按证据触达 |
 | Commit 后自动 Archived | 把机械动作当业务授权 | 保持 Active，等待明确收口意图 |
 | 为了运行 Change Gate 自行 Commit | 把验证前置条件误当授权 | 保持未执行，等待有权限的一方形成不可变候选 |
-| 自举规则只约束使用方 | 仓库自身不回归 | 本仓所有实质能力变化遵守同一流程 |
+| 自举规则只约束使用方 | 仓库自身不回归 | 本仓使用同一 Manifest、Distribution、Doctor 与 CI 契约持续回归 |
+| 源码 Skill 与运行时入口同时手改 | 把入口变成第二事实源 | 本仓只修改 `skills/` 并验证 Source Link；采用方只通过 Distribution 更新副本 |
+| 为生产者便利允许任意 Symlink | 扩大路径逃逸和消费者绕过面 | 只接受 Foundation 源码根的 `.agents/skills -> ../skills`，其他链接失败关闭 |
+| 有 Release Workflow 就声称已发布 | 混淆交付能力与外部写操作 | 分别记录构建器验证、Tag 授权和真实 Release Evidence |

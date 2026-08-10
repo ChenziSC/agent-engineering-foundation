@@ -82,4 +82,5 @@ jobs:
           GITHUB_TOKEN: "${{ github.token }}"
         run: agent-foundation change gate check --base "$BASE_SHA" --source "$SOURCE_SHA" --spec-id "$SPEC_ID" --phase delivery --required-check "$REQUIRED_CHECK"
       - name: 确认检查没有改写项目
+        if: always()
         run: git diff --exit-code

@@ -1,0 +1,466 @@
+{
+  "schema_version": 1,
+  "run_id": "web-first-screen-prefetch:2026-08-10-gpt56",
+  "skill_name": "web-first-screen-prefetch",
+  "executed_at": "2026-08-10T09:13:32Z",
+  "environment": {
+    "host": "codex-cli-0.147.0-alpha.6.5-gpt-5.6-sol-read-only-ephemeral",
+    "tools": [
+      "repository-read"
+    ],
+    "configuration_ref": "specs/2026-08-10-self-hosted-adoption-closure/plan.md"
+  },
+  "threshold": 80,
+  "cases": [
+    {
+      "id": "case-01",
+      "case_path": "evals/cases/01-safe-read-only.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与边界",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P01-A"
+          ]
+        },
+        {
+          "name": "场景与完成条件",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P01-A"
+          ]
+        },
+        {
+          "name": "Evidence 纪律",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "P01-A"
+          ]
+        },
+        {
+          "name": "请求资格",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "P01-A"
+          ]
+        },
+        {
+          "name": "方案比较",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "P01-A"
+          ]
+        },
+        {
+          "name": "行为验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P01-A"
+          ]
+        },
+        {
+          "name": "输出结构",
+          "weight": 5,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "P01-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "P01-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "P01-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-02",
+      "case_path": "evals/cases/02-side-effect-request.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与边界",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P02-A"
+          ]
+        },
+        {
+          "name": "场景与完成条件",
+          "weight": 15,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "P02-A"
+          ]
+        },
+        {
+          "name": "Evidence 纪律",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "P02-A"
+          ]
+        },
+        {
+          "name": "请求资格",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "P02-A"
+          ]
+        },
+        {
+          "name": "方案比较",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "P02-A"
+          ]
+        },
+        {
+          "name": "行为验证",
+          "weight": 15,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "P02-B"
+          ]
+        },
+        {
+          "name": "输出结构",
+          "weight": 5,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "P02-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "P02-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "P02-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-03",
+      "case_path": "evals/cases/03-contract-drift.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与边界",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P03-A"
+          ]
+        },
+        {
+          "name": "场景与完成条件",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P03-A"
+          ]
+        },
+        {
+          "name": "Evidence 纪律",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "P03-A"
+          ]
+        },
+        {
+          "name": "请求资格",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "P03-A"
+          ]
+        },
+        {
+          "name": "方案比较",
+          "weight": 10,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "P03-A"
+          ]
+        },
+        {
+          "name": "行为验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P03-A"
+          ]
+        },
+        {
+          "name": "输出结构",
+          "weight": 5,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "P03-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "P03-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "P03-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-04",
+      "case_path": "evals/cases/04-version-unmapped.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与边界",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P04-A"
+          ]
+        },
+        {
+          "name": "场景与完成条件",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P04-A"
+          ]
+        },
+        {
+          "name": "Evidence 纪律",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "P04-A"
+          ]
+        },
+        {
+          "name": "请求资格",
+          "weight": 20,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P04-A"
+          ]
+        },
+        {
+          "name": "方案比较",
+          "weight": 10,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "P04-A"
+          ]
+        },
+        {
+          "name": "行为验证",
+          "weight": 15,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "P04-A"
+          ]
+        },
+        {
+          "name": "输出结构",
+          "weight": 5,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "P04-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "P04-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "P04-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-05",
+      "case_path": "evals/cases/05-behavior-regression.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与边界",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P05-A"
+          ]
+        },
+        {
+          "name": "场景与完成条件",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P05-A"
+          ]
+        },
+        {
+          "name": "Evidence 纪律",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "P05-A"
+          ]
+        },
+        {
+          "name": "请求资格",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "P05-A"
+          ]
+        },
+        {
+          "name": "方案比较",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "P05-A"
+          ]
+        },
+        {
+          "name": "行为验证",
+          "weight": 15,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "P05-A"
+          ]
+        },
+        {
+          "name": "输出结构",
+          "weight": 5,
+          "score": 5,
+          "status": "assessed",
+          "evidence_refs": [
+            "P05-A"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "P05-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "P05-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    }
+  ]
+}
