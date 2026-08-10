@@ -1,6 +1,6 @@
 id: "2026-08-10-delivery-check-dedup-closure"
 title: "GitHub Delivery Check 事件去重纠偏"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-10"
 updated_at: "2026-08-10"
 scope:
@@ -31,7 +31,7 @@ artifacts:
   tasks: "./tasks.md"
   research: "./research.md"
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -43,4 +43,4 @@ active_context:
   summary: "Workflow 事件去重、失败后只读复核、公共模板、fwwb 和 Foundation Active 负向验证已完成；事项已满足归档前置条件。"
   next_task_id: null
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true
