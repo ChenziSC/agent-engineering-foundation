@@ -15,8 +15,8 @@
 
 ## V-01 最终真实 PR 复核
 
-- 状态：`in-progress`
+- 状态：`done`
 - 依赖：T-01、T-02
 - 对应：AC-005
-- 已完成：107/107 单测、2/2 规模回归、Repository、Context、Projection 与本地治理检查通过。
-- 待完成：Foundation PR #2 的唯一 Active 负向 Check、归档 Receipt 和最终正向 Check。
+- 已完成：107/107 单测、2/2 规模回归、Repository、Context、Projection 与本地治理检查通过。Foundation Run `31375350452` 只产生一个 PR Verify；Verify 成功，Delivery 仅返回 `change-gate-spec-not-archived`，失败后只读复核成功。
+- 终态后复核：Receipt Commit 推送后观察同一 PR 的 Archived 正向 Check；该结果不能在归档前伪造或倒填。

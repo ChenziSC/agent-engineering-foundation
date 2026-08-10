@@ -40,7 +40,7 @@ freshness:
     - "GitHub Actions 的 Push/Pull Request Check 归属语义变化"
     - "默认分支、Required Check 名称或 Workflow Path 变化"
 active_context:
-  summary: "Workflow 事件去重、失败后只读复核、公共模板和 fwwb 真实验证已完成；下一步获取 Foundation PR Active 负向 Evidence 后归档。"
-  next_task_id: "V-01"
+  summary: "Workflow 事件去重、失败后只读复核、公共模板、fwwb 和 Foundation Active 负向验证已完成；事项已满足归档前置条件。"
+  next_task_id: null
 authorization:
   terminal_transition_confirmed: false
