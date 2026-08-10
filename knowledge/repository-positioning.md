@@ -20,7 +20,7 @@
 - 当前最小参考实现覆盖 Starter、带版本来源且可独立打包的 CLI、Specflow、Knowledge、可解释的 Context 路由、项目级兼容 Skill 运行时分发、Bootstrap/Continuous/Delivery 三级采用模板、本地 Git Change Gate、基于 Remote 与 Registry 的交付平台自动路由、可选 GitHub Actions Check/Workflow 只读证据、确定性契约检查和仓库静态检查；本仓自身使用根 Manifest、严格仓内 Skill Source Link 和同一套 Doctor/Distribution/Context/Knowledge/Specflow 检查，采用项目继续使用摘要约束的不可变副本；
 - 不可变包构建器只接受干净 Git Commit，生成 npm tarball 与包含 SemVer、Source Revision、SHA-256 和 npm 摘要的 Release Manifest；当前 GitHub 手动 Release Workflow 是获授权后的交付入口，文件存在不代表已经创建 Tag、Release 或公开发布；
 - Context、Specflow 与 Knowledge 的规模边界使用完全合成的 small/mature/large 临时项目回归，最高覆盖 1000 个历史 Spec、3 个 Active Spec、200 个 Knowledge、500 条 Route 和 6 层祖先规则；该回归证明所测容量、预算降级和尾部错误检测，不证明真实大型团队采用效果；
-- `project-context-bootstrap` 使用正式 Replay 和同源码同任务的真实样本只读对照验证增量：触发边界、状态语义、不确定性与敏感信息控制有可解释收益，但规则审计和普通任务的上下文成本没有稳定下降；因此保持 `usable`，不外推为长期、大型项目或其他 Host 已验证；
+- `project-context-bootstrap` 的 7 个正式 Replay Case 已在声明范围内验证触发边界、状态语义、不确定性与敏感信息控制，行为资产标记为 `validated`；同源码同任务的真实样本只读对照仍显示规则审计和普通任务的上下文成本没有稳定下降，因此不外推为成本优化、长期团队、大型项目或其他 Host 已验证；
 - 适合程序判定的 Meta、Evidence/Claim、Checkpoint、增量覆盖、Web Evidence、Design Contract、Event Catalog、Skill Eval 和项目组件 Registry 已提供零依赖参考实现，语义真实性、抽象价值和发布授权仍由 Agent 或人工判断；
 - 安全变更、Design-to-Code 和埋点治理以独立 Skill 编排 Agent 判断；真实 Coverage、Browser、Design、SDK 和数据平台通过采用方 Adapter 接入；
 - 项目自有基建通过 Integration Manifest 和显式 Registry 接入；公共核心不动态加载私有代码；

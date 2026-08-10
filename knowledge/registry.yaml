@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-required-check-workflow-binding"
-      action: "still-valid"
+      spec_id: "2026-08-10-maturity-projection-consistency"
+      action: "update"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:ac97a24ef389e74059af6c33f88ef5eba0cc1f009b8a40f2fd22540fd3152738"
+      decision_digest: "sha256:557acdf7fefe9aee532e5f69cbb586356f5fbf433142a73c9a018701763a7ac8"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -91,10 +91,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-required-check-workflow-binding"
-      action: "update"
+      spec_id: "2026-08-10-maturity-projection-consistency"
+      action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:39d6066c4a77d570fd5fdb4bde1d3041ef505945aebce6c99d9f7e8b14278798"
+      decision_digest: "sha256:fe1ac74cbf50c3f8d80079d08a5e79137363cf2a5c082fad82c1b0fb349bc7ec"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -148,10 +148,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-required-check-workflow-binding"
+      spec_id: "2026-08-10-maturity-projection-consistency"
       action: "update"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:a99b057a5441a47871db1cacb3b41599040e12644de071ba4a0d401eef937ce8"
+      decision_digest: "sha256:bcea8cdd93c9392a133eb9439ad44574c61114526b354acb6af81896d81dae9d"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -192,7 +192,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-required-check-workflow-binding"
+      spec_id: "2026-08-10-maturity-projection-consistency"
       action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:8c708dac3fcc67c4bd9460564a434c45fb511ad811143738c129effcef410553"
+      decision_digest: "sha256:216d39f0c25d0e3068aa597e497f3d7b1c1dc7a275c9b26ed325d0fe8005885f"
