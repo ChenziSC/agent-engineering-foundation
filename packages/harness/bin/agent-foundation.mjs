@@ -37,7 +37,7 @@ import { summarizeWebEvidence } from '../../../frameworks/web-evidence/scripts/w
 import { evaluatePrefetchCandidate } from '../../../frameworks/web-prefetch/scripts/prefetch-candidate.mjs';
 
 const PACKAGE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-const USAGE = '用法：init [plan] | doctor | specflow check | knowledge check | knowledge projection plan|apply|verify --projection <file> --spec-id <id> --reviewed-at <YYYY-MM-DD> [--paths <path,...>] | context resolve [--task-type <type>] [--paths <path,...>] | source-control inspect --base <ref> [--source <ref>] [--include <path,...>] [--exclude <path,...>] | change gate check --base <ref> (--spec-id <id> [--spec-id <id>...] | --exemption <code>) [--phase work|delivery] [--source <ref>] [--include <path,...>] [--exclude <path,...>] | repository check [--deny-file <file>] [--git-scope none|staged|reachable|all] | distribution plan|apply|verify [--manifest <file>] [--target <dir>] | evidence check --file <bundle.json> | checkpoint check|resume --file <checkpoint.json> [--input-digest <sha256>] | change-validation check --file <matrix.json> | web-evidence summarize --file <evidence.json> | prefetch check --file <candidate.json> | design check --file <contract.json> | tracking check --file <catalog.json> | component check [--target <project>] [--config <file>] | eval run --skill <name> [--target <repo>] [--replay <file>] | eval compare --baseline <report.json> --candidate <report.json> | skill list | skill check|plan|install|update --name <skill> [--target <dir>] [--host <adapter-id>]';
+const USAGE = '用法：init [plan] | doctor | specflow check | knowledge check | knowledge projection plan|apply|verify --projection <file> --spec-id <id> --reviewed-at <YYYY-MM-DD> [--paths <path,...>] | context resolve [--task-type <type>] [--paths <path,...>] | source-control inspect --base <ref> [--source <ref>] [--include <path,...>] [--exclude <path,...>] | change gate check --base <ref> (--spec-id <id> [--spec-id <id>...] | --exemption <code>) [--phase work|delivery] [--source <ref>] [--include <path,...>] [--exclude <path,...>] [--required-check <provider-selector>] [--delivery-remote <remote> | --delivery-provider <provider> --repository <repository>] | repository check [--deny-file <file>] [--git-scope none|staged|reachable|all] | distribution plan|apply|verify [--manifest <file>] [--target <dir>] | evidence check --file <bundle.json> | checkpoint check|resume --file <checkpoint.json> [--input-digest <sha256>] | change-validation check --file <matrix.json> | web-evidence summarize --file <evidence.json> | prefetch check --file <candidate.json> | design check --file <contract.json> | tracking check --file <catalog.json> | component check [--target <project>] [--config <file>] | eval run --skill <name> [--target <repo>] [--replay <file>] | eval compare --baseline <report.json> --candidate <report.json> | skill list | skill check|plan|install|update --name <skill> [--target <dir>] [--host <adapter-id>]';
 
 async function readCliVersion() {
   const packageJson = JSON.parse(await readFile(path.join(PACKAGE_ROOT, 'package.json'), 'utf8'));
@@ -59,7 +59,7 @@ function parseArgs(argv) {
     const key = value.slice(2);
     const next = argv[index + 1];
     const parsedValue = !next || next.startsWith('--') ? true : next;
-    if (key === 'spec-id' && Object.hasOwn(options, key)) {
+    if (['spec-id', 'required-check'].includes(key) && Object.hasOwn(options, key)) {
       options[key] = Array.isArray(options[key]) ? [...options[key], parsedValue] : [options[key], parsedValue];
       if (parsedValue !== true) index += 1;
       continue;
@@ -146,6 +146,14 @@ async function run() {
       includePaths: commaList('include'),
       excludePaths: commaList('exclude'),
       provider: options.provider && options.provider !== true ? options.provider : 'local-git',
+      deliveryProvider:
+        options['delivery-provider'] && options['delivery-provider'] !== true
+          ? options['delivery-provider']
+          : undefined,
+      repository: options.repository && options.repository !== true ? options.repository : undefined,
+      deliveryRemote:
+        options['delivery-remote'] && options['delivery-remote'] !== true ? options['delivery-remote'] : undefined,
+      requiredChecks: repeatedList('required-check'),
     });
   }
   if (command === 'repository' && subcommand === 'check') {

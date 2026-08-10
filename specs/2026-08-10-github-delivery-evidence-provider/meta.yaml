@@ -1,0 +1,48 @@
+id: "2026-08-10-github-delivery-evidence-provider"
+title: "Change Gate 平台路由与 GitHub Actions 外部交付证据 Provider"
+status: "archived"
+created_at: "2026-08-10"
+updated_at: "2026-08-10"
+scope:
+  - "adapters/delivery-evidence/"
+  - "adapters/README.md"
+  - "adapters/registry.mjs"
+  - "packages/harness/bin/agent-foundation.mjs"
+  - "packages/harness/src/harness.mjs"
+  - "packages/harness/README.md"
+  - "packages/harness/test/"
+  - "templates/ai-friendly-repository/ci/github-actions-delivery.yml"
+  - "distribution/manifest.yaml"
+  - "templates/ai-friendly-repository/README.md"
+  - "skills/specflow/references/change-gate.md"
+  - "blueprints/infrastructure-adapters/README.md"
+  - "docs/能力地图.md"
+  - "docs/交付形态与成熟度.md"
+  - "docs/能力问题图谱.md"
+  - "knowledge/"
+  - "specs/2026-08-10-github-delivery-evidence-provider/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: "./research.md"
+  validation_report: "./validation-report.md"
+  archive_receipt: "./archive-receipt.yaml"
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-10"
+  refresh_triggers:
+    - "GitHub Checks API、Actions 权限或事件 SHA 语义变化"
+    - "Change Gate 的 Receipt Source、Delivery Revision 或 Provider 契约变化"
+    - "当前自举仓库启用 Branch Protection、Ruleset 或更换远端 Provider"
+active_context:
+  summary: "Change Gate 已通过 Git Remote + Registry 自动选择唯一匹配的交付平台 Provider，GitHub Actions 是首个真实 Adapter；Required Checks 保持显式策略，未知/歧义平台失败关闭。99 项回归、仓库检查和 Knowledge Projection 均通过，事项等待用户决定提交或归档。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: true

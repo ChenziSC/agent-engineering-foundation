@@ -1,0 +1,37 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "最小参考实现新增 Remote + Registry 自动路由和有真实消费者的 GitHub Actions Check/Workflow 只读交付证据，需要同步仓库当前交付边界。"
+    evidence_refs:
+      - "adapters/delivery-evidence/github-actions.mjs"
+      - "adapters/delivery-evidence/remote-resolver.mjs"
+      - "packages/harness/src/harness.mjs"
+      - "packages/harness/test/github-delivery-evidence.test.mjs"
+      - "specs/2026-08-10-github-delivery-evidence-provider/research.md"
+  - action: "update"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "Change Gate 明确拆分本地 Source Control、平台自动路由与 GitHub Delivery Evidence，并用真实 Provider 验证约束 Adapter 成熟度与语义外推。"
+    evidence_refs:
+      - "adapters/source-control/local-git.mjs"
+      - "adapters/delivery-evidence/github-actions.mjs"
+      - "adapters/delivery-evidence/remote-resolver.mjs"
+      - "knowledge/deterministic-core-boundary.md"
+  - action: "update"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "仓库首次使用自身已存在的 GitHub Actions Check Run 完成 Change Gate 外部 Evidence 只读验证，并保留 Branch Protection 等未实现边界。"
+    evidence_refs:
+      - "skills/specflow/references/change-gate.md"
+      - "templates/ai-friendly-repository/ci/github-actions-delivery.yml"
+      - "specs/2026-08-10-github-delivery-evidence-provider/validation-report.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "真实 GitHub 验证只在本地使用认证并公开脱敏结论；仓库不保存账号、仓库所有者、Run/Job ID、URL、Token 或原始 API Response。"
+    evidence_refs:
+      - "specs/2026-08-10-github-delivery-evidence-provider/research.md"
+      - "specs/2026-08-10-github-delivery-evidence-provider/validation-report.md"
+      - "knowledge/public-generalization-policy.md"

@@ -77,6 +77,7 @@ await planSkill({ target: '/path/to/project', name: 'specflow', adapterRegistry 
 | --- | --- | --- |
 | `host` | 仅支持现有项目级兼容 Skill 目录 | Registry 与兼容目录 Adapter 已参考实现；不扩展为通用 Runtime |
 | `source-control` | 提供版本、差异、候选变更和合并证据 | 本地 Git Merge Candidate 摘要子集已参考实现；其他 Provider `designed` |
+| `delivery-evidence` | 只读复核最终版本上的外部 CI Check 与受信 Workflow 来源 | Remote + Registry 自动路由和 GitHub Actions Check/Workflow Evidence 已参考实现；Branch Protection 和其他平台 API `designed` |
 | `work-item` | 查询或写入外部研发事项，处理去重和回读 | `designed` |
 | `design-input` | 获取稳定设计标识、资源和能力信息 | `designed` |
 | `browser-evidence` | 提供 DOM、网络、控制台、截图和版本映射证据 | `designed` |
@@ -116,6 +117,7 @@ await planSkill({ target: '/path/to/project', name: 'specflow', adapterRegistry 
 - 外部写入能力遵循 `inspect → plan → confirm → apply → verify`；
 - 兼容 Host Adapter 只解析项目目录，不执行 Skill；新的安装与更新优先使用目标 Host 原生机制；
 - Source Control 返回版本和差异证据，不自动提交或推送；
+- Delivery Evidence 只读取外部 Check，不重跑、取消或创建 Check，也不把成功推断为受保护历史或发布完成；
 - Release Adapter 不把测试环境成功推断为生产发布成功。
 
 ## 失败与降级
@@ -130,7 +132,7 @@ await planSkill({ target: '/path/to/project', name: 'specflow', adapterRegistry 
 
 ## 当前不包含
 
-- 任何真实公司或供应商 Adapter；
+- 公司专有或未出现真实消费者的供应商 Adapter；
 - 动态插件发现、远端代码下载或任意模块加载；
 - 统一认证 SDK、密钥存储或凭证代理；
 - 用户级 Skill 安装和生产发布授权；

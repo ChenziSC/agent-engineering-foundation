@@ -27,6 +27,7 @@
 - 本地 Git Source Control Adapter 使用显式 Include/Exclude 范围，从不可变 Base/Source 计算 Merge Candidate 摘要；范围内脏内容或候选冲突会阻断，且不会自行 Stage、Commit 或 Push。
 - 当存在不可变 Base/Source 时，Change Gate 对完整候选执行一个或多个 Spec 的显式集合关联和 Scope 并集覆盖，或者使用受控路径型豁免；交付阶段逐项复核 Archived Receipt、Lifecycle 摘要链和同一最终候选摘要。Include/Exclude 只限定 Receipt 摘要复核范围，不能缩小关联检查范围。
 - Change Gate 结果是仓库内可复核证据，不是终态授权或外部交付成功证明；当前工作区没有获准形成不可变版本时，应明确记录“未执行”，不得自行提交以让门禁通过。
+- Delivery 阶段声明 Required Checks 后，Change Gate 从 Git Remote 与 Adapter Registry 自动选择平台 Provider；在本地候选、Scope 和 Receipt 均通过后，当前 GitHub Actions Adapter 只读复核同一最终 Source SHA 上 App、Check Name 与 Workflow Path 精确匹配的 Check/Workflow Run。平台路由不自动猜测门禁策略；该证据不等于 Branch Protection、PR 审批、合入、部署或发布，认证和原始 API 响应不进入结果。
 - Skill 行为成熟度使用 Case、Rubric、脱敏 Trace 和 Replay 配置形成可重算证据；Runner 动态读取真实目录并执行阻塞优先评分，但不把评分者的语义判断伪装成确定性事实，也不固定模型或推理强度。
 - 行为 Replay 与真实采用观察分层保存：Replay 证明合成 Case 中所测行为，真实样本对照补充外部有效性和上下文成本；相同任务出现成本回归时必须保留该结果，不能因无阻塞级失败或平均分通过而升级成熟度。
 - 高频 Skill 主入口使用渐进披露：普通 Spec/Plan 任务只加载核心工作流，归档、Lifecycle、关系事务和 Delivery Gate 的完整契约仅在对应终态场景触发时读取既有 Reference；固定治理输入缩减与端到端 Token 必须分层报告，不能用前者推断后者稳定下降。
