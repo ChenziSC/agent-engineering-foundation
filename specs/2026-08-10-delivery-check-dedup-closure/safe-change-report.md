@@ -13,4 +13,4 @@
 
 ## 当前状态
 
-- `partial`：本地自动检查与 fwwb 真实去重 Evidence 已通过；等待 Foundation PR #2 的 Active 负向和 Archived 正向 Evidence。
+- `validated`：本地自动检查、fwwb 真实去重和 Foundation Active 负向 Evidence 已通过；Archived 正向 Check 在 Receipt 推送后复核。
