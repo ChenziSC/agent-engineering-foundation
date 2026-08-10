@@ -134,7 +134,7 @@ entries:
       - path: "agent-foundation.json"
         digest: "sha256:af758326649a79910904dce1397cc9b37652e65304c3775a136c27279ee19e72"
       - path: "distribution/manifest.yaml"
-        digest: "sha256:1a857ea815f0dae8bcdea85dba10842bdf01f59fe842829705a09d76f8ec8ba0"
+        digest: "sha256:691f56116a910e14dc45824e4fa580a3e76320e61752c12b6e439f7fd845cd3a"
       - path: ".github/workflows/quality.yml"
         digest: "sha256:f3eb7e0ea6c536d7215a545849c8dd8a0a5d412d510ccaff29af7a59f3cab473"
     refresh_triggers:
