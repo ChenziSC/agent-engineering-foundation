@@ -43,7 +43,7 @@ freshness:
     - "Git Provider、CI 事件 SHA 或交付证据语义变化"
     - "Foundation 包发布渠道或外部采用方升级策略变化"
 active_context:
-  summary: "本仓自接入、Continuous CI、生产者 Source Link 和 Delivery 本地负向闭环已完成；下一步用真实 PR Check 验证 GitHub Delivery Gate，再推进不可变制品与 fwwb CI。"
-  next_task_id: "T-04"
+  summary: "本仓与 fwwb 的持续治理、真实 PR Active 负向门禁、不可变制品和 9 个 Skill Replay 已完成；下一步生成 Receipt 并复核最终不可变 Source。"
+  next_task_id: "V-01"
 authorization:
   terminal_transition_confirmed: false
