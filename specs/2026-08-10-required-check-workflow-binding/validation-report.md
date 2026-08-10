@@ -4,7 +4,7 @@
 
 - 结果：`in-progress`
 - Provider 已取消整个 Workflow 成功前置条件，同时保留显式 Check 与来源的全部失败关闭校验。
-- 本地聚焦测试、108 项全量测试、2 项规模回归与治理检查均通过；真实 PR 与 fwwb 制品升级待完成。
+- 本地聚焦测试、108 项全量测试、2 项规模回归与治理检查均通过；fwwb 已固定升级到本事项实现 Commit 构建的制品，两仓真实 Active 负向 PR 均符合预期。
 
 ## 完成条件映射
 
@@ -14,9 +14,10 @@
 | AC-002 | Check Suite、Workflow Path、Source SHA 唯一来源绑定测试 | pass |
 | AC-003 | 显式成功 Check + Workflow `in_progress`/整体 `failure` 回归 | pass |
 | AC-004 | 聚焦 7/7、全量 108/108、规模 2/2；Repository、Doctor、Distribution、Knowledge、Specflow、Projection 均通过 | pass |
-| AC-005 | Foundation/fwwb 真实 PR | pending |
+| AC-005 | Foundation Run `31376631603`：Verify 成功，Delivery 仅因本事项 Active 失败；fwwb Run `31376683138`：Governance 成功，Delivery 仅因两个事项 Active 失败；两边失败后只读复核成功 | pass（Active 负向）；Foundation Archived 正向待终态授权 |
 
 ## 边界
 
 - 只验证显式 Required Check；未声明 Job 不自动成为门禁。
 - fwwb 正向 Archived 候选仍需其事项独立终态授权。
+- Foundation/fwwb 真实 Evidence 只证明所声明 Check 与 Change Gate 行为，不证明 Branch Protection、审批、合入或发布。
