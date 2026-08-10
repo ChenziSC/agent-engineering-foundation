@@ -40,58 +40,19 @@ agent-foundation specflow check --target <project-root>
 
 各阶段的退出条件和回退规则见 [workflow.md](references/workflow.md)。
 
-## 确定性终态与 Lifecycle Event
+## 终态与恢复按需加载
 
-首次终态收口时，把 [archive-receipt.template.yaml](assets/archive-receipt.template.yaml) 复制为事项目录内的候选文件，填写授权、版本边界、变更摘要、验证和 Knowledge Projection。采用本仓 Harness 且项目使用 Git 时，先从 Meta Scope 中确认实际实现范围，排除当前 Spec 目录等已由产物摘要覆盖的路径，再运行：
+普通分析、规划、实施和验证任务不需要读取归档脚本、Lifecycle Event、关系事务或 Delivery Gate 的完整契约。只有用户明确要求收口、归档、取消、取代、恢复终态写入或准备最终交付时，才完整读取[归档与生命周期](references/archive-and-lifecycle.md)；涉及交付候选关联时再读取[事项—变更关联与交付门禁](references/change-gate.md)，并按场景使用对应模板和脚本。
 
-```bash
-agent-foundation source-control inspect --target <project-root> --base <base-ref> --source HEAD --include <path,...> --exclude <path,...>
-```
+终态路径始终遵守以下不变量：
 
-把输出的不可变 `baseRevision`、`sourceRevision` 和 `change.digest` 写入候选 Receipt。Provider 会在临时对象库中计算 Merge Candidate；范围内存在未提交内容或合并冲突时阻断，不会自行提交、暂存或选择范围。使用其他版本控制系统时，由采用方 Adapter 产生同一中立契约。
+1. 明确终态授权、完成条件、不可变 Base/Source 和相关 Knowledge 缺一不可；
+2. 先确定性计算实现与产物摘要，写入并回读不可覆盖 Receipt，最后更新 Meta；
+3. Receipt 或 Event 已存在时只允许验证一致和幂等恢复，不覆盖、删除或重建历史；
+4. 终态后的单事项变化使用连续 Event，两个终态事项的关系变化使用 Relation Transaction；新业务实现必须新建 Spec；
+5. Commit、Push、PR/MR、CI、部署和发布仍是分别授权与验证的外部动作，不能由 Archived 推断。
 
-接着由 Agent 或人工完成 Knowledge 语义判断：先更新或创建正文和 Registry 候选条目，再填写 [knowledge-projection.template.yaml](assets/knowledge-projection.template.yaml)。采用本仓 Harness 时，按真实实现范围依次运行：
-
-```bash
-agent-foundation knowledge projection plan --target <project-root> --projection <project-relative-projection> --spec-id <spec-id> --reviewed-at <YYYY-MM-DD> --paths <path,...>
-agent-foundation knowledge projection apply --target <project-root> --projection <project-relative-projection> --spec-id <spec-id> --reviewed-at <YYYY-MM-DD> --paths <path,...>
-agent-foundation knowledge projection verify --target <project-root> --projection <project-relative-projection> --spec-id <spec-id> --reviewed-at <YYYY-MM-DD> --paths <path,...>
-```
-
-`plan` 和 `verify` 只读；`apply` 只机械更新 Registry 状态、来源摘要、取代关系和可复核的 `last_projection` 指纹。它不会撰写正文、决定动作或推断 `impact: none`。路径反向命中未被决策覆盖、退役知识仍被代码入口引用、正文未准备或取代关系无效都会阻断。省略 `--paths` 会保留覆盖范围未提供的警告。
-
-只有已经取得明确终态授权后，才运行：
-
-```bash
-node <skill-dir>/scripts/archive-receipt.mjs finalize-receipt --spec-dir <spec-dir> --candidate ./archive-receipt.candidate.yaml
-```
-
-程序会计算 Spec、Plan、Tasks 和 Validation Report 摘要，固定 `canonical-json-v1` Payload 摘要，以 `wx` 语义写入不可覆盖的 `archive-receipt.yaml` 并回读验证，然后在锁内原子执行 Meta 状态最后写。已有 Receipt 只有与当前候选完全一致时才允许恢复；任何差异都阻断。脚本消费候选中的授权证据，但不自行推断或确认授权。
-
-复核已有 Receipt：
-
-```bash
-node <skill-dir>/scripts/archive-receipt.mjs verify-receipt --spec-dir <spec-dir>
-```
-
-首次终态后的状态或关系变化，把 [lifecycle-event.template.yaml](assets/lifecycle-event.template.yaml) 复制为候选文件并运行：
-
-```bash
-node <skill-dir>/scripts/archive-receipt.mjs finalize-event --spec-dir <spec-dir> --candidate ./lifecycle-event.candidate.yaml
-```
-
-程序校验连续 Sequence、精确文件名、Previous Digest、状态链和关系前置值；只有 Meta 已投影到现有链尾时才允许追加下一事件，追加后再最后投影 Meta。使用 `verify-chain` 可以从 Receipt 开始复核完整事件链。
-
-两个终态事项需要建立或解除父子关系，或建立取代关系时，分别准备双方 Lifecycle Event，再把 [relation-transaction.template.yaml](assets/relation-transaction.template.yaml) 复制到共同的 Specs Root 并运行：
-
-```bash
-node <skill-dir>/scripts/archive-receipt.mjs finalize-relation --specs-root <specs-root> --candidate ./relation-transaction.candidate.yaml
-node <skill-dir>/scripts/archive-receipt.mjs verify-relation --specs-root <specs-root> --transaction ./.specflow-transactions/<transaction-id>.yaml
-```
-
-程序先校验两侧关系是否严格互反，再写不可覆盖的事务意图和两条 Event，最后逐侧投影 Meta。跨文件写入不能保证单一文件系统操作级原子性：第二侧失败时可能短暂出现一侧 Meta 已更新的中间态，但事务证据和双方 Event 不会被删除；用完全相同的候选重跑会补齐未完成投影。v1 只支持同一 Specs Root 下的两个终态事项，不处理 Active Meta、跨仓库或远端平台事务。
-
-Receipt、Meta 和最终实现已经形成不可变版本后，运行 `change gate check --phase delivery`，重新计算完整候选关联和 Receipt Scope 摘要。门禁通过只表示仓库内证据闭环；外部 PR/MR、CI、部署或发布仍分别等待对应系统结果与授权。
+进入终态场景后，以 Reference、Schema、模板和脚本为完整事实来源；本节只负责触发和安全路由，不复制命令与字段细节。
 
 ## 产物职责
 

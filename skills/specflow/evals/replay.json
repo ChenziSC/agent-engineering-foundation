@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "run_id": "specflow:2026-08-05",
+  "run_id": "specflow:2026-08-10",
   "skill_name": "specflow",
-  "executed_at": "2026-08-05T12:00:00Z",
+  "executed_at": "2026-08-10T03:05:06Z",
   "environment": {
-    "host": "local-agent-host",
+    "host": "read-only-agent-host-with-manual-review",
     "tools": [
       "repository-read",
       "deterministic-validator"
     ],
-    "configuration_ref": null
+    "configuration_ref": "specs/2026-08-10-governance-context-cost-optimization/plan.md"
   },
   "threshold": 80,
   "cases": [
@@ -1196,6 +1196,106 @@
           "occurred": false,
           "evidence_refs": [
             "S12-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-13",
+      "case_path": "evals/cases/13-ordinary-planning-progressive-disclosure.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "触发与事项识别",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S13-A"
+          ]
+        },
+        {
+          "name": "输入与证据",
+          "weight": 15,
+          "score": 14,
+          "status": "assessed",
+          "evidence_refs": [
+            "S13-A"
+          ]
+        },
+        {
+          "name": "Spec 质量",
+          "weight": 15,
+          "score": 14,
+          "status": "assessed",
+          "evidence_refs": [
+            "S13-A"
+          ]
+        },
+        {
+          "name": "Plan 质量",
+          "weight": 15,
+          "score": 14,
+          "status": "assessed",
+          "evidence_refs": [
+            "S13-A"
+          ]
+        },
+        {
+          "name": "Tasks 可执行性",
+          "weight": 10,
+          "score": 9,
+          "status": "assessed",
+          "evidence_refs": [
+            "S13-A"
+          ]
+        },
+        {
+          "name": "实施与验证",
+          "weight": 15,
+          "score": 13,
+          "status": "assessed",
+          "evidence_refs": [
+            "S13-A",
+            "S13-B"
+          ]
+        },
+        {
+          "name": "生命周期与恢复",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S13-B"
+          ]
+        },
+        {
+          "name": "安全与 Provider 边界",
+          "weight": 10,
+          "score": 10,
+          "status": "assessed",
+          "evidence_refs": [
+            "S13-B"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "ordinary-planning-progressive-disclosure",
+          "status": "pass",
+          "evidence_refs": [
+            "S13-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "no-terminal-materials-for-ordinary-plan",
+          "occurred": false,
+          "evidence_refs": [
+            "S13-B"
           ]
         }
       ],
