@@ -34,7 +34,7 @@ Spec 模式在 `work` 的基础上还要求：
 - 每个 Meta 的状态与关系等于各自生命周期链尾；
 - 每份 Receipt 的 Base、Scope、算法、Excludes 和变更摘要都与同一最终 Merge Candidate 重新计算结果一致。
 
-声明 Delivery Required Checks 时，只有上述本地 Gate 已通过才读取外部证据。Change Gate 默认从 `origin`（或仓库唯一 Remote）识别平台，并选择唯一匹配的已注册 Delivery Evidence Adapter；未识别、未实现或多匹配都失败关闭。GitHub Actions 首个实现要求同一最终 Source SHA 上的必需 Check 精确匹配 App、Check Name 与 Workflow Path，且 Check Run 和 Workflow Run 都为 `completed/success`。外部证据缺失、未完成、非成功、歧义、权限不足或 API 失败均阻断，但不会回显 Token 或原始响应。
+声明 Delivery Required Checks 时，只有上述本地 Gate 已通过才读取外部证据。Change Gate 默认从 `origin`（或仓库唯一 Remote）识别平台，并选择唯一匹配的已注册 Delivery Evidence Adapter；未识别、未实现或多匹配都失败关闭。GitHub Actions 首个实现要求同一最终 Source SHA 上的必需 Check 精确匹配 App、Check Name 与 Workflow Path，且显式 Required Check 为 `completed/success`；Workflow Run 只通过 Check Suite 与 Path 绑定来源，不把整体状态或未选择 Job 扩张为门禁。外部证据缺失、未完成、非成功、歧义、权限不足或 API 失败均阻断，但不会回显 Token 或原始响应。
 
 平台可以从 Remote 机械识别，门禁策略不能从当前成功项自动猜测。必需 Check、审批、部署或发布规则必须由采用项目显式声明，否则候选分支可以通过新增一个自选成功任务弱化门禁。
 
