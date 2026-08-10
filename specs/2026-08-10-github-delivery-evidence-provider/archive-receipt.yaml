@@ -1,0 +1,109 @@
+schema_version: 1
+receipt_id: "2026-08-10-github-delivery-evidence-provider:first-terminal"
+spec_id: "2026-08-10-github-delivery-evidence-provider"
+created_at: "2026-08-10T06:54:29Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-10T06:54:29Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-10:archive-merge-and-continue"
+snapshot:
+  source_revision: "e6ebf45d51808fbb426beb0560971448f47c8bd0"
+  base_revision: "5bc8b9ba81f52bdd8344a540b6ef59d0255de955"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:ae8b8929b125f51c1accac15ed78dfd0758789e3223084d40ae10fa3c3bd9b35"
+    excludes:
+      - "specs/2026-08-10-github-delivery-evidence-provider"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:4dd0d915410abe6adeb03280c80007f93633b1d3c170da395750960aa280d991"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:9b949f0f64781a1a69a8ffe70914319a170949871e610a1b20695795e47cb40f"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:7e3d6a6bfc59124bb3449a15754114b90bf6360c425b738b9ab755235f14a172"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:8c8383e4953aea0a1e42f2257e760469a84a7c6c49ca1b05fdbd7fbeee48b93b"
+    - role: "research"
+      path: "./research.md"
+      digest: "sha256:ed2575d3695b34e1209dd59750d27bf6a3fc95142ae18cb131609812020db9d0"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+    - "AC-009"
+    - "AC-010"
+    - "AC-011"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:e6ebf45d51808fbb426beb0560971448f47c8bd0"
+    - "gate:work:sha256:0c7169fe1cd0a18d4358cc314bed8a35d212c54a8afcdf8d19b346738dba35d6"
+    - "snapshot:sha256:ae8b8929b125f51c1accac15ed78dfd0758789e3223084d40ae10fa3c3bd9b35"
+    - "test:npm-test-99-pass"
+    - "check:repository"
+    - "check:knowledge-projection-verified"
+    - "check:specflow-knowledge"
+    - "check:sensitive-content"
+    - "provider:github-actions-real-read-only"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "最小参考实现新增 Remote + Registry 自动路由和有真实消费者的 GitHub Actions Check/Workflow 只读交付证据，需要同步仓库当前交付边界。"
+      evidence_refs:
+        - "adapters/delivery-evidence/github-actions.mjs"
+        - "adapters/delivery-evidence/remote-resolver.mjs"
+        - "packages/harness/src/harness.mjs"
+        - "packages/harness/test/github-delivery-evidence.test.mjs"
+        - "specs/2026-08-10-github-delivery-evidence-provider/research.md"
+    - action: "update"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "Change Gate 明确拆分本地 Source Control、平台自动路由与 GitHub Delivery Evidence，并用真实 Provider 验证约束 Adapter 成熟度与语义外推。"
+      evidence_refs:
+        - "adapters/source-control/local-git.mjs"
+        - "adapters/delivery-evidence/github-actions.mjs"
+        - "adapters/delivery-evidence/remote-resolver.mjs"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "仓库首次使用自身已存在的 GitHub Actions Check Run 完成 Change Gate 外部 Evidence 只读验证，并保留 Branch Protection 等未实现边界。"
+      evidence_refs:
+        - "skills/specflow/references/change-gate.md"
+        - "templates/ai-friendly-repository/ci/github-actions-delivery.yml"
+        - "specs/2026-08-10-github-delivery-evidence-provider/validation-report.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "真实 GitHub 验证只在本地使用认证并公开脱敏结论；仓库不保存账号、仓库所有者、Run/Job ID、URL、Token 或原始 API Response。"
+      evidence_refs:
+        - "specs/2026-08-10-github-delivery-evidence-provider/research.md"
+        - "specs/2026-08-10-github-delivery-evidence-provider/validation-report.md"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:d313467beb2405a89670a27936e62e9d906caa993982a86d6722a4c473b60436"
