@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "preset": "minimal",
+  "metadata": {
+    "description": "Agent Engineering Foundation 使用自身公开契约完成项目级治理接入",
+    "labels": ["foundation", "self-hosted", "project"]
+  },
+  "directories": {
+    "specs": "specs",
+    "knowledge": "knowledge"
+  },
+  "context": {
+    "perSpecFullTextBytes": 32768,
+    "totalFullTextBytes": 65536,
+    "maxIndexEntriesPerArtifact": 256,
+    "maxRuleFileBytes": 32768
+  },
+  "integrations": [
+    {
+      "capability": "host",
+      "adapterId": "open-agent",
+      "configRef": "foundation-source://skills"
+    }
+  ],
+  "safety": {
+    "scope": "project",
+    "onConflict": "block",
+    "followSymlinks": false
+  }
+}

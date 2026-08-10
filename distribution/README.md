@@ -15,6 +15,8 @@ node packages/harness/bin/agent-foundation.mjs distribution verify --target <pro
 - 修改 Skill 后必须重新计算对应摘要，并通过仓库检查；
 - 多 Skill Apply 可重入，但不宣称跨目录写入具有绝对原子性。
 
+Foundation 源码仓是唯一生产者特例：Integration 显式声明 `foundation-source://skills` 时，`apply` 可以把摘要一致且无用户修改的既有受管副本迁移为 `.agents/skills -> ../skills`。之后 Host 从 `skills/` 读取最新源码，`verify` 校验精确链接、安装记录与发布摘要；不需要为每次源码编辑复制运行时文件。该配置只在目标项目等于当前 Foundation 源码根时有效，采用项目、仓外目标和其他 Symlink 均拒绝。
+
 Skill 的安装、更新、权限、Sandbox、Hook、MCP 和用户级状态由目标 Agent Host 的原生 Skill/Plugin 机制负责。Skill 脚本必须自包含，或通过宿主原生机制声明外部依赖；不能因为脚本在本仓可运行，就推断发布副本拥有未随包分发的相对路径。
 
 现有 `plan/apply/verify` 可以维护安全性和兼容性，但不继续扩展 Manifest v2、用户级安装、动态 Plugin、通用 Hook 或 Capability 协商。完整边界见[能力准入、宿主边界与确定性代码依赖](../knowledge/deterministic-core-boundary.md)。

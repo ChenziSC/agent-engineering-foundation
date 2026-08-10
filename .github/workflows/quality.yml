@@ -21,7 +21,46 @@ jobs:
           node-version: 20
       - name: 运行 Harness 测试
         run: npm test
+      - name: 运行大型治理规模回归
+        run: npm run test:scale
       - name: 运行仓库级只读检查
         run: npm run check
+      - name: 检查本仓正式采用结构和受管 Skill
+        run: node packages/harness/bin/agent-foundation.mjs doctor --target .
+      - name: 验证本仓运行时 Skill 分发
+        run: node packages/harness/bin/agent-foundation.mjs distribution verify --target .
+      - name: 检查本仓长期知识
+        run: node packages/harness/bin/agent-foundation.mjs knowledge check --target .
+      - name: 检查本仓 Specflow
+        run: node packages/harness/bin/agent-foundation.mjs specflow check --target .
       - name: 检查空白错误
         run: base_ref="${{ github.event.pull_request.base.sha || github.event.before }}"; if git cat-file -e "${base_ref}^{commit}" 2>/dev/null; then git diff --check "${base_ref}...HEAD"; else git show --check --format= HEAD; fi
+
+  delivery:
+    if: github.event_name == 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: read
+      actions: read
+    steps:
+      - name: 检出不可变 PR 候选
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: "${{ github.event.pull_request.head.sha }}"
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 运行同 SHA Delivery Change Gate
+        env:
+          BASE_SHA: "${{ github.event.pull_request.base.sha }}"
+          SOURCE_SHA: "${{ github.event.pull_request.head.sha }}"
+          PR_BODY: "${{ github.event.pull_request.body }}"
+          REQUIRED_CHECK: "github-actions/verify@.github/workflows/quality.yml"
+          GITHUB_TOKEN: "${{ github.token }}"
+        run: node .github/scripts/run-delivery-gate.mjs
+      - name: 确认门禁没有改写项目
+        run: git diff --exit-code
