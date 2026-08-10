@@ -1,0 +1,43 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "本仓已接入 Manifest、严格仓内生产者 Source Link 与治理检查，采用方仍使用不可变副本，并新增只接受干净 Commit 的包构建器，需要同步当前交付边界。"
+    evidence_refs:
+      - "agent-foundation.json"
+      - ".agent-foundation/installed-skills.json"
+      - "adapters/open-agent/index.mjs"
+      - "packages/harness/src/release-package.mjs"
+      - "docs/不可变包交付.md"
+      - "knowledge/repository-positioning.md"
+  - action: "update"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "不可变包构建器新增干净 Commit 与制品摘要约束，Open Agent Adapter 新增严格生产者 Source Link；两者均保持外部发布和采用方复制边界。"
+    evidence_refs:
+      - "packages/harness/src/release-package.mjs"
+      - "packages/harness/test/release-package.test.mjs"
+      - "packages/harness/test/harness.test.mjs"
+      - "adapters/open-agent/index.mjs"
+      - ".github/workflows/release.yml"
+      - "knowledge/deterministic-core-boundary.md"
+  - action: "update"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "本仓首次通过根 Manifest、严格仓内 Skill Source Link 和真实 Continuous/Delivery Workflow 使用自身接入契约，需要固化生产者/消费者分流、自举回归与外部授权边界。"
+    evidence_refs:
+      - "agent-foundation.json"
+      - ".agent-foundation/installed-skills.json"
+      - "adapters/open-agent/index.mjs"
+      - ".github/workflows/quality.yml"
+      - ".github/workflows/release.yml"
+      - "knowledge/self-hosted-governance.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "本次新增的 Workflow、Release Manifest 和 fwwb 验证均只使用公开契约与脱敏结论，没有引入私有平台配置、认证或业务实现。"
+    evidence_refs:
+      - "docs/不可变包交付.md"
+      - "specs/2026-08-10-self-hosted-adoption-closure/validation-report.md"
+      - "knowledge/public-generalization-policy.md"

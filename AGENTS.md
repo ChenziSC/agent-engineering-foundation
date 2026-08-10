@@ -27,6 +27,7 @@
 - 事实、程序推导和 Agent 推断必须分层表达。
 - 分析、生成、评审、规划类 Skill 必须有行为评估用例。
 - 共享能力只实现一次，上层能力通过依赖复用。
+- 本仓作为 Skill 生产者时只编辑 `skills/`；`.agents/skills` 必须是由 Distribution 校验的严格仓内 Source Link，不能手工改为副本、其他目标或第二源码。采用项目仍使用摘要约束的受管副本。
 - 未经用户明确要求，不进行 commit 或 push。
 
 具体分级和公开边界见 [`knowledge/public-generalization-policy.md`](knowledge/public-generalization-policy.md)。

@@ -28,6 +28,9 @@ entries:
     exclude_by_default: []
   - task_type: "接入存量项目或重建长期上下文候选"
     start_paths:
+      - "agent-foundation.json"
+      - ".agent-foundation/"
+      - ".agents/"
       - "frameworks/context-contract/"
       - "skills/project-context-bootstrap/"
       - "templates/ai-friendly-repository/"

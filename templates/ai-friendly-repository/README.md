@@ -30,7 +30,7 @@
 8. 有长期知识变化时先完成人工或 Agent 语义复核，再通过 Projection Plan/Apply/Verify 维护 Registry 状态和来源证据。
 9. 完成 Harness 化后，日常任务与新会话使用 `context resolve`；使用 Doctor 检查规则预算、失效入口、路由结构矛盾和精确继承重复。
 10. 发布或大规模调整前使用人工检查清单复核自然语言语义冲突。
-11. 需要持续门禁时，显式复制持续治理模板，并把 `REPLACE_WITH_EXACT_PACKAGE_SPEC` 替换为已批准的精确 CLI 包版本、不可变 tarball URL 或 Commit SHA；当前仓不会自动写入 Workflow，也不会替采用方选择发布渠道。
+11. 需要持续门禁时，显式复制持续治理模板，并把 `REPLACE_WITH_EXACT_PACKAGE_SPEC` 替换为已批准的精确 CLI 包版本、不可变 tarball URL 或 Commit SHA；使用 Release Asset 时还必须复核随版本发布的 `release-manifest.json` SHA-256，不能只信任可替换 URL。当前仓不会自动写入 Workflow，也不会替采用方选择发布渠道。
 12. 需要交付门禁时，再显式复制对应平台的 Delivery 模板；由采用方工作流传入目标和最终候选的不可变 Commit SHA、本次 Spec ID，以及平台特定的 Required Checks。Change Gate 从 Git Remote 与已注册 Adapter 自动选择平台，模板不写死 Provider/Repository；当前 GitHub 模板用 `checks: read` 与 `actions: read` 复核同一 SHA 的 `github-actions/check-name@workflow-path` Evidence，不从分支名、聊天或当前成功项猜测交付关联和门禁策略。
 
 ## 三级采用路径

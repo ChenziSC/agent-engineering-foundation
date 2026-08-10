@@ -26,6 +26,7 @@
     "harness": "node packages/harness/bin/agent-foundation.mjs",
     "check": "node packages/harness/bin/agent-foundation.mjs repository check",
     "test": "node --test packages/harness/test/*.test.mjs skills/*/tests/*.test.mjs frameworks/*/tests/*.test.mjs",
-    "test:scale": "node --test packages/harness/scale/*.test.mjs"
+    "test:scale": "node --test packages/harness/scale/*.test.mjs",
+    "release:pack": "node packages/harness/bin/build-release-package.mjs"
   }
 }
