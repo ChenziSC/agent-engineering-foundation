@@ -11,6 +11,7 @@ scope:
   - "knowledge/public-generalization-policy.md"
   - "knowledge/registry.yaml"
   - "specs/2026-08-10-public-release-source-review/"
+  - "specs/2026-08-10-self-hosted-adoption-closure/archive-receipt.yaml"
   - "specs/2026-08-10-self-hosted-adoption-closure/validation-report.md"
 relations:
   parent: null
@@ -32,7 +33,7 @@ freshness:
     - "公开发布的来源、权属或敏感信息复核规则变化"
     - "Git 历史脱敏或归档证据完整性机制变化"
 active_context:
-  summary: "治理规则、main 历史报告、对应 Receipt 和 Knowledge Projection 已收敛；两个已合并远端功能分支仍含旧路径，需独立授权处理后才能完成全 Git 扫描、归档和推送。"
-  next_task_id: "T-03"
+  summary: "治理规则、main 历史报告、对应 Receipt、Knowledge Projection 和公开候选私有词表扫描均已收敛；PR 只读引用的低风险历史路径已由维护者明确接受，正在执行归档。"
+  next_task_id: null
 authorization:
   terminal_transition_confirmed: false

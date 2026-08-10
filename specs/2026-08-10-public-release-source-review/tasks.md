@@ -15,8 +15,7 @@
 
 ## T-03 复核、归档并交付
 
-- 状态：`in-progress`
+- 状态：`done`
 - 依赖：T-02
 - 对应：AC-005
-- 已完成：Knowledge Projection 的 Plan、Apply、Verify 通过；重写后的既有 Receipt 独立验证通过。
-- 待完成：两个已合并远端功能分支仍包含旧路径，需要独立授权删除或重写；之后执行全 Git 私有词表扫描、归档和最终推送。
+- 已完成：Knowledge Projection 的 Plan、Apply、Verify 通过；重写后的既有 Receipt 独立验证通过；只包含 `main` 的公开候选使用 62 项仓外私有词表完成全 Git 扫描并通过；PR #2、PR #3 的只读历史路径经维护者人工复核为可接受低风险命中；已获得归档、Commit 和 Push 授权。
