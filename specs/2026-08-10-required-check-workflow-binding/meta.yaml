@@ -1,6 +1,6 @@
 id: "2026-08-10-required-check-workflow-binding"
 title: "Required Check 与 Workflow 来源绑定语义纠偏"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-10"
 updated_at: "2026-08-10"
 scope:
@@ -32,7 +32,7 @@ artifacts:
   tasks: "./tasks.md"
   research: "./research.md"
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -44,4 +44,4 @@ active_context:
   summary: "Provider、本地回归、fwwb 固定制品升级及两仓 Active 负向 PR 均已验证；终态授权记录在 Tasks 与 Validation，当前准备生成 Receipt。"
   next_task_id: "V-01"
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true
