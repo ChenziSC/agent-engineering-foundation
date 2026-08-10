@@ -1,0 +1,46 @@
+id: "2026-08-10-delivery-check-dedup-closure"
+title: "GitHub Delivery Check 事件去重纠偏"
+status: "in-progress"
+created_at: "2026-08-10"
+updated_at: "2026-08-10"
+scope:
+  - ".agent-foundation/"
+  - ".agents/"
+  - ".github/"
+  - "AGENTS.md"
+  - "README.md"
+  - "adapters/"
+  - "agent-foundation.json"
+  - "distribution/"
+  - "docs/"
+  - "knowledge/"
+  - "package.json"
+  - "packages/harness/"
+  - "skills/"
+  - "templates/"
+  - "specs/2026-08-10-self-hosted-adoption-closure/"
+  - "specs/2026-08-10-delivery-check-dedup-closure/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: "./research.md"
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-10"
+  refresh_triggers:
+    - "GitHub Actions 的 Push/Pull Request Check 归属语义变化"
+    - "默认分支、Required Check 名称或 Workflow Path 变化"
+active_context:
+  summary: "Workflow 事件去重、失败后只读复核、公共模板和 fwwb 真实验证已完成；下一步获取 Foundation PR Active 负向 Evidence 后归档。"
+  next_task_id: "V-01"
+authorization:
+  terminal_transition_confirmed: false

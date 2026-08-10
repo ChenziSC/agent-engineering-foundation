@@ -21,7 +21,7 @@
 - 不为历史批量伪造 Spec、Plan、Tasks、归档回执或验证证据；
 - 普通提交、推送和 PR/MR 不构成归档授权。
 - `skills/` 是本仓唯一 Skill 源码；本仓根 Integration Manifest 通过受控 Source 配置让 `.agents/skills` 精确指向同仓 `skills/`，安装状态、Doctor、Distribution 和 Repository Check 共同验证该入口。采用项目不继承该特例，仍使用摘要约束的受管副本。
-- Continuous CI 固定执行单元测试、规模回归、Repository Check、Doctor、Distribution Verify、Knowledge 和 Specflow；PR Delivery Job 在 Continuous 成功后检出同一 Source SHA，并通过 PR 正文显式关联 1～3 个 Spec。平台由 Git Remote 与 Registry 路由，Workflow 不替代 Branch Protection、审批或合入授权。
+- Continuous CI 固定执行单元测试、规模回归、Repository Check、Doctor、Distribution Verify、Knowledge 和 Specflow；功能分支只由 Pull Request 事件产生 Required Check，Push 事件限默认分支，避免同一 Source SHA 的同名 Check 形成歧义。PR Delivery Job 在 Continuous 成功后检出同一 Source SHA，并通过 PR 正文显式关联 1～3 个 Spec；门禁失败后仍执行只读工作区复核。平台由 Git Remote 与 Registry 路由，Workflow 不替代 Branch Protection、审批或合入授权。
 - 不可变包必须从干净 Commit 构建并记录 Source Revision 与制品摘要；手动 Release Workflow 仍要求独立的 Tag 与发布授权，不能因本地构建成功或 Workflow 存在而声称已发布。
 - 单事项目录内 Receipt、Lifecycle Event 和 Meta 的确定性生命周期由 Specflow 自带脚本负责：先不可覆盖地写入并回读证据，再最后原子更新 Meta；脚本不计算未知版本变化，也不自行确认授权。
 - Harness 根据任务类型、相关路径、Active Meta、Knowledge Registry 和 Code Entry Map 生成最小加载计划；同时提供任务类型和路径时以路径 Route 为更具体选择器，并返回匹配原因、代码入口和未知或冲突 warning；Active Spec 核心 Markdown 在可配置预算内全文加载，超限时只返回确定性的章节与未完成项位置索引；Registry 使用权威来源摘要暴露知识过期风险，但不自动改写知识状态或正文。
