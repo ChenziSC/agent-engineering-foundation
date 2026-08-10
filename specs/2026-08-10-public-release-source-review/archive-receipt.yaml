@@ -1,0 +1,92 @@
+schema_version: 1
+receipt_id: "2026-08-10-public-release-source-review:first-terminal"
+spec_id: "2026-08-10-public-release-source-review"
+created_at: "2026-08-10T12:48:18Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-10T12:48:18Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-10:archive-commit-push"
+snapshot:
+  source_revision: "5f5f05425c66a282e23c97c2b30a614058c83628"
+  base_revision: "6e94a8336db04938f8b0daf41854f9cd18085f2b"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:acfb8da2b3f3049365390ea3e74bf9532a25a5fd1cdba50e9ad7c4505fd0a432"
+    excludes:
+      - "specs/2026-08-10-public-release-source-review"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:186274db102b3ad077d30d9dbe74ab32f5b16b53fc0a99a98f9cd090c69c5976"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:c0707f5dda6e9d36b9cd81dddd9e4375384047bd1949e3fb936a7e575b84bc74"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:1053ac52b3e3f32cb4d8824f4e9b95d0e3913709d04f85ec761ed43cc8b4dcde"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:e31f8a30acd68daa7d4b9661da8189f245942e669d473b50a40b45b749381a56"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+  unresolved_blockers: []
+  evidence_refs:
+    - "gate:work:sha256:5d63d30dad073dc43ed7e87202cda0b41751ce4aa54d7da5119a0f23c4cf7f8e"
+    - "snapshot:sha256:acfb8da2b3f3049365390ea3e74bf9532a25a5fd1cdba50e9ad7c4505fd0a432"
+    - "check:repository-knowledge-specflow"
+    - "check:knowledge-projection-verified"
+    - "check:main-git-sensitive-content-62-terms-pass"
+    - "review:pr-readonly-path-low-risk-accepted"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "本次只把公开发布来源治理从不存在的逐项台账收敛为逐版本人工复核，不改变仓库定位、采用路径或交付边界。"
+      evidence_refs:
+        - "AGENTS.md"
+        - "knowledge/repository-positioning.md"
+    - action: "still-valid"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "本次没有新增或扩展 Skill、Harness、Adapter、Validator 或确定性语义，既有能力准入和宿主边界仍然成立。"
+      evidence_refs:
+        - "AGENTS.md"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "still-valid"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "本次只修改公开发布前的人工复核要求和历史脱敏内容，不改变本仓自举 Source Link、Distribution 或 Change Gate 契约。"
+      evidence_refs:
+        - "AGENTS.md"
+        - "knowledge/self-hosted-governance.md"
+    - action: "update"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "逐项仓外覆盖台账与维护者确认的事实不一致；长期策略改为每个公开版本执行可复核的人工来源、权属、脱敏和排除项检查。"
+      evidence_refs:
+        - "AGENTS.md"
+        - "docs/公开内容来源说明.md"
+        - "docs/公开发布检查清单.md"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:bdad835e9a23bb05363494aef241f192eb6c424a8ba2f9a1a4233eac00d12d13"
