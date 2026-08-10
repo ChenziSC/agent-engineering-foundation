@@ -31,3 +31,10 @@
 - 未覆盖路径：其他操作系统和其他 Agent Host 的目录链接发现行为。
 - 未知外部状态：其他操作系统创建目录链接的权限和行为未验证，不外推为跨平台保证。
 - 最终状态：`validated`（当前 macOS Codex Host 范围）。
+
+## 最终交付复核
+
+- Foundation PR #2 的 Verify 成功，Delivery 对 Active Spec 返回预期 `change-gate-spec-not-archived`；这证明真实 Check 行为，不证明 Branch Protection 已启用。
+- fwwb PR #1 从 Commit `8f51bed…` 的摘要固定制品安装 CLI，Continuous 成功，Delivery 对两个 Active Spec 失败关闭，且失败路径工作区仍无改写。
+- 5 个补充 Replay 共覆盖 16 个合成 Case，均由独立只读临时会话生成脱敏 Trace 并通过 Eval Runner；未访问真实业务仓库或浏览器，成熟度不据此自动升级。
+- Tag、GitHub Release、fwwb 事项归档及其他操作系统/Host 行为不在本次交付范围内。

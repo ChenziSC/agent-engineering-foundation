@@ -34,6 +34,13 @@ Foundation 仓完成包与模板后，在 fwwb 新建采用方 Spec，升级受�
 4. 不可变包交付约定与 fwwb 持续升级。
 5. Skill Replay 与规模回归基线收口。
 
+## Replay 运行配置
+
+- 对缺少正式 Replay 的 5 个 Skill 各执行一次独立会话；会话之间不共享历史 Trace、评分或业务仓库上下文。
+- Host 使用 Codex CLI `0.147.0-alpha.6.5`，模型固定为 `gpt-5.6-sol`、推理强度 `high`，只读沙箱、临时会话，不访问网络、Git 历史或真实业务仓库。
+- 每个会话只读取目标 Skill、必要 Reference、Rubric 和合成 Case；保存脱敏行为 Evidence 后，由确定性 Eval Runner 校验引用、阈值与阻断项。
+- Replay 只证明所列合成 Case 的行为，不证明浏览器运行态、真实消费者或生产效果，也不据此自动调整成熟度。
+
 ## 验证策略
 
 - 每阶段先增加确定性测试，再修改实现或配置。
