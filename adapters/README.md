@@ -23,7 +23,7 @@
 - Delivery Change Gate 默认从 `origin`（或唯一 Remote）自动选择 Provider；无匹配或多匹配时失败关闭，显式 Provider/Repository 仅作为受控覆盖；
 - Remote 只决定“由哪个 Adapter 读取事实”，必需 Check、审批或部署策略仍由采用项目显式声明，不能从候选分支当前成功项反向猜测；
 - Mock 只能使用合成数据，不能伪装成真实外部 Evidence。
-- GitHub Actions Evidence 只证明指定 Check 与 Workflow Run 成功，不证明 Branch Protection、PR 审批、合入、部署或发布。
+- GitHub Actions Evidence 只以显式指定 Check 的成功结论作为门禁结果；Workflow Run 用于通过 Check Suite 与 Workflow Path 绑定来源，不把同一 Run 中未被选择的 Job 结论扩张为 Required Check。该证据不证明 Branch Protection、PR 审批、合入、部署或发布。
 - Open Agent Source Link 只接受 Foundation 源码根的 `.agents/skills -> ../skills`；普通采用方、其他目标和其他 Symlink 不进入该例外。
 
 跨能力注册、状态和凭证引用契约见[项目基建 Adapter Blueprint](../blueprints/infrastructure-adapters/README.md)，当前调用方式见 [Harness 使用说明](../packages/harness/README.md)。

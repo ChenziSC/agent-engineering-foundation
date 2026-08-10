@@ -216,13 +216,6 @@ export async function inspectGitHubActionsEvidence({
       });
     }
     const [workflow] = matchingWorkflows;
-    if (workflow.status !== 'completed' || workflow.conclusion !== 'success') {
-      fail('github-delivery-workflow-unsuccessful', 'GitHub Workflow Run 未成功', {
-        selector: required.selector,
-        status: workflow.status,
-        conclusion: workflow.conclusion,
-      });
-    }
     checks.push({
       id: check.id,
       name: check.name,

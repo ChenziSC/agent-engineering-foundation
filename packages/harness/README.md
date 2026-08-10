@@ -63,7 +63,7 @@ node packages/harness/bin/agent-foundation.mjs change gate check --target /path/
 GITHUB_TOKEN=<read-token> node packages/harness/bin/agent-foundation.mjs change gate check --target /path/to/project --base <base-ref> --source <final-source-sha> --spec-id example --phase delivery --required-check 'github-actions/verify@.github/workflows/quality.yml'
 ```
 
-Source Control Adapter 计算不可变 Merge Candidate 和范围摘要；Change Gate 检查候选与 Active Spec Scope 或受控豁免的关系。Delivery 阶段提供 `--required-check` 后，Harness 默认读取 `origin`（没有 `origin` 时要求仓库只有一个 Remote），由注册 Adapter 的 Remote 匹配器自动选择平台和 Repository；`--delivery-remote` 可指定其他 Remote，`--delivery-provider` 与 `--repository` 可成对显式覆盖。当前 GitHub Actions Adapter 只读复核同一最终 Source SHA 的必需 Check 与 Workflow Path。未识别平台、没有对应 Adapter或多 Adapter 同时匹配都会阻断。Remote 路由不猜测哪些检查应成为门禁，该策略仍须由采用方显式声明。
+Source Control Adapter 计算不可变 Merge Candidate 和范围摘要；Change Gate 检查候选与 Active Spec Scope 或受控豁免的关系。Delivery 阶段提供 `--required-check` 后，Harness 默认读取 `origin`（没有 `origin` 时要求仓库只有一个 Remote），由注册 Adapter 的 Remote 匹配器自动选择平台和 Repository；`--delivery-remote` 可指定其他 Remote，`--delivery-provider` 与 `--repository` 可成对显式覆盖。当前 GitHub Actions Adapter 只读复核同一最终 Source SHA 的必需 Check，并用 Check Suite 与 Workflow Path 绑定来源；门禁结论只取显式 Check，不要求包含 Delivery 的整个 Workflow Run 先结束。未识别平台、没有对应 Adapter或多 Adapter 同时匹配都会阻断。Remote 路由不猜测哪些检查应成为门禁，该策略仍须由采用方显式声明。
 
 这些 Adapter 均不创建 Commit、远端 Check 或发布，也不把 Check 成功推断为 Branch Protection、合入、部署或上线。
 

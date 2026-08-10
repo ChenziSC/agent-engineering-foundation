@@ -90,7 +90,7 @@ agent-foundation change gate check \
   --exclude specs/<product-spec-id>,specs/<technical-spec-id>
 ```
 
-在 GitHub Actions 中进一步复核同一最终 Source SHA 的外部 Check；选择器必须绑定 Workflow Path，避免同名 Job 冒充：
+在 GitHub Actions 中进一步复核同一最终 Source SHA 的外部 Check；选择器必须绑定 Workflow Path，避免同名 Job 冒充。门禁结论取显式选择的 Check；Workflow Run 只提供 Check Suite 与 Path 来源绑定，不要求整个 Run 先结束，避免同一 Workflow 中的 Delivery Job 与其上游 Check 形成自依赖：
 
 ```bash
 GITHUB_TOKEN=<checks-and-actions-read-token> agent-foundation change gate check \

@@ -208,10 +208,6 @@ test('GitHub Actions Evidence 用 Check Suite 绑定精确 Workflow Path 并阻�
       code: 'github-delivery-workflow-ambiguous',
       workflows: [workflowRun({ id: 1 }), workflowRun({ id: 2 })],
     },
-    {
-      code: 'github-delivery-workflow-unsuccessful',
-      workflows: [workflowRun({ conclusion: 'failure' })],
-    },
   ];
   for (const { code, workflows } of cases) {
     await assert.rejects(
@@ -227,6 +223,25 @@ test('GitHub Actions Evidence 用 Check Suite 绑定精确 Workflow Path 并阻�
       (error) => error instanceof DeliveryEvidenceAdapterError && error.code === code,
       code,
     );
+  }
+});
+
+test('GitHub Actions Evidence 只以显式 Required Check 判定，不与同 Workflow Delivery 自依赖', async () => {
+  for (const workflow of [
+    workflowRun({ status: 'in_progress', conclusion: null }),
+    workflowRun({ status: 'completed', conclusion: 'failure' }),
+  ]) {
+    const result = await inspectGitHubActionsEvidence({
+      repository: 'example/project',
+      revision: REVISION,
+      requiredChecks: ['github-actions/verify@.github/workflows/quality.yml'],
+      request: async (url) =>
+        url.includes('/actions/runs?')
+          ? { total_count: 1, workflow_runs: [workflow] }
+          : { total_count: 1, check_runs: [checkRun()] },
+    });
+    assert.equal(result.checks[0].conclusion, 'success');
+    assert.equal(result.checks[0].workflowPath, '.github/workflows/quality.yml');
   }
 });
 
