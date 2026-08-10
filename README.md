@@ -46,13 +46,14 @@ node packages/harness/bin/agent-foundation.mjs context resolve --target /path/to
 
 当前参考实现覆盖：项目初始化与 Doctor、项目级兼容 Skill 安装、发布内容校验、Specflow 与 Knowledge 检查、最小上下文解析、Knowledge Projection、本地 Git Merge Candidate、Change Gate、仓库扫描，以及多组确定性契约校验。
 
-真实 Browser、Design、Coverage、Tracking 和企业研发平台 Adapter，以及完整 Agent Runtime、跨仓库事务和正式发布流水线仍由采用方或后续实现补齐。能力成熟度、证据和缺口的唯一投影见[交付形态与成熟度](docs/交付形态与成熟度.md)。
+真实 Browser、Design、Coverage、Tracking 和企业研发平台 Adapter，以及完整 Agent Runtime、跨仓库事务仍由采用方或后续实现补齐。本仓已提供只接受干净 Commit 的不可变包构建器和手动 GitHub Release Workflow，但尚未创建 Tag 或发布正式制品。能力成熟度、证据和缺口的唯一投影见[交付形态与成熟度](docs/交付形态与成熟度.md)。
 
 ## 自举治理
 
 本仓使用自身能力管理演进：
 
 - `AGENTS.md` 定义 Agent 工作入口和全仓不变量；
+- `skills/` 是唯一 Skill 源码；本仓 `.agents/skills` 使用严格仓内 Source Link，采用项目仍通过 Distribution 消费不可变副本；
 - `specs/*/meta.yaml` 是当前事项状态、关系和影响范围的唯一事实来源；
 - `knowledge/registry.yaml` 与 `knowledge/code-entry-map.yaml` 路由长期知识；
 - Commit、Push、事项终态和外部发布分别需要对应授权。
@@ -64,6 +65,7 @@ node packages/harness/bin/agent-foundation.mjs context resolve --target /path/to
 - [交付形态与成熟度](docs/交付形态与成熟度.md)
 - [能力问题图谱](docs/能力问题图谱.md)
 - [公开发布检查清单](docs/公开发布检查清单.md)
+- [Foundation 不可变包交付](docs/不可变包交付.md)
 - [公开内容来源说明](docs/公开内容来源说明.md)
 - [公开泛化与脱敏复用政策](knowledge/public-generalization-policy.md)
 - [Harness 使用说明](packages/harness/README.md)

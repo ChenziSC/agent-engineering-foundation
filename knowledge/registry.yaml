@@ -27,11 +27,11 @@ entries:
       - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:6e0b75a996d79e6c8f4e57a69d22672851441ca998b4afe3cb29668ab25b585b"
+        digest: "sha256:4481bd8610153914333bf9cb6a01c50177128cbf6120ee0070ea364f82196316"
       - path: "README.md"
-        digest: "sha256:b42bba31d0512d4f7335a0772bdbc832854bbc38698e18f446211bc7ca51123d"
+        digest: "sha256:903251425fa39d9aa7d9d6ebaee2965d134912a8e8fa933c47ca5bc10fcac756"
       - path: "packages/harness/README.md"
-        digest: "sha256:bf57b08def58aa486cf533c606c0d23ad955703c9fdb3cd84a080f42e02af0f0"
+        digest: "sha256:2cebf70436c8c9aeb450df6c93c726c07550fbabc114dfcd6ceadb4e9cf41cf3"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
         digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
     refresh_triggers:
@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-github-delivery-evidence-provider"
-      action: "update"
+      spec_id: "2026-08-10-required-check-workflow-binding"
+      action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:a572846872e2b297e270ebc7bc544c002609b667d22110756f627c2e34f7909a"
+      decision_digest: "sha256:ac97a24ef389e74059af6c33f88ef5eba0cc1f009b8a40f2fd22540fd3152738"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -73,13 +73,13 @@ entries:
       - "packages/harness/README.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:6e0b75a996d79e6c8f4e57a69d22672851441ca998b4afe3cb29668ab25b585b"
+        digest: "sha256:4481bd8610153914333bf9cb6a01c50177128cbf6120ee0070ea364f82196316"
       - path: "blueprints/skill-runtime/README.md"
         digest: "sha256:d6af9c65590f8f726d0885493453cea492c9c29d2d732b7fd1d54c7a711f6736"
       - path: "distribution/README.md"
-        digest: "sha256:41be4580bfa7a2aa3eb85a62da317b0c8c059a121c259bbf29dbec07a1253996"
+        digest: "sha256:1f7749806c5a9b0e211f064902c84f9137de2bfca2493cf64fd419e7ba29c40d"
       - path: "packages/harness/README.md"
-        digest: "sha256:bf57b08def58aa486cf533c606c0d23ad955703c9fdb3cd84a080f42e02af0f0"
+        digest: "sha256:2cebf70436c8c9aeb450df6c93c726c07550fbabc114dfcd6ceadb4e9cf41cf3"
     refresh_triggers:
       - "主流 Agent Host 原生能力边界变化"
       - "Harness、Framework、Skill、Package 或 Adapter 依赖方向变化"
@@ -91,16 +91,21 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-github-delivery-evidence-provider"
+      spec_id: "2026-08-10-required-check-workflow-binding"
       action: "update"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:31e7b328544494686317be6b48da03c777e9fdb9a68ba3d6e65b3cb4d5d203cb"
+      decision_digest: "sha256:39d6066c4a77d570fd5fdb4bde1d3041ef505945aebce6c99d9f7e8b14278798"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
     status: "current"
     scope:
       - "AGENTS.md"
+      - "agent-foundation.json"
+      - ".agent-foundation/"
+      - ".agents/"
+      - ".github/workflows/"
+      - "distribution/"
       - "specs/"
       - "knowledge/"
       - "skills/specflow/"
@@ -114,15 +119,24 @@ entries:
       - "specs/README.md"
       - "skills/specflow/SKILL.md"
       - "skills/specflow/scripts/archive-receipt.mjs"
+      - "agent-foundation.json"
+      - "distribution/manifest.yaml"
+      - ".github/workflows/quality.yml"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:6e0b75a996d79e6c8f4e57a69d22672851441ca998b4afe3cb29668ab25b585b"
+        digest: "sha256:4481bd8610153914333bf9cb6a01c50177128cbf6120ee0070ea364f82196316"
       - path: "specs/README.md"
         digest: "sha256:79f9ac67d1365a6397dd928adf5dbbef7d233498408e91c70687b8795d784b8b"
       - path: "skills/specflow/SKILL.md"
         digest: "sha256:da860f5d28f71d0a76b23c070018d067fe7b3676eb498bccb462fc9469aa46e7"
       - path: "skills/specflow/scripts/archive-receipt.mjs"
         digest: "sha256:d394e322fa802ff2bb6beccfc45af27286d23a0550b2b168b12a633c8e2f48ad"
+      - path: "agent-foundation.json"
+        digest: "sha256:af758326649a79910904dce1397cc9b37652e65304c3775a136c27279ee19e72"
+      - path: "distribution/manifest.yaml"
+        digest: "sha256:691f56116a910e14dc45824e4fa580a3e76320e61752c12b6e439f7fd845cd3a"
+      - path: ".github/workflows/quality.yml"
+        digest: "sha256:f3eb7e0ea6c536d7215a545849c8dd8a0a5d412d510ccaff29af7a59f3cab473"
     refresh_triggers:
       - "Specflow 生命周期或产物职责变化"
       - "Knowledge 准入或投影规则变化"
@@ -134,10 +148,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-github-delivery-evidence-provider"
+      spec_id: "2026-08-10-required-check-workflow-binding"
       action: "update"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:3b5b2160b2e6c2e8ed0810952b1ce79c463dbf82069e34984eaac12abd82217b"
+      decision_digest: "sha256:a99b057a5441a47871db1cacb3b41599040e12644de071ba4a0d401eef937ce8"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -162,7 +176,7 @@ entries:
       - "docs/公开内容来源说明.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:6e0b75a996d79e6c8f4e57a69d22672851441ca998b4afe3cb29668ab25b585b"
+        digest: "sha256:4481bd8610153914333bf9cb6a01c50177128cbf6120ee0070ea364f82196316"
       - path: "docs/公开发布检查清单.md"
         digest: "sha256:a65d24e7ed2922be3881e0329d9b01a202270fba492fe502052cb3aafc98954c"
       - path: "docs/公开内容来源说明.md"
@@ -178,7 +192,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-github-delivery-evidence-provider"
+      spec_id: "2026-08-10-required-check-workflow-binding"
       action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:43618e09b4ac4e70d301a98375e51f7a1d0a150fc5ec860404c98b5ab49dc02e"
+      decision_digest: "sha256:8c708dac3fcc67c4bd9460564a434c45fb511ad811143738c129effcef410553"

@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "run_id": "tracking-governance:2026-08-10-gpt56",
+  "skill_name": "tracking-governance",
+  "executed_at": "2026-08-10T09:13:32Z",
+  "environment": {
+    "host": "codex-cli-0.147.0-alpha.6.5-gpt-5.6-sol-read-only-ephemeral",
+    "tools": [
+      "repository-read"
+    ],
+    "configuration_ref": "specs/2026-08-10-self-hosted-adoption-closure/plan.md"
+  },
+  "threshold": 80,
+  "cases": [
+    {
+      "id": "case-01",
+      "case_path": "evals/cases/01-duplicate-render.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "分析目的",
+          "weight": 20,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "T01-A"
+          ]
+        },
+        {
+          "name": "触发与属性契约",
+          "weight": 30,
+          "score": 30,
+          "status": "assessed",
+          "evidence_refs": [
+            "T01-A"
+          ]
+        },
+        {
+          "name": "隐私与重复防护",
+          "weight": 25,
+          "score": 25,
+          "status": "assessed",
+          "evidence_refs": [
+            "T01-A"
+          ]
+        },
+        {
+          "name": "代码映射、验证和外部边界",
+          "weight": 25,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "T01-B"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "T01-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "T01-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-02",
+      "case_path": "evals/cases/02-sensitive-property.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "分析目的",
+          "weight": 20,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "T02-A"
+          ]
+        },
+        {
+          "name": "触发与属性契约",
+          "weight": 30,
+          "score": 20,
+          "status": "assessed",
+          "evidence_refs": [
+            "T02-A"
+          ]
+        },
+        {
+          "name": "隐私与重复防护",
+          "weight": 25,
+          "score": 25,
+          "status": "assessed",
+          "evidence_refs": [
+            "T02-A"
+          ]
+        },
+        {
+          "name": "代码映射、验证和外部边界",
+          "weight": 25,
+          "score": 25,
+          "status": "assessed",
+          "evidence_refs": [
+            "T02-B"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "T02-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "T02-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    }
+  ]
+}

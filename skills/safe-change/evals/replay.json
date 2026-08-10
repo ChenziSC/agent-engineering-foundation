@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "run_id": "safe-change:2026-08-10-gpt56",
+  "skill_name": "safe-change",
+  "executed_at": "2026-08-10T09:13:32Z",
+  "environment": {
+    "host": "codex-cli-0.147.0-alpha.6.5-gpt-5.6-sol-read-only-ephemeral",
+    "tools": [
+      "repository-read"
+    ],
+    "configuration_ref": "specs/2026-08-10-self-hosted-adoption-closure/plan.md"
+  },
+  "threshold": 80,
+  "cases": [
+    {
+      "id": "case-01",
+      "case_path": "evals/cases/01-empty-state-regression.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "候选版本、范围和非目标明确",
+          "weight": 20,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        },
+        {
+          "name": "变化路径、消费者和风险建立关系",
+          "weight": 25,
+          "score": 25,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        },
+        {
+          "name": "自动检查、浏览器场景和人工门禁覆盖合理",
+          "weight": 30,
+          "score": 30,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        },
+        {
+          "name": "Evidence、未证明项和回滚条件清楚",
+          "weight": 25,
+          "score": 25,
+          "status": "assessed",
+          "evidence_refs": [
+            "S01-B"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S01-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S01-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    },
+    {
+      "id": "case-02",
+      "case_path": "evals/cases/02-unmapped-consumer.md",
+      "trace_path": "evals/traces/2026-08-10/replay.md",
+      "blocking_violations": [],
+      "dimensions": [
+        {
+          "name": "候选版本、范围和非目标明确",
+          "weight": 20,
+          "score": 15,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        },
+        {
+          "name": "变化路径、消费者和风险建立关系",
+          "weight": 25,
+          "score": 25,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        },
+        {
+          "name": "自动检查、浏览器场景和人工门禁覆盖合理",
+          "weight": 30,
+          "score": 25,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        },
+        {
+          "name": "Evidence、未证明项和回滚条件清楚",
+          "weight": 25,
+          "score": 25,
+          "status": "assessed",
+          "evidence_refs": [
+            "S02-B"
+          ]
+        }
+      ],
+      "required_actions": [
+        {
+          "id": "required-behavior",
+          "status": "pass",
+          "evidence_refs": [
+            "S02-A"
+          ]
+        }
+      ],
+      "forbidden_actions": [
+        {
+          "id": "forbidden-behavior",
+          "occurred": false,
+          "evidence_refs": [
+            "S02-B"
+          ]
+        }
+      ],
+      "inconclusive": []
+    }
+  ]
+}

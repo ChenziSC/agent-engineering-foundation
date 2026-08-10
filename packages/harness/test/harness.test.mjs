@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { lstat, mkdtemp, mkdir, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
+import { lstat, mkdtemp, mkdir, readFile, readlink, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, test } from 'node:test';
@@ -238,6 +238,39 @@ test('init 创建最小 Starter，重复执行保持幂等，Doctor 通过', asy
   assert.equal(context.status, 'resolved');
   assert.deepEqual(context.activeSpecs, []);
   assert.deepEqual(context.knowledge, []);
+});
+
+test('Repository Doctor 复用治理核心支持的 YAML Knowledge 索引', async () => {
+  const root = await makeTemporaryRoot();
+  const target = path.join(root, 'project');
+  await initProject(target);
+  for (const basename of ['registry', 'code-entry-map']) {
+    const jsonPath = path.join(target, 'knowledge', `${basename}.json`);
+    const value = JSON.parse(await readFile(jsonPath, 'utf8'));
+    await writeFile(path.join(target, 'knowledge', `${basename}.yaml`), stringifyYamlSubset(value));
+    await rm(jsonPath);
+  }
+
+  const doctor = await doctorProject(target);
+  assert.equal(doctor.status, 'pass', JSON.stringify(doctor));
+  assert.ok(!doctor.errors.some(({ code }) => code === 'missing-required-file'));
+});
+
+test('Foundation 源码仓通过与采用方相同的 Doctor、Distribution 和 Host 契约', async () => {
+  const target = path.resolve('.');
+  const doctor = await doctorProject(target);
+  assert.equal(doctor.status, 'pass', JSON.stringify(doctor));
+  assert.ok(doctor.checks.some(({ code }) => code === 'host-source-link'));
+
+  const distribution = await verifyDistribution({ target });
+  assert.equal(distribution.status, 'pass', JSON.stringify(distribution));
+  assert.equal(distribution.runtimeMode, 'source-link');
+  assert.equal(distribution.checks.filter(({ code }) => code === 'distribution-skill-source').length, 9);
+
+  const plan = await planDistribution({ target });
+  assert.equal(plan.status, 'planned');
+  assert.equal(plan.runtimeMode, 'source-link');
+  assert.ok(plan.items.every(({ action }) => action === 'noop'));
 });
 
 test('Context 按路径解析 Active Spec 与 Knowledge，并由来源摘要检查新鲜度', async () => {
@@ -1543,6 +1576,129 @@ test('Distribution Manifest 以内容摘要执行 Plan、Apply 和 Verify', asyn
     (error) => error instanceof FoundationError && error.code === 'distribution-source-mismatch',
   );
   assert.equal((await verifyDistribution({ target, repoRoot: fakeRepo })).ok, false);
+});
+
+test('Foundation 生产者 Source Link 即时读取源码且不改变采用方复制契约', async () => {
+  const root = await makeTemporaryRoot();
+  const sourceRepo = path.join(root, 'source');
+  await initProject(sourceRepo);
+  const sourceSkill = await makeFakeSkillRepo(sourceRepo, '# 第一版\n');
+  const manifestPath = path.join(sourceRepo, 'distribution', 'manifest.yaml');
+  await mkdir(path.dirname(manifestPath), { recursive: true });
+  const writeManifest = async (digest) => writeFile(
+    manifestPath,
+    [
+      'version: 1',
+      'skills:',
+      '  - name: demo-skill',
+      '    source: skills/demo-skill',
+      '    version:',
+      '      type: content-hash',
+      `      value: ${digest}`,
+      '    distributable: true',
+      '    required_files:',
+      '      - SKILL.md',
+      '    optional_resources: []',
+      '',
+    ].join('\n'),
+  );
+  const projectManifestPath = path.join(sourceRepo, 'agent-foundation.json');
+  const projectManifest = JSON.parse(await readFile(projectManifestPath, 'utf8'));
+  projectManifest.integrations[0].configRef = 'foundation-source://skills';
+  await writeFile(projectManifestPath, `${JSON.stringify(projectManifest, null, 2)}\n`);
+  const firstDigest = await digestRelativeFiles(sourceSkill, ['SKILL.md']);
+  await writeManifest(firstDigest);
+
+  const initialPlan = await planDistribution({ target: sourceRepo, repoRoot: sourceRepo });
+  assert.equal(initialPlan.runtimeMode, 'source-link');
+  assert.equal(initialPlan.sourceLinkAction, 'add');
+  assert.equal((await applyDistribution({ target: sourceRepo, repoRoot: sourceRepo })).status, 'applied');
+  const runtimeRoot = path.join(sourceRepo, '.agents', 'skills');
+  assert.equal((await lstat(runtimeRoot)).isSymbolicLink(), true);
+  assert.equal(await readlink(runtimeRoot), '../skills');
+  assert.match(await readFile(path.join(runtimeRoot, 'demo-skill', 'SKILL.md'), 'utf8'), /第一版/u);
+  assert.equal((await verifyDistribution({ target: sourceRepo, repoRoot: sourceRepo })).status, 'pass');
+
+  await writeFile(
+    path.join(sourceSkill, 'SKILL.md'),
+    '---\nname: demo-skill\ndescription: 在合成测试中执行一个通用演示任务。\n---\n\n# 第二版\n',
+  );
+  assert.match(await readFile(path.join(runtimeRoot, 'demo-skill', 'SKILL.md'), 'utf8'), /第二版/u);
+  assert.ok((await verifyDistribution({ target: sourceRepo, repoRoot: sourceRepo })).errors.some(
+    ({ code }) => code === 'distribution-source-mismatch',
+  ));
+  const secondDigest = await digestRelativeFiles(sourceSkill, ['SKILL.md']);
+  await writeManifest(secondDigest);
+  const updated = await verifyDistribution({ target: sourceRepo, repoRoot: sourceRepo });
+  assert.equal(updated.status, 'pass', JSON.stringify(updated));
+  assert.equal((await planDistribution({ target: sourceRepo, repoRoot: sourceRepo })).sourceLinkAction, 'noop');
+
+  await rm(runtimeRoot, { force: true });
+  await symlink('../knowledge', runtimeRoot, 'dir');
+  const blocked = await planDistribution({ target: sourceRepo, repoRoot: sourceRepo });
+  assert.equal(blocked.status, 'blocked');
+  assert.ok(blocked.conflicts.some(({ type }) => type === 'source-link-target-mismatch'));
+
+  const adopter = path.join(root, 'adopter');
+  await initProject(adopter);
+  const adopterManifestPath = path.join(adopter, 'agent-foundation.json');
+  const adopterManifest = JSON.parse(await readFile(adopterManifestPath, 'utf8'));
+  adopterManifest.integrations[0].configRef = 'foundation-source://skills';
+  await writeFile(adopterManifestPath, `${JSON.stringify(adopterManifest, null, 2)}\n`);
+  await assert.rejects(
+    planDistribution({ target: adopter, repoRoot: sourceRepo }),
+    (error) => error instanceof FoundationError && error.code === 'source-runtime-requires-repository-root',
+  );
+});
+
+test('生产者 Source Link 只迁移摘要一致的既有受管副本', async () => {
+  const root = await makeTemporaryRoot();
+  const prepare = async (name) => {
+    const sourceRepo = path.join(root, name);
+    await initProject(sourceRepo);
+    const sourceSkill = await makeFakeSkillRepo(sourceRepo);
+    const digest = await digestRelativeFiles(sourceSkill, ['SKILL.md']);
+    await mkdir(path.join(sourceRepo, 'distribution'), { recursive: true });
+    await writeFile(
+      path.join(sourceRepo, 'distribution', 'manifest.yaml'),
+      [
+        'version: 1',
+        'skills:',
+        '  - name: demo-skill',
+        '    source: skills/demo-skill',
+        '    version:',
+        '      type: content-hash',
+        `      value: ${digest}`,
+        '    distributable: true',
+        '    required_files:',
+        '      - SKILL.md',
+        '    optional_resources: []',
+        '',
+      ].join('\n'),
+    );
+    assert.equal((await applyDistribution({ target: sourceRepo, repoRoot: sourceRepo })).runtimeMode, 'copy');
+    const projectManifestPath = path.join(sourceRepo, 'agent-foundation.json');
+    const projectManifest = JSON.parse(await readFile(projectManifestPath, 'utf8'));
+    projectManifest.integrations[0].configRef = 'foundation-source://skills';
+    await writeFile(projectManifestPath, `${JSON.stringify(projectManifest, null, 2)}\n`);
+    return sourceRepo;
+  };
+
+  const clean = await prepare('clean');
+  const cleanPlan = await planDistribution({ target: clean, repoRoot: clean });
+  assert.equal(cleanPlan.sourceLinkAction, 'replace-managed-copy');
+  assert.equal((await applyDistribution({ target: clean, repoRoot: clean })).status, 'applied');
+  assert.equal((await lstat(path.join(clean, '.agents', 'skills'))).isSymbolicLink(), true);
+
+  const modified = await prepare('modified');
+  await writeFile(
+    path.join(modified, '.agents', 'skills', 'demo-skill', 'SKILL.md'),
+    `${await readFile(path.join(modified, '.agents', 'skills', 'demo-skill', 'SKILL.md'), 'utf8')}\n用户修改\n`,
+  );
+  const blocked = await planDistribution({ target: modified, repoRoot: modified });
+  assert.equal(blocked.status, 'blocked');
+  assert.ok(blocked.conflicts.some(({ type }) => type === 'source-runtime-target-conflict'));
+  assert.equal((await lstat(path.join(modified, '.agents', 'skills'))).isDirectory(), true);
 });
 
 test('Distribution Update 只清理摘要一致的旧受管文件并阻断用户修改和未知文件', async () => {

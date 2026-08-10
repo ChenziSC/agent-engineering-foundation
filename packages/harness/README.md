@@ -53,6 +53,8 @@ node packages/harness/bin/agent-foundation.mjs distribution verify --target /pat
 
 `list`、`check`、`plan` 和 `verify` 只读；`install`、`update` 和 Distribution `apply` 只操作 Manifest 明确纳管且未被采用方修改的内容。完整底座接入默认使用 Distribution；单项 `skill install` 仅用于明确的局部采用或维护。Distribution 安装状态在顶层保存生成它的 Foundation 版本；`verify` 同时复核工具版本来源、Manifest、受管记录和目标内容。安装成功只证明这些内容一致，不证明项目配置、外部 Adapter 或运行环境已经就绪。确定性核心与可分发 Skill 的依赖方向见[长期依赖契约](../../knowledge/deterministic-core-boundary.md)。
 
+Foundation 源码仓可在 `open-agent` Integration 中使用受控的 `foundation-source://skills` 配置：仅当目标就是当前源码根时，Distribution 才允许 `.agents/skills -> ../skills`，让 Host 的下一次读取直接使用唯一源码。该模式不要求日常源码修改后重新 Apply，但 Repository/Distribution 仍会阻断未更新的发布摘要。其他项目声明该配置、错误链接目标或任意 Symlink 都会失败关闭；普通采用方始终使用不可变复制模式。
+
 ### 变更与交付门禁
 
 ```bash
@@ -61,7 +63,7 @@ node packages/harness/bin/agent-foundation.mjs change gate check --target /path/
 GITHUB_TOKEN=<read-token> node packages/harness/bin/agent-foundation.mjs change gate check --target /path/to/project --base <base-ref> --source <final-source-sha> --spec-id example --phase delivery --required-check 'github-actions/verify@.github/workflows/quality.yml'
 ```
 
-Source Control Adapter 计算不可变 Merge Candidate 和范围摘要；Change Gate 检查候选与 Active Spec Scope 或受控豁免的关系。Delivery 阶段提供 `--required-check` 后，Harness 默认读取 `origin`（没有 `origin` 时要求仓库只有一个 Remote），由注册 Adapter 的 Remote 匹配器自动选择平台和 Repository；`--delivery-remote` 可指定其他 Remote，`--delivery-provider` 与 `--repository` 可成对显式覆盖。当前 GitHub Actions Adapter 只读复核同一最终 Source SHA 的必需 Check 与 Workflow Path。未识别平台、没有对应 Adapter或多 Adapter 同时匹配都会阻断。Remote 路由不猜测哪些检查应成为门禁，该策略仍须由采用方显式声明。
+Source Control Adapter 计算不可变 Merge Candidate 和范围摘要；Change Gate 检查候选与 Active Spec Scope 或受控豁免的关系。Delivery 阶段提供 `--required-check` 后，Harness 默认读取 `origin`（没有 `origin` 时要求仓库只有一个 Remote），由注册 Adapter 的 Remote 匹配器自动选择平台和 Repository；`--delivery-remote` 可指定其他 Remote，`--delivery-provider` 与 `--repository` 可成对显式覆盖。当前 GitHub Actions Adapter 只读复核同一最终 Source SHA 的必需 Check，并用 Check Suite 与 Workflow Path 绑定来源；门禁结论只取显式 Check，不要求包含 Delivery 的整个 Workflow Run 先结束。未识别平台、没有对应 Adapter或多 Adapter 同时匹配都会阻断。Remote 路由不猜测哪些检查应成为门禁，该策略仍须由采用方显式声明。
 
 这些 Adapter 均不创建 Commit、远端 Check 或发布，也不把 Check 成功推断为 Branch Protection、合入、部署或上线。
 
@@ -82,6 +84,10 @@ node packages/harness/bin/agent-foundation.mjs tracking check --file /path/to/ev
 ```
 
 这些命令只验证各自声明的窄契约。程序通过不证明业务判断、Evidence 独立性、发布授权或真实环境行为正确。
+
+## 不可变包候选
+
+维护者可在干净 Git Commit 上执行 `npm run release:pack -- --target . --output <absolute-directory>`。命令生成 npm tarball 与 `release-manifest.json`，清单绑定包名、SemVer、Source Revision、SHA-256 和 npm integrity；工作区不干净或目标清单已存在时失败关闭。完整授权与 Provider 边界见[不可变包交付](../../docs/不可变包交付.md)。
 
 ### 规模回归
 

@@ -6,10 +6,12 @@ import {
   lstat,
   mkdir,
   readFile,
+  readlink,
   readdir,
   rename,
   rm,
   rmdir,
+  symlink,
   writeFile,
 } from 'node:fs/promises';
 import path from 'node:path';
@@ -56,8 +58,6 @@ const REQUIRED_STARTER_FILES = [
   'agent-foundation.json',
   path.join('specs', 'README.md'),
   path.join('knowledge', 'README.md'),
-  path.join('knowledge', 'registry.json'),
-  path.join('knowledge', 'code-entry-map.json'),
 ];
 const REQUIRED_REPOSITORY_ENTRIES = new Map([
   ['AGENTS.md', 'file'],
@@ -2387,6 +2387,100 @@ function resolveHostSkillsDirectory(hostAdapter, projectRoot, integration) {
   return absolute;
 }
 
+function resolveProjectSourceRuntime(hostAdapter, projectRoot, integration, repoRoot) {
+  if (typeof hostAdapter.resolveProjectSourceSkillsDir !== 'function') return null;
+  let resolved;
+  try {
+    resolved = hostAdapter.resolveProjectSourceSkillsDir(projectRoot, integration);
+  } catch {
+    throw new FoundationError('invalid-host-source-path', 'Host Adapter 无法解析项目级 Skill 源目录', {
+      host: hostAdapter.id,
+    });
+  }
+  if (resolved === null || resolved === undefined) return null;
+  if (!hostAdapter.supportsProjectSourceLink || typeof resolved !== 'string' || !resolved.trim()) {
+    throw new FoundationError('invalid-host-source-path', 'Host Adapter 未声明合法的项目级 Source Link 能力', {
+      host: hostAdapter.id,
+    });
+  }
+  const root = path.resolve(projectRoot);
+  const sourceRepository = path.resolve(repoRoot);
+  if (root !== sourceRepository) {
+    throw new FoundationError(
+      'source-runtime-requires-repository-root',
+      '生产者 Source 模式只能用于当前 Foundation 源码根，采用项目必须使用不可变副本',
+      { target: root },
+    );
+  }
+  const sourceRoot = path.resolve(resolved);
+  relativeInside(root, sourceRoot);
+  if (sourceRoot !== path.join(sourceRepository, 'skills')) {
+    throw new FoundationError('invalid-host-source-path', '生产者 Source 模式只能指向当前仓库 skills 目录', {
+      host: hostAdapter.id,
+    });
+  }
+  const skillsRoot = resolveHostSkillsDirectory(hostAdapter, root, integration);
+  const linkTarget = path.relative(path.dirname(skillsRoot), sourceRoot);
+  if (linkTarget !== path.join('..', 'skills')) {
+    throw new FoundationError('invalid-host-source-path', 'Source Link 必须精确使用 .agents/skills -> ../skills', {
+      host: hostAdapter.id,
+    });
+  }
+  return { skillsRoot, sourceRoot, linkTarget };
+}
+
+async function inspectProjectSourceLink(projectRoot, runtime) {
+  await assertNoSymlinkSegments(projectRoot, path.dirname(runtime.skillsRoot));
+  await assertNoSymlinkSegments(projectRoot, runtime.sourceRoot);
+  const stat = await statOrNull(runtime.skillsRoot);
+  if (!stat) return { status: 'missing', actualTarget: null };
+  if (!stat.isSymbolicLink()) return { status: 'not-link', actualTarget: null };
+  const actualTarget = await readlink(runtime.skillsRoot);
+  const resolvedTarget = path.resolve(path.dirname(runtime.skillsRoot), actualTarget);
+  if (actualTarget !== runtime.linkTarget || resolvedTarget !== runtime.sourceRoot) {
+    return { status: 'wrong-target', actualTarget };
+  }
+  return { status: 'valid', actualTarget };
+}
+
+function validSourceRuntimeRecord(record, { hostId, projectRoot, skillsRoot, entry }) {
+  if (!record || record.mode !== 'source' || record.host !== hostId || record.scope !== 'project') return false;
+  const expectedPath = path.join(skillsRoot, entry.name);
+  return (
+    path.resolve(projectRoot, record.path) === expectedPath &&
+    record.source === entry.source &&
+    record.digest === undefined
+  );
+}
+
+async function inspectReplaceableRuntimeDirectory(projectRoot, runtime, manifest, state, hostId) {
+  const entries = await readdir(runtime.skillsRoot, { withFileTypes: true });
+  const actualNames = entries.map((entry) => entry.name).sort();
+  const expectedNames = manifest.skills.map((entry) => entry.name).sort();
+  if (
+    actualNames.length !== expectedNames.length ||
+    actualNames.some((name, index) => name !== expectedNames[index]) ||
+    entries.some((entry) => !entry.isDirectory() || entry.isSymbolicLink())
+  ) {
+    return false;
+  }
+  for (const entry of manifest.skills) {
+    const record = state.records[entry.name];
+    const destination = path.join(runtime.skillsRoot, entry.name);
+    if (
+      !record ||
+      record.host !== hostId ||
+      record.scope !== 'project' ||
+      path.resolve(projectRoot, record.path) !== destination ||
+      record.digest !== entry.version.value ||
+      (await digestTree(destination)) !== entry.version.value
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export async function planSkill({
   target,
   name,
@@ -2698,6 +2792,10 @@ export async function planDistribution({
   const foundationVersion = await readFoundationVersion(repoRoot);
   const projectRoot = path.resolve(target);
   const installState = await readInstallState(projectRoot);
+  const projectManifest = await readProjectManifest(projectRoot);
+  const hostIntegration = projectManifest.integrations.find((integration) => integration.capability === 'host');
+  const hostAdapter = resolveHost(adapterRegistry, hostIntegration.adapterId);
+  const sourceRuntime = resolveProjectSourceRuntime(hostAdapter, projectRoot, hostIntegration, repoRoot);
   const items = [];
   for (const entry of distribution.manifest.skills) {
     const source = distribution.runtimeSkills.get(entry.name);
@@ -2708,25 +2806,83 @@ export async function planDistribution({
         actual: source.digest,
       });
     }
-    const operation = installState.records[entry.name] ? 'update' : 'install';
-    items.push({
-      entry,
-      sourceFiles: source.files,
-      plan: await planSkill({
-        target: projectRoot,
-        name: entry.name,
-        operation,
-        repoRoot,
-        adapterRegistry,
+    if (!sourceRuntime) {
+      const operation = installState.records[entry.name] ? 'update' : 'install';
+      items.push({
+        entry,
         sourceFiles: source.files,
-      }),
-    });
+        plan: await planSkill({
+          target: projectRoot,
+          name: entry.name,
+          operation,
+          repoRoot,
+          adapterRegistry,
+          sourceFiles: source.files,
+        }),
+      });
+    }
+  }
+  if (sourceRuntime) {
+    const link = await inspectProjectSourceLink(projectRoot, sourceRuntime);
+    let sourceLinkAction = 'blocked';
+    const conflicts = [];
+    if (link.status === 'missing') sourceLinkAction = 'add';
+    else if (link.status === 'valid') {
+      const recordsCurrent = distribution.manifest.skills.every((entry) =>
+        validSourceRuntimeRecord(installState.records[entry.name], {
+          hostId: hostIntegration.adapterId,
+          projectRoot,
+          skillsRoot: sourceRuntime.skillsRoot,
+          entry,
+        }));
+      sourceLinkAction =
+        recordsCurrent && installState.foundationVersion === foundationVersion ? 'noop' : 'refresh-state';
+    } else if (
+      link.status === 'not-link' &&
+      (await inspectReplaceableRuntimeDirectory(
+        projectRoot,
+        sourceRuntime,
+        distribution.manifest,
+        installState,
+        hostIntegration.adapterId,
+      ))
+    ) {
+      sourceLinkAction = 'replace-managed-copy';
+    } else {
+      conflicts.push({
+        type: link.status === 'wrong-target' ? 'source-link-target-mismatch' : 'source-runtime-target-conflict',
+        path: path.relative(projectRoot, sourceRuntime.skillsRoot).split(path.sep).join('/'),
+      });
+    }
+    return {
+      ok: conflicts.length === 0,
+      command: 'distribution-plan',
+      status: conflicts.length ? 'blocked' : 'planned',
+      runtimeMode: 'source-link',
+      sourceLinkAction,
+      sourceLink: {
+        path: path.relative(projectRoot, sourceRuntime.skillsRoot).split(path.sep).join('/'),
+        target: sourceRuntime.linkTarget.split(path.sep).join('/'),
+      },
+      manifest: distribution.path,
+      manifestDigest: distribution.digest,
+      foundationVersion,
+      installedFoundationVersion: installState.foundationVersion || null,
+      target: projectRoot,
+      items: distribution.manifest.skills.map((entry) => ({
+        name: entry.name,
+        version: entry.version.value,
+        action: sourceLinkAction,
+      })),
+      conflicts,
+    };
   }
   const conflicts = items.flatMap(({ entry, plan }) => plan.conflicts.map((conflict) => ({ name: entry.name, ...conflict })));
   return {
     ok: conflicts.length === 0,
     command: 'distribution-plan',
     status: conflicts.length ? 'blocked' : 'planned',
+    runtimeMode: 'copy',
     manifest: distribution.path,
     manifestDigest: distribution.digest,
     foundationVersion,
@@ -2746,6 +2902,74 @@ export async function applyDistribution(options = {}) {
     options.repoRoot || REPO_ROOT,
     options.manifestPath || 'distribution/manifest.yaml',
   );
+  if (plan.runtimeMode === 'source-link') {
+    const projectRoot = path.resolve(plan.target);
+    const repoRoot = path.resolve(options.repoRoot || REPO_ROOT);
+    const projectManifest = await readProjectManifest(projectRoot);
+    const hostIntegration = projectManifest.integrations.find((integration) => integration.capability === 'host');
+    const adapterRegistry = options.adapterRegistry || defaultAdapterRegistry;
+    const hostAdapter = resolveHost(adapterRegistry, hostIntegration.adapterId);
+    const sourceRuntime = resolveProjectSourceRuntime(hostAdapter, projectRoot, hostIntegration, repoRoot);
+    const state = await readInstallState(projectRoot);
+    const beforeState = structuredClone(state);
+    const backup = `${sourceRuntime.skillsRoot}.backup-${randomUUID()}`;
+    let createdLink = false;
+    let movedManagedCopy = false;
+    const now = new Date().toISOString();
+    try {
+      if (plan.sourceLinkAction === 'replace-managed-copy') {
+        await rename(sourceRuntime.skillsRoot, backup);
+        movedManagedCopy = true;
+      }
+      if (['add', 'replace-managed-copy'].includes(plan.sourceLinkAction)) {
+        await mkdir(path.dirname(sourceRuntime.skillsRoot), { recursive: true });
+        await symlink(sourceRuntime.linkTarget, sourceRuntime.skillsRoot, 'dir');
+        createdLink = true;
+      }
+      state.foundationVersion = plan.foundationVersion;
+      state.records = Object.fromEntries(
+        distribution.manifest.skills.map((entry) => {
+          const previous = beforeState.records[entry.name];
+          return [
+            entry.name,
+            {
+              host: hostIntegration.adapterId,
+              mode: 'source',
+              scope: 'project',
+              path: path.relative(projectRoot, path.join(sourceRuntime.skillsRoot, entry.name)).split(path.sep).join('/'),
+              source: entry.source,
+              installedAt: previous?.installedAt || now,
+              updatedAt: now,
+            },
+          ];
+        }),
+      );
+      if (plan.sourceLinkAction !== 'noop') await writeInstallState(projectRoot, state);
+      const verification = await verifyDistribution(options);
+      if (!verification.ok) {
+        throw new FoundationError('distribution-verification-failed', 'Source Link 应用后校验失败', { verification });
+      }
+      if (movedManagedCopy) await rm(backup, { recursive: true, force: true });
+      return {
+        ok: true,
+        command: 'distribution-apply',
+        status: plan.sourceLinkAction === 'noop' ? 'unchanged' : 'applied',
+        runtimeMode: 'source-link',
+        manifest: plan.manifest,
+        manifestDigest: plan.manifestDigest,
+        foundationVersion: plan.foundationVersion,
+        target: plan.target,
+        sourceLink: plan.sourceLink,
+      };
+    } catch (error) {
+      if (createdLink) await rm(sourceRuntime.skillsRoot, { force: true }).catch(() => {});
+      if (movedManagedCopy) await rename(backup, sourceRuntime.skillsRoot).catch(() => {});
+      await writeInstallState(projectRoot, beforeState).catch(() => {});
+      throw error;
+    } finally {
+      await rm(backup, { recursive: true, force: true }).catch(() => {});
+    }
+  }
   const results = [];
   for (const item of plan.items) {
     const currentSource = distribution.runtimeSkills.get(item.name);
@@ -2782,6 +3006,7 @@ export async function applyDistribution(options = {}) {
     ok: true,
     command: 'distribution-apply',
     status: results.every((result) => result.status === 'unchanged') ? 'unchanged' : 'applied',
+    runtimeMode: 'copy',
     manifest: plan.manifest,
     manifestDigest: plan.manifestDigest,
     foundationVersion: plan.foundationVersion,
@@ -2804,6 +3029,7 @@ export async function verifyDistribution({
   const hostIntegration = projectManifest.integrations.find((integration) => integration.capability === 'host');
   const hostAdapter = resolveHost(adapterRegistry, hostIntegration.adapterId);
   const skillsRoot = resolveHostSkillsDirectory(hostAdapter, projectRoot, hostIntegration);
+  const sourceRuntime = resolveProjectSourceRuntime(hostAdapter, projectRoot, hostIntegration, repoRoot);
   const errors = [];
   const checks = [];
   if (state.foundationVersion !== foundationVersion) {
@@ -2814,6 +3040,59 @@ export async function verifyDistribution({
     });
   } else {
     checks.push({ code: 'distribution-foundation-version', version: foundationVersion, status: 'pass' });
+  }
+  if (sourceRuntime) {
+    const link = await inspectProjectSourceLink(projectRoot, sourceRuntime);
+    if (link.status !== 'valid') {
+      errors.push({
+        code: link.status === 'wrong-target' ? 'distribution-source-link-target-mismatch' : 'distribution-source-link-missing',
+        path: path.relative(projectRoot, sourceRuntime.skillsRoot).split(path.sep).join('/'),
+      });
+    } else {
+      checks.push({
+        code: 'distribution-source-link',
+        path: path.relative(projectRoot, sourceRuntime.skillsRoot).split(path.sep).join('/'),
+        target: sourceRuntime.linkTarget.split(path.sep).join('/'),
+        status: 'pass',
+      });
+    }
+    for (const entry of distribution.manifest.skills) {
+      const source = distribution.runtimeSkills.get(entry.name);
+      if (source.digest !== entry.version.value) {
+        errors.push({
+          code: 'distribution-source-mismatch',
+          name: entry.name,
+          declared: entry.version.value,
+          actual: source.digest,
+        });
+        continue;
+      }
+      const record = state.records[entry.name];
+      if (
+        !validSourceRuntimeRecord(record, {
+          hostId: hostIntegration.adapterId,
+          projectRoot,
+          skillsRoot,
+          entry,
+        })
+      ) {
+        errors.push({ code: 'distribution-install-record-mismatch', name: entry.name });
+        continue;
+      }
+      checks.push({ code: 'distribution-skill-source', name: entry.name, digest: source.digest, status: 'pass' });
+    }
+    return {
+      ok: errors.length === 0,
+      command: 'distribution-verify',
+      status: errors.length ? 'fail' : 'pass',
+      runtimeMode: 'source-link',
+      manifest: distribution.path,
+      manifestDigest: distribution.digest,
+      foundationVersion,
+      target: projectRoot,
+      errors,
+      checks,
+    };
   }
   for (const entry of distribution.manifest.skills) {
     const source = distribution.runtimeSkills.get(entry.name);
@@ -2850,6 +3129,7 @@ export async function verifyDistribution({
     ok: errors.length === 0,
     command: 'distribution-verify',
     status: errors.length ? 'fail' : 'pass',
+    runtimeMode: 'copy',
     manifest: distribution.path,
     manifestDigest: distribution.digest,
     foundationVersion,
@@ -2887,12 +3167,24 @@ export async function doctorProject(target, { adapterRegistry = defaultAdapterRe
   let manifest = null;
   let hostIntegration = null;
   let hostAdapter = null;
+  let sourceRuntime = null;
   try {
     manifest = await readProjectManifest(projectRoot);
     hostIntegration = manifest.integrations.find((integration) => integration.capability === 'host');
     hostAdapter = resolveHost(adapterRegistry, hostIntegration.adapterId);
     const hostSkillsDirectory = resolveHostSkillsDirectory(hostAdapter, projectRoot, hostIntegration);
-    await assertNoSymlinkSegments(projectRoot, hostSkillsDirectory);
+    sourceRuntime = resolveProjectSourceRuntime(hostAdapter, projectRoot, hostIntegration, REPO_ROOT);
+    if (sourceRuntime) {
+      const link = await inspectProjectSourceLink(projectRoot, sourceRuntime);
+      if (link.status !== 'valid') {
+        throw new FoundationError('invalid-host-source-link', '生产者 Source Link 缺失或目标不正确', {
+          status: link.status,
+        });
+      }
+      checks.push({ code: 'host-source-link', status: 'pass' });
+    } else {
+      await assertNoSymlinkSegments(projectRoot, hostSkillsDirectory);
+    }
     checks.push({ code: 'manifest-contract', status: 'pass' });
     for (const integration of manifest.integrations) {
       const adapter = adapterRegistry?.get?.(integration.capability, integration.adapterId);
@@ -2947,6 +3239,25 @@ export async function doctorProject(target, { adapterRegistry = defaultAdapterRe
         const expected = path.join(resolveHostSkillsDirectory(hostAdapter, projectRoot, hostIntegration), name);
         if (destination !== expected) {
           errors.push({ code: 'installed-skill-path-mismatch', name, path: record.path });
+          continue;
+        }
+        if (sourceRuntime) {
+          if (
+            record.mode !== 'source' ||
+            record.digest !== undefined ||
+            record.source !== path.posix.join('skills', name)
+          ) {
+            errors.push({ code: 'installed-skill-source-record-mismatch', name });
+            continue;
+          }
+          const source = path.join(sourceRuntime.sourceRoot, name);
+          await assertNoSymlinkSegments(projectRoot, source);
+          const sourceStat = await statOrNull(source);
+          if (!sourceStat?.isDirectory() || sourceStat.isSymbolicLink()) {
+            errors.push({ code: 'installed-skill-missing', name, path: record.source });
+          } else {
+            checks.push({ code: 'installed-skill-source', name, status: 'pass' });
+          }
           continue;
         }
         await assertNoSymlinkSegments(projectRoot, destination);
@@ -3007,7 +3318,32 @@ export async function checkRepository({ repoRoot = REPO_ROOT, denyTerms = [], gi
 
   const repositoryEntries = await collectRepositoryFiles(root);
   const files = repositoryEntries.filter((entry) => entry.type === 'file').map((entry) => entry.relative);
+  let allowedSourceLink = null;
+  if (await statOrNull(path.join(root, 'agent-foundation.json'))) {
+    try {
+      const projectManifest = await readProjectManifest(root);
+      const hostIntegration = projectManifest.integrations.find((integration) => integration.capability === 'host');
+      const hostAdapter = resolveHost(defaultAdapterRegistry, hostIntegration.adapterId);
+      const sourceRuntime = resolveProjectSourceRuntime(hostAdapter, root, hostIntegration, root);
+      if (sourceRuntime) {
+        const inspection = await inspectProjectSourceLink(root, sourceRuntime);
+        if (inspection.status === 'valid') {
+          allowedSourceLink = path.relative(root, sourceRuntime.skillsRoot);
+          checks.push({
+            code: 'repository-source-link',
+            path: allowedSourceLink.split(path.sep).join('/'),
+            status: 'pass',
+          });
+        } else {
+          errors.push({ code: 'repository-source-link-invalid', status: inspection.status });
+        }
+      }
+    } catch (error) {
+      errors.push({ code: error.code || 'invalid-repository-source-runtime', message: error.message });
+    }
+  }
   for (const entry of repositoryEntries.filter((item) => item.type === 'symlink')) {
+    if (allowedSourceLink && entry.relative === allowedSourceLink) continue;
     errors.push({ code: 'repository-symlink', path: entry.relative });
   }
 

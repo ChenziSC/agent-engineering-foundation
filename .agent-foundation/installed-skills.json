@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "records": {
+    "design-to-code": {
+      "host": "open-agent",
+      "mode": "source",
+      "scope": "project",
+      "path": ".agents/skills/design-to-code",
+      "source": "skills/design-to-code",
+      "installedAt": "2026-08-10T07:11:22.726Z",
+      "updatedAt": "2026-08-10T08:13:00.634Z"
+    },
+    "project-component-governance": {
+      "host": "open-agent",
+      "mode": "source",
+      "scope": "project",
+      "path": ".agents/skills/project-component-governance",
+      "source": "skills/project-component-governance",
+      "installedAt": "2026-08-10T07:11:22.742Z",
+      "updatedAt": "2026-08-10T08:13:00.634Z"
+    },
+    "project-context-bootstrap": {
+      "host": "open-agent",
+      "mode": "source",
+      "scope": "project",
+      "path": ".agents/skills/project-context-bootstrap",
+      "source": "skills/project-context-bootstrap",
+      "installedAt": "2026-08-10T07:11:22.759Z",
+      "updatedAt": "2026-08-10T08:13:00.634Z"
+    },
+    "refactor-natural-language-content": {
+      "host": "open-agent",
+      "mode": "source",
+      "scope": "project",
+      "path": ".agents/skills/refactor-natural-language-content",
+      "source": "skills/refactor-natural-language-content",
+      "installedAt": "2026-08-10T07:11:22.768Z",
+      "updatedAt": "2026-08-10T08:13:00.634Z"
+    },
+    "safe-change": {
+      "host": "open-agent",
+      "mode": "source",
+      "scope": "project",
+      "path": ".agents/skills/safe-change",
+      "source": "skills/safe-change",
+      "installedAt": "2026-08-10T07:11:22.775Z",
+      "updatedAt": "2026-08-10T08:13:00.634Z"
+    },
+    "specflow": {
+      "host": "open-agent",
+      "mode": "source",
+      "scope": "project",
+      "path": ".agents/skills/specflow",
+      "source": "skills/specflow",
+      "installedAt": "2026-08-10T07:11:22.794Z",
+      "updatedAt": "2026-08-10T08:13:00.634Z"
+    },
+    "tracking-governance": {
+      "host": "open-agent",
+      "mode": "source",
+      "scope": "project",
+      "path": ".agents/skills/tracking-governance",
+      "source": "skills/tracking-governance",
+      "installedAt": "2026-08-10T07:11:22.814Z",
+      "updatedAt": "2026-08-10T08:13:00.634Z"
+    },
+    "web-first-screen-prefetch": {
+      "host": "open-agent",
+      "mode": "source",
+      "scope": "project",
+      "path": ".agents/skills/web-first-screen-prefetch",
+      "source": "skills/web-first-screen-prefetch",
+      "installedAt": "2026-08-10T07:11:22.825Z",
+      "updatedAt": "2026-08-10T08:13:00.634Z"
+    },
+    "web-performance-review": {
+      "host": "open-agent",
+      "mode": "source",
+      "scope": "project",
+      "path": ".agents/skills/web-performance-review",
+      "source": "skills/web-performance-review",
+      "installedAt": "2026-08-10T07:11:22.841Z",
+      "updatedAt": "2026-08-10T08:13:00.634Z"
+    }
+  },
+  "foundationVersion": "0.1.0"
+}
