@@ -1,0 +1,32 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "Bootstrap 已有正式行为回放，长期定位需要把行为验证、上下文成本和真实采用覆盖分层表达，避免成熟度与限制互相覆盖。"
+    evidence_refs:
+      - "skills/project-context-bootstrap/evals/replay.json"
+      - "docs/交付形态与成熟度.md"
+      - "knowledge/repository-positioning.md"
+  - action: "still-valid"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "本次只收敛成熟度内容所有权，不改变 Skill、Harness、Adapter 或确定性实现的准入和依赖方向。"
+    evidence_refs:
+      - "knowledge/deterministic-core-boundary.md"
+      - "specs/2026-08-10-maturity-projection-consistency/plan.md"
+  - action: "update"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "Foundation 已在归档提交上完成同一 Source SHA 的 Verify 与 Delivery 正向门禁，并合入主分支，需要同步稳定自举证据。"
+    evidence_refs:
+      - ".github/workflows/quality.yml"
+      - "specs/2026-08-10-required-check-workflow-binding/archive-receipt.yaml"
+      - "docs/交付形态与成熟度.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "本次只使用公开仓库内的 Replay、脱敏 Run 标识和通用成熟度结论，不引入受限来源内容。"
+    evidence_refs:
+      - "specs/2026-08-10-maturity-projection-consistency/research.md"
+      - "knowledge/public-generalization-policy.md"

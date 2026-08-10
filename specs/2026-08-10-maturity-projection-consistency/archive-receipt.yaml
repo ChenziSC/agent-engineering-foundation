@@ -1,0 +1,99 @@
+schema_version: 1
+receipt_id: "2026-08-10-maturity-projection-consistency:first-terminal"
+spec_id: "2026-08-10-maturity-projection-consistency"
+created_at: "2026-08-10T11:45:27Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-10T11:45:27Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-10:archive-commit-push-maturity-projection"
+snapshot:
+  source_revision: "66e35338ddf6b1390f1400e21127b393239233c6"
+  base_revision: "0ca5bc351a3ee7d980f87265ece85f8507e2db93"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:144c152963e863f5f20bed2eb9e2c6fd4f18b892b10dbc6aa9ee0308128719ba"
+    excludes:
+      - "specs/2026-08-10-maturity-projection-consistency"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:bfef23199536aa9ae37729df6f7dda62e2878430e107bd4465910f1ea0abca26"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:91c7d63bd1358780ab629855a1dd2b3b2a9cfe680be6b94130874d62fa3c1aca"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:d68e3e42a033134617f256d8c850898a4a6bfe9201634c5043ef38c7565c3437"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:3ca5a78bc34a61114e992d0a79fb0bc1f8f35052905dc6c301fabe4359cdfe23"
+    - role: "research"
+      path: "./research.md"
+      digest: "sha256:0dbba3b2be174d2d7627e99a772eb17b998ff7fdd5ea1e31d16c8f073b71210a"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:66e35338ddf6b1390f1400e21127b393239233c6"
+    - "gate:work:sha256:751d73e0b765e62acbcefa3663970c2e6073e145e18de3cb674b5669b4b6cd2a"
+    - "snapshot:sha256:144c152963e863f5f20bed2eb9e2c6fd4f18b892b10dbc6aa9ee0308128719ba"
+    - "test:maturity-projection-9-skills-50-cases"
+    - "test:npm-test-108-pass"
+    - "test:scale-2-pass"
+    - "provider:foundation-pr-2-run-31378586240"
+    - "check:repository-doctor-distribution"
+    - "check:specflow-knowledge-projection"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "Bootstrap 已有正式行为回放，长期定位需要把行为验证、上下文成本和真实采用覆盖分层表达，避免成熟度与限制互相覆盖。"
+      evidence_refs:
+        - "skills/project-context-bootstrap/evals/replay.json"
+        - "docs/交付形态与成熟度.md"
+        - "knowledge/repository-positioning.md"
+    - action: "still-valid"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "本次只收敛成熟度内容所有权，不改变 Skill、Harness、Adapter 或确定性实现的准入和依赖方向。"
+      evidence_refs:
+        - "knowledge/deterministic-core-boundary.md"
+        - "specs/2026-08-10-maturity-projection-consistency/plan.md"
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "Foundation 已在归档提交上完成同一 Source SHA 的 Verify 与 Delivery 正向门禁，并合入主分支，需要同步稳定自举证据。"
+      evidence_refs:
+        - ".github/workflows/quality.yml"
+        - "specs/2026-08-10-required-check-workflow-binding/archive-receipt.yaml"
+        - "docs/交付形态与成熟度.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "本次只使用公开仓库内的 Replay、脱敏 Run 标识和通用成熟度结论，不引入受限来源内容。"
+      evidence_refs:
+        - "specs/2026-08-10-maturity-projection-consistency/research.md"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:b4f3d79c58bc3bf94470c8e4dbb0f5039e881228bfe0d0de0bc2379ad8297d9c"
