@@ -1,6 +1,6 @@
 id: "2026-08-10-governance-context-cost-optimization"
 title: "治理上下文成本归因与最小加载优化"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-10"
 updated_at: "2026-08-10"
 scope:
@@ -25,7 +25,7 @@ artifacts:
   tasks: "./tasks.md"
   research: "./research.md"
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -38,4 +38,4 @@ active_context:
   summary: "归因、最小实现、行为/成本回归和 Knowledge Projection 均已完成；只证明 Specflow 固定治理输入下降，不声称端到端 Token 已稳定下降，事项等待用户决定是否归档。"
   next_task_id: null
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true

@@ -1,0 +1,104 @@
+schema_version: 1
+receipt_id: "2026-08-10-governance-context-cost-optimization:first-terminal"
+spec_id: "2026-08-10-governance-context-cost-optimization"
+created_at: "2026-08-10T04:26:58Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-10T04:26:58Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-10:archive-commit-push-change-gate-provider"
+snapshot:
+  source_revision: "8c961e5c20057b81fa0d9d42d1566271ee3cfd5b"
+  base_revision: "204a4c92ef1aea3eea1fc1baa7643b63b26e31b3"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:bb056fffb2aba8a1206e4832435f4168c5765dd0abe5a6ac9a2b07e927657b7e"
+    excludes:
+      - "specs/2026-08-10-governance-context-cost-optimization"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:fffebe672fe36a79c82020d1a08befda1466c88994c11655cf62394e7534503b"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:54cc5b5bfe91e1e553a2d72804f8ec027016b10dba11b22474c31f3c6988cf97"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:ca299ca7c9412f72bb817aaa5b059443cd23844647fe39c73b920b58687ea90e"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:0d98e61ff85d8b043252aafc2c4c1c2d5d073757212be86cc9c264435335619b"
+    - role: "research"
+      path: "./research.md"
+      digest: "sha256:1b14ea25e54d26fb7ad140531098513467905e8a97951ef2f6404d8942845ddb"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:8c961e5c20057b81fa0d9d42d1566271ee3cfd5b"
+    - "gate:work:sha256:595513d91249f76fe133dba431e25928d6ab2d1ed46080eae2616f8a053c17d9"
+    - "snapshot:sha256:bb056fffb2aba8a1206e4832435f4168c5765dd0abe5a6ac9a2b07e927657b7e"
+    - "eval:specflow:13-of-13-pass"
+    - "eval:project-context-bootstrap:7-of-7-pass"
+    - "test:npm-test-93-pass"
+    - "check:repository"
+    - "check:specflow-knowledge"
+    - "check:knowledge-projection"
+    - "check:sensitive-content"
+    - "check:git-diff-check"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "Specflow 高频主入口改为普通流程与终态材料渐进披露，并明确固定治理输入与端到端 Token 分层报告。"
+      evidence_refs:
+        - "skills/specflow/SKILL.md"
+        - "skills/specflow/evals/cases/13-ordinary-planning-progressive-disclosure.md"
+        - "skills/specflow/evals/traces/2026-08-10/replay.md"
+        - "specs/2026-08-10-governance-context-cost-optimization/research.md"
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "本次只收敛既有 Skill 内容和验证边界，没有把仓库扩张为 Agent Runtime、通用 Skill 选择器或新平台。"
+      evidence_refs:
+        - "skills/specflow/SKILL.md"
+        - "knowledge/repository-positioning.md"
+    - action: "still-valid"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "选择性安装与 Resolver 新字段因缺少稳定收益被拒绝，最终没有新增 Host 抽象、Runtime 或无消费者 Schema。"
+      evidence_refs:
+        - "specs/2026-08-10-governance-context-cost-optimization/plan.md"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "公开实验材料只保存脱敏聚合计量和行为摘要，原始会话日志保存在临时目录并在复核后删除。"
+      evidence_refs:
+        - "skills/specflow/evals/traces/2026-08-10/replay.md"
+        - "specs/2026-08-10-governance-context-cost-optimization/research.md"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:882917e0d656528c6a492fd457e0d930f722d89568e7750d41d8870853bec17c"
