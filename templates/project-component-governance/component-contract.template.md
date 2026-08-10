@@ -9,19 +9,19 @@ tags:
 
 # <组件名>
 
-## Purpose
+## 目的
 
 <解决什么问题，以及为什么由组件承担。>
 
-## When to use
+## 适用场景
 
 - <适用场景>
 
-## When not to use
+## 不适用场景
 
 - <不适用场景和替代方案>
 
-## Public API
+## 公开 API
 
 ```ts
 interface Props {
@@ -29,7 +29,7 @@ interface Props {
 }
 ```
 
-## States and behavior
+## 状态与行为
 
 | 状态或交互 | 行为 |
 | --- | --- |
@@ -39,39 +39,39 @@ interface Props {
 | 错误 |  |
 | 禁用或只读 |  |
 
-## Minimal example
+## 最小示例
 
 ```tsx
 // 使用完全合成的数据和名称
 ```
 
-## Dependencies and runtime
+## 依赖与运行时
 
 - 样式或主题要求：
 - 运行时依赖：
 - 重依赖与加载策略：
 - 不允许泄漏到公开 API 的消费方上下文：
 
-## Don’ts
+## 禁止事项
 
 - <常见误用>
 
-## Edge cases
+## 边界情况
 
 - <边界输入、状态或兼容行为>
 
-## Validation
+## 验证
 
 - Story/Demo：
 - 自动测试：
 - 消费方验证：
 
-## Related and alternatives
+## 相关组件与替代方案
 
 - 可替代组件：
 - 组合组件：
 
-## Compatibility and deprecation
+## 兼容与废弃
 
 - 当前兼容承诺：
 - 废弃替代项：

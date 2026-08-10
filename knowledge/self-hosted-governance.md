@@ -31,8 +31,9 @@
 - 当存在不可变 Base/Source 时，Change Gate 对完整候选执行一个或多个 Spec 的显式集合关联和 Scope 并集覆盖，或者使用受控路径型豁免；交付阶段逐项复核 Archived Receipt、Lifecycle 摘要链和同一最终候选摘要。Include/Exclude 只限定 Receipt 摘要复核范围，不能缩小关联检查范围。
 - Change Gate 结果是仓库内可复核证据，不是终态授权或外部交付成功证明；当前工作区没有获准形成不可变版本时，应明确记录“未执行”，不得自行提交以让门禁通过。
 - Delivery 阶段声明 Required Checks 后，Change Gate 从 Git Remote 与 Adapter Registry 自动选择平台 Provider；在本地候选、Scope 和 Receipt 均通过后，当前 GitHub Actions Adapter 只读复核同一最终 Source SHA 上 App、Check Name 与 Workflow Path 精确匹配的 Check，并用 Check Suite/Workflow Run 绑定来源。门禁只取显式 Required Check 的结论，不等待包含当前 Delivery 的整个 Workflow Run 结束，避免自依赖；未被选择的 Job 不自动扩张为门禁。平台路由不自动猜测门禁策略；该证据不等于 Branch Protection、PR 审批、合入、部署或发布，认证和原始 API 响应不进入结果。
+- Foundation PR #2 已在归档提交 `aa8ac3f` 上完成同一 Source SHA 的 Verify 与 Delivery 正向检查并合入主分支；该真实自举证据只证明当前显式 Required Check 与 Delivery Gate 闭环，不证明 Branch Protection、审批、部署、发布或其他 Git Provider。
 - Skill 行为成熟度使用 Case、Rubric、脱敏 Trace 和 Replay 配置形成可重算证据；Runner 动态读取真实目录并执行阻塞优先评分，但不把评分者的语义判断伪装成确定性事实，也不固定模型或推理强度。
-- 行为 Replay 与真实采用观察分层保存：Replay 证明合成 Case 中所测行为，真实样本对照补充外部有效性和上下文成本；相同任务出现成本回归时必须保留该结果，不能因无阻塞级失败或平均分通过而升级成熟度。
+- 行为 Replay 与真实采用观察分层保存：Replay 决定所测行为是否达到行为成熟度门禁，真实样本对照补充外部有效性、上下文成本和适用范围。成本回归或覆盖不足必须保留为限制，但不能改写正式 Replay 已通过的事实，也不能被 `validated` 标签掩盖。
 - 高频 Skill 主入口使用渐进披露：普通 Spec/Plan 任务只加载核心工作流，归档、Lifecycle、关系事务和 Delivery Gate 的完整契约仅在对应终态场景触发时读取既有 Reference；固定治理输入缩减与端到端 Token 必须分层报告，不能用前者推断后者稳定下降。
 - Distribution Manifest 以运行时文件摘要声明允许分发的 Skill；采用方的 Plan/Verify 只读，Apply 只写项目级受管目录，升级时保护采用方修改和未知文件。Foundation 生产者模式只迁移摘要一致的受管副本，并严格校验 `.agents/skills -> ../skills`；源码修改可由 Host 下次读取直接可见，但发布检查仍要求 Manifest 摘要同步。
 
