@@ -1,0 +1,99 @@
+schema_version: 1
+receipt_id: "2026-08-10-required-check-workflow-binding:first-terminal"
+spec_id: "2026-08-10-required-check-workflow-binding"
+created_at: "2026-08-10T10:16:44Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-10T10:16:44Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-10:change-gate-archive-commit-push-merge"
+snapshot:
+  source_revision: "db067c9e1239836eeee3599518fcb1fcfca43b3c"
+  base_revision: "769cc1f24bc877095d97d808332e5cf92404315a"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:5058236bc38f22e0f6c22e174cf191cf506712053d94586a2aebc7ab44b8440d"
+    excludes:
+      - "specs/2026-08-10-required-check-workflow-binding"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:bf46e3e331807180f9a60a1a505bd37502b4c5065f990756249dc3df07439d0d"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:54562c4ea71efb94d553e7bef6c7686c78d79d04eace8711938dc5fadf875dc4"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:7adbcb0c74a0a7a645f30de191a572344d5b3856cc4195124259073cb9646ebb"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:c9f0c2866361884fb3edea868ce01114859544b08c37679172e3f4dfabeb608e"
+    - role: "research"
+      path: "./research.md"
+      digest: "sha256:181e22dd35a21dafda300ee0d8258e7eae78ad5acfcd22573acfca3058c9cc33"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:db067c9e1239836eeee3599518fcb1fcfca43b3c"
+    - "gate:work:sha256:a4f41eea8e0b9c25d5b159b74895fa8ff1286d862111c01ff1d6da05fed6746b"
+    - "snapshot:sha256:5058236bc38f22e0f6c22e174cf191cf506712053d94586a2aebc7ab44b8440d"
+    - "test:github-delivery-evidence-7-pass"
+    - "test:npm-test-108-pass"
+    - "test:scale-2-pass"
+    - "provider:foundation-pr-2-run-31376631603"
+    - "provider:fwwb-pr-1-run-31376683138"
+    - "check:repository-doctor-distribution"
+    - "check:specflow-knowledge-projection"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "真实 PR 证明 Workflow 来源绑定不能扩张为未声明的整体 Workflow 门禁，需要明确 Required Check 与来源 Evidence 的边界。"
+      evidence_refs:
+        - "adapters/delivery-evidence/github-actions.mjs"
+        - "packages/harness/test/github-delivery-evidence.test.mjs"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "本仓同 Workflow Verify/Delivery 的真实自依赖要求固化显式 Check 判定和 Workflow 来源绑定分层。"
+      evidence_refs:
+        - ".github/workflows/quality.yml"
+        - "specs/2026-08-10-required-check-workflow-binding/research.md"
+        - "knowledge/self-hosted-governance.md"
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "本次修复既有 GitHub Provider 的窄语义，不新增平台或 Runtime。"
+      evidence_refs:
+        - "adapters/delivery-evidence/github-actions.mjs"
+        - "knowledge/repository-positioning.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "Evidence 只保留通用错误码、脱敏 Run ID 和公开 API 语义。"
+      evidence_refs:
+        - "specs/2026-08-10-required-check-workflow-binding/research.md"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:15ee2271d108b2825ea3949807ba582f4b349a74739a75fb283c534d73252840"
