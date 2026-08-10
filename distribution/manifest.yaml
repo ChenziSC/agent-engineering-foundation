@@ -64,7 +64,7 @@ skills:
     source: skills/specflow
     version:
       type: content-hash
-      value: sha256:470c6b7a8efc9851b6f2fac4a4aa18ee5ae591926c8f402ebb09d146b2c23e7f
+      value: sha256:e81b3540c5f15d120a67e051e72153ba56fa21bfb7beed3c0878e725d60dfce1
     distributable: true
     required_files:
       - SKILL.md

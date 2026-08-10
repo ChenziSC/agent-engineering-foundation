@@ -1,0 +1,32 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "真实 PR 证明 Workflow 来源绑定不能扩张为未声明的整体 Workflow 门禁，需要明确 Required Check 与来源 Evidence 的边界。"
+    evidence_refs:
+      - "adapters/delivery-evidence/github-actions.mjs"
+      - "packages/harness/test/github-delivery-evidence.test.mjs"
+      - "knowledge/deterministic-core-boundary.md"
+  - action: "update"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "本仓同 Workflow Verify/Delivery 的真实自依赖要求固化显式 Check 判定和 Workflow 来源绑定分层。"
+    evidence_refs:
+      - ".github/workflows/quality.yml"
+      - "specs/2026-08-10-required-check-workflow-binding/research.md"
+      - "knowledge/self-hosted-governance.md"
+  - action: "still-valid"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "本次修复既有 GitHub Provider 的窄语义，不新增平台或 Runtime。"
+    evidence_refs:
+      - "adapters/delivery-evidence/github-actions.mjs"
+      - "knowledge/repository-positioning.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "Evidence 只保留通用错误码、脱敏 Run ID 和公开 API 语义。"
+    evidence_refs:
+      - "specs/2026-08-10-required-check-workflow-binding/research.md"
+      - "knowledge/public-generalization-policy.md"
