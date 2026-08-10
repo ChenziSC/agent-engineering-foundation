@@ -165,7 +165,7 @@ entries:
       - "templates/"
       - "blueprints/"
     topics:
-      - "capability-inventory"
+      - "source-review"
       - "public-generalization"
       - "rights-and-redaction"
       - "release-safety"
@@ -183,7 +183,7 @@ entries:
         digest: "sha256:b1d4d73cd56360312eb07bf6e8988e4a05b6fe73d239f91b63eb33050d6899bf"
     refresh_triggers:
       - "公开处理等级或准入规则变化"
-      - "能力盘点或覆盖台账字段变化"
+      - "发布前人工来源与权属复核要求变化"
       - "发布权属与敏感信息门禁变化"
     load_when:
       - "盘点或迁移受限来源能力"

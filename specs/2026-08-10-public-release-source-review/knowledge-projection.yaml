@@ -1,0 +1,11 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "逐项仓外覆盖台账与维护者确认的事实不一致；长期策略改为每个公开版本执行可复核的人工来源、权属、脱敏和排除项检查。"
+    evidence_refs:
+      - "AGENTS.md"
+      - "docs/公开内容来源说明.md"
+      - "docs/公开发布检查清单.md"
+      - "knowledge/public-generalization-policy.md"

@@ -1,0 +1,38 @@
+id: "2026-08-10-public-release-source-review"
+title: "公开发布来源复核与历史脱敏"
+status: "in-progress"
+created_at: "2026-08-10"
+updated_at: "2026-08-10"
+scope:
+  - "AGENTS.md"
+  - "docs/公开内容来源说明.md"
+  - "docs/公开发布检查清单.md"
+  - "docs/能力问题图谱.md"
+  - "knowledge/public-generalization-policy.md"
+  - "knowledge/registry.yaml"
+  - "specs/2026-08-10-public-release-source-review/"
+  - "specs/2026-08-10-self-hosted-adoption-closure/validation-report.md"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-10"
+  refresh_triggers:
+    - "公开发布的来源、权属或敏感信息复核规则变化"
+    - "Git 历史脱敏或归档证据完整性机制变化"
+active_context:
+  summary: "已获授权将逐项仓外台账改为发布前人工来源与权属复核，并清洗归档报告中的本机绝对路径及对应历史证据。"
+  next_task_id: "T-02"
+authorization:
+  terminal_transition_confirmed: false
