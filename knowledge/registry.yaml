@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-self-hosted-adoption-closure"
-      action: "update"
+      spec_id: "2026-08-10-delivery-check-dedup-closure"
+      action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:3f69fe419a10cdc3f67e0c3a56545d073f04757b735926faf594cb4aac9d4e4d"
+      decision_digest: "sha256:04f457c22783be3ae99d975510cf30e96357aed731a363b378ded9085089d21e"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -91,10 +91,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-self-hosted-adoption-closure"
-      action: "update"
+      spec_id: "2026-08-10-delivery-check-dedup-closure"
+      action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:4c9ec2ad549cdcc23996e981b749bc7b48846ce6ec155e760860bd4e7b63a7fa"
+      decision_digest: "sha256:4f9816859b16d04c692ef9f9a21027c622fc76e837601b019e0382bf2370ad72"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -136,7 +136,7 @@ entries:
       - path: "distribution/manifest.yaml"
         digest: "sha256:b8953731d375e5fdda139fe5f4a11616a9f599c211afcf8c560c40b429aeee8d"
       - path: ".github/workflows/quality.yml"
-        digest: "sha256:8038c937d2228b93fe4127993d7336af9a8839e0b9d3b9de2e74239cc4136566"
+        digest: "sha256:f3eb7e0ea6c536d7215a545849c8dd8a0a5d412d510ccaff29af7a59f3cab473"
     refresh_triggers:
       - "Specflow 生命周期或产物职责变化"
       - "Knowledge 准入或投影规则变化"
@@ -148,10 +148,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-self-hosted-adoption-closure"
+      spec_id: "2026-08-10-delivery-check-dedup-closure"
       action: "update"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:f4614c55cda79f34d012f6a245c594bfa2d517e0e6a11989072daace1d3b890b"
+      decision_digest: "sha256:7075ff574b6d56b4a974ee1972921ed96927490ec52eae5d7317bba527f931bd"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -192,7 +192,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-self-hosted-adoption-closure"
+      spec_id: "2026-08-10-delivery-check-dedup-closure"
       action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:85f0ee58f5c89e217e48376aa8d93a7b9c3d00a4497c044df3558bdb9a1fe2f1"
+      decision_digest: "sha256:a70cbdf89b30a042ee2f725945c29307b249228e59c29fa9e30ca0ec8107c746"

@@ -28,6 +28,8 @@ test('本仓真实 Workflow 串联 Continuous 与同 SHA Delivery Gate', async (
     'node .github/scripts/run-delivery-gate.mjs',
   ]) assert.ok(workflow.includes(command), command);
   assert.match(workflow, /delivery:\s*\n\s+if: github\.event_name == 'pull_request'\s*\n\s+needs: verify/u);
+  assert.match(workflow, /push:\s*\n\s+branches:\s*\n\s+- main/u);
+  assert.match(workflow, /name: 确认门禁没有改写项目\s*\n\s+if: always\(\)/u);
   assert.match(workflow, /checks: read/u);
   assert.match(workflow, /actions: read/u);
   assert.match(workflow, /SOURCE_SHA: "\$\{\{ github\.event\.pull_request\.head\.sha \}\}"/u);

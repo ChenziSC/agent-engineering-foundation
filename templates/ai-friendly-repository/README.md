@@ -41,7 +41,7 @@
 | Continuous | 日常任务或普通 CI 持续发现结构、摘要和路由漂移 | `doctor`、`knowledge check`、`specflow check`、`distribution verify`、`git diff --exit-code` | 全部只读 |
 | Delivery | 对不可变 Git 候选复核 Spec Scope、Receipt、Projection、最终差异与平台外部检查 | Continuous 全部命令，加 `change gate check --phase delivery`；Remote 自动选择已注册 Provider | 全部只读，不猜测 Required Checks，也不推断终态授权、Branch Protection 或外部发布成功 |
 
-两个 CI 模板不运行 Distribution Apply，不创建 Hook，也不执行 Commit、Push、归档、发布或外部平台写入。Delivery 模板的本地候选、Receipt 校验与平台路由保持 Provider-neutral；当前 GitHub Actions Adapter 只读取 Checks/Workflow Runs。采用方负责从自身事件安全解析不可变最终 SHA、Spec ID 和受信策略；在 Pull Request 场景必须明确选择 Head SHA 或 Merge SHA。新增其他平台时应提供对应薄 Adapter 和模板，不在 Core 增加平台判断。CLI 包尚未进入采用方批准的发布渠道时，不应删除精确版本占位保护。
+两个 CI 模板不运行 Distribution Apply，不创建 Hook，也不执行 Commit、Push、归档、发布或外部平台写入。持续治理模板只在 Pull Request 和默认分支 Push 上运行，避免同一功能分支 SHA 同时产生两个同名 Required Check；采用方默认分支不是 `main` 时必须显式替换。Delivery 失败后仍以 `always()` 执行工作区只读复核。Delivery 模板的本地候选、Receipt 校验与平台路由保持 Provider-neutral；当前 GitHub Actions Adapter 只读取 Checks/Workflow Runs。采用方负责从自身事件安全解析不可变最终 SHA、Spec ID 和受信策略；在 Pull Request 场景必须明确选择 Head SHA 或 Merge SHA。新增其他平台时应提供对应薄 Adapter 和模板，不在 Core 增加平台判断。CLI 包尚未进入采用方批准的发布渠道时，不应删除精确版本占位保护。
 
 `required_check` 应指向 Delivery Job 之前已经完成的上游 Workflow/Job，不能选择正在执行的 Delivery Job 自身，否则它会按“尚未完成”失败关闭。
 

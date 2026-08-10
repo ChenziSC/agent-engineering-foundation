@@ -1,0 +1,32 @@
+impact: "reviewed"
+decisions:
+  - action: "update"
+    knowledge_id: "self-hosted-governance"
+    target_knowledge_id: null
+    reason: "真实 PR 证明功能分支 Push 与 Pull Request 双触发会让同 SHA Required Check 歧义，需要固化事件去重与失败后只读复核。"
+    evidence_refs:
+      - ".github/workflows/quality.yml"
+      - "packages/harness/test/self-hosted-workflow.test.mjs"
+      - "specs/2026-08-10-delivery-check-dedup-closure/research.md"
+      - "knowledge/self-hosted-governance.md"
+  - action: "still-valid"
+    knowledge_id: "deterministic-core-boundary"
+    target_knowledge_id: null
+    reason: "修复保留 Provider 对歧义的失败关闭，不增加平台判断或放宽外部证据契约。"
+    evidence_refs:
+      - "adapters/delivery-evidence/github-actions.mjs"
+      - "knowledge/deterministic-core-boundary.md"
+  - action: "still-valid"
+    knowledge_id: "repository-positioning"
+    target_knowledge_id: null
+    reason: "本次只纠偏既有真实 GitHub 消费者和公共模板，不扩张仓库定位。"
+    evidence_refs:
+      - "templates/ai-friendly-repository/ci/github-actions.yml"
+      - "knowledge/repository-positioning.md"
+  - action: "still-valid"
+    knowledge_id: "public-generalization-policy"
+    target_knowledge_id: null
+    reason: "公开材料只保存通用失败码、脱敏 Run ID 和事件语义，不包含 Token 或原始 API 响应。"
+    evidence_refs:
+      - "specs/2026-08-10-delivery-check-dedup-closure/research.md"
+      - "knowledge/public-generalization-policy.md"

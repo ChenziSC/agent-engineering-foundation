@@ -3,6 +3,8 @@ name: quality
 on:
   pull_request:
   push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -63,4 +65,5 @@ jobs:
           GITHUB_TOKEN: "${{ github.token }}"
         run: node .github/scripts/run-delivery-gate.mjs
       - name: 确认门禁没有改写项目
+        if: always()
         run: git diff --exit-code
