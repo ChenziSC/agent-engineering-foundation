@@ -31,7 +31,7 @@ entries:
       - path: "README.md"
         digest: "sha256:b42bba31d0512d4f7335a0772bdbc832854bbc38698e18f446211bc7ca51123d"
       - path: "packages/harness/README.md"
-        digest: "sha256:f72d01e94d853c27eb457cfe13f9eb1ffedc2176f275294ee5d83bebc87de877"
+        digest: "sha256:bf57b08def58aa486cf533c606c0d23ad955703c9fdb3cd84a080f42e02af0f0"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
         digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
     refresh_triggers:
@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-governance-context-cost-optimization"
-      action: "still-valid"
+      spec_id: "2026-08-10-github-delivery-evidence-provider"
+      action: "update"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:3a59d44fd08e6010aec7e35c3d8a85786add9a8bdc9260a9645a11b8985f2186"
+      decision_digest: "sha256:a572846872e2b297e270ebc7bc544c002609b667d22110756f627c2e34f7909a"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -79,7 +79,7 @@ entries:
       - path: "distribution/README.md"
         digest: "sha256:41be4580bfa7a2aa3eb85a62da317b0c8c059a121c259bbf29dbec07a1253996"
       - path: "packages/harness/README.md"
-        digest: "sha256:f72d01e94d853c27eb457cfe13f9eb1ffedc2176f275294ee5d83bebc87de877"
+        digest: "sha256:bf57b08def58aa486cf533c606c0d23ad955703c9fdb3cd84a080f42e02af0f0"
     refresh_triggers:
       - "主流 Agent Host 原生能力边界变化"
       - "Harness、Framework、Skill、Package 或 Adapter 依赖方向变化"
@@ -91,10 +91,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-governance-context-cost-optimization"
-      action: "still-valid"
+      spec_id: "2026-08-10-github-delivery-evidence-provider"
+      action: "update"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:3f7352f036a7a3dcef94e88d814d3bacb95d614cc55baf8f2d6f3536eeb8f47c"
+      decision_digest: "sha256:31e7b328544494686317be6b48da03c777e9fdb9a68ba3d6e65b3cb4d5d203cb"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -134,10 +134,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-governance-context-cost-optimization"
+      spec_id: "2026-08-10-github-delivery-evidence-provider"
       action: "update"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:cb1a6f836e5a7f9b30b295fcc95560f1df7baf226d72b8fa49c9b402b2144166"
+      decision_digest: "sha256:3b5b2160b2e6c2e8ed0810952b1ce79c463dbf82069e34984eaac12abd82217b"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -178,7 +178,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-governance-context-cost-optimization"
+      spec_id: "2026-08-10-github-delivery-evidence-provider"
       action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:ffe3efd24da827545114b67f8c1da25b4986d730f51380b4ec9fe587d6dae949"
+      decision_digest: "sha256:43618e09b4ac4e70d301a98375e51f7a1d0a150fc5ec860404c98b5ab49dc02e"

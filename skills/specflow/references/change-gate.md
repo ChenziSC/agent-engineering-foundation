@@ -1,6 +1,6 @@
 # 事项—变更关联与交付门禁
 
-Change Gate 回答两个问题：当前不可变变更候选属于哪些研发事项，以及它是否具备进入下一交付阶段的仓库内证据。它不决定业务意图，不创建 Commit、PR/MR 或发布，也不替代外部平台检查。
+Change Gate 回答两个问题：当前不可变变更候选属于哪些研发事项，以及它是否具备进入下一交付阶段的可复核证据。它不决定业务意图，不创建 Commit、PR/MR、Check 或发布，也不替代 Branch Protection、审批、部署和发布平台策略。
 
 ## 核心不变量
 
@@ -33,6 +33,10 @@ Spec 模式在 `work` 的基础上还要求：
 - 每个事项的 Archive Receipt 和 Lifecycle Chain 可完整验证；
 - 每个 Meta 的状态与关系等于各自生命周期链尾；
 - 每份 Receipt 的 Base、Scope、算法、Excludes 和变更摘要都与同一最终 Merge Candidate 重新计算结果一致。
+
+声明 Delivery Required Checks 时，只有上述本地 Gate 已通过才读取外部证据。Change Gate 默认从 `origin`（或仓库唯一 Remote）识别平台，并选择唯一匹配的已注册 Delivery Evidence Adapter；未识别、未实现或多匹配都失败关闭。GitHub Actions 首个实现要求同一最终 Source SHA 上的必需 Check 精确匹配 App、Check Name 与 Workflow Path，且 Check Run 和 Workflow Run 都为 `completed/success`。外部证据缺失、未完成、非成功、歧义、权限不足或 API 失败均阻断，但不会回显 Token 或原始响应。
+
+平台可以从 Remote 机械识别，门禁策略不能从当前成功项自动猜测。必需 Check、审批、部署或发布规则必须由采用项目显式声明，否则候选分支可以通过新增一个自选成功任务弱化门禁。
 
 归档之后又修改实现，即使 Spec 文档和 Receipt 仍存在，也会因候选摘要漂移而阻断。无 Spec 的受控低风险候选可以直接运行 `delivery`，但它仍必须满足完整候选路径分类。
 
@@ -86,6 +90,21 @@ agent-foundation change gate check \
   --exclude specs/<product-spec-id>,specs/<technical-spec-id>
 ```
 
+在 GitHub Actions 中进一步复核同一最终 Source SHA 的外部 Check；选择器必须绑定 Workflow Path，避免同名 Job 冒充：
+
+```bash
+GITHUB_TOKEN=<checks-and-actions-read-token> agent-foundation change gate check \
+  --target <project-root> \
+  --base <base-sha> \
+  --source <final-source-sha> \
+  --spec-id <spec-id> \
+  --phase delivery \
+  --exclude specs/<spec-id> \
+  --required-check 'github-actions/verify@.github/workflows/quality.yml'
+```
+
+默认 Remote 不适用时可用 `--delivery-remote <name>` 指定。镜像、企业版或特殊代理无法可靠识别时，允许成对传入 `--delivery-provider <id> --repository <provider-repository>`；只提供其中一个会阻断。
+
 无 Spec 的确定性低风险候选：
 
 ```bash
@@ -97,8 +116,8 @@ agent-foundation change gate check \
   --phase delivery
 ```
 
-输出包含完整候选路径、稳定排序的 Spec 集合、各 Spec 状态、Source Control 摘要、Receipt Scope 摘要和稳定 `gateDigest`。交付阶段还逐项输出 Receipt/Lifecycle 复核结果。它是可保存的复核证据，不是 Commit、合入、部署或上线证明。
+输出包含完整候选路径、稳定排序的 Spec 集合、各 Spec 状态、Source Control 摘要、Receipt Scope 摘要和稳定 `gateDigest`。交付阶段还逐项输出 Receipt/Lifecycle 复核结果；启用外部 Provider 时增加规范化的 Check/Workflow Evidence。它是可保存的复核证据，不是 Branch Protection、PR 审批、合入、部署或上线证明。
 
 ## Provider 边界
 
-核心门禁只消费 Source Control Adapter 的中立 Merge Candidate 契约。当前参考实现为本地 Git；其他版本控制系统可以提供同等的 Base、Source、最终路径/对象摘要和冲突/脏状态语义。Commit Message、分支名、PR/MR 字段和 CI 环境变量都不是核心契约。
+核心门禁消费两类独立契约：Source Control Adapter 提供中立 Merge Candidate，Delivery Evidence Adapter 可选提供同一最终 Source Revision 的外部检查事实。Core 只根据 Git Remote 和 Adapter 声明做确定性路由，不包含 GitHub、GitLab、Bitbucket 或内部平台分支。当前参考实现分别为本地 Git 和 GitHub Actions；后者不从 GitHub Diff API 重做 Git 摘要，也不读取或声称 Branch Protection。其他系统出现真实消费者后增加薄 Adapter 及 Remote 匹配器，即可进入同一路由。Commit Message、分支名和 PR/MR 文本都不是核心关联契约。

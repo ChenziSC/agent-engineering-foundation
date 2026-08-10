@@ -14,6 +14,7 @@ import {
 } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveDeliveryEvidenceProvider } from '../../../adapters/delivery-evidence/remote-resolver.mjs';
 import { defaultAdapterRegistry } from '../../../adapters/registry.mjs';
 import {
   canonicalJson,
@@ -1501,6 +1502,22 @@ function changeGateDigest(evidence) {
     deliveryReceipts: evidence.delivery.map(({ specId, receiptDigest }) => ({ specId, receiptDigest })),
     changedPaths: evidence.changedPaths,
   };
+  if (evidence.externalDelivery) {
+    payload.externalDelivery = {
+      provider: evidence.externalDelivery.provider,
+      repository: evidence.externalDelivery.repository,
+      revision: evidence.externalDelivery.revision,
+      checks: evidence.externalDelivery.checks.map(({ id, name, app, status, conclusion, workflowPath, workflowRunId }) => ({
+        id,
+        name,
+        app,
+        status,
+        conclusion,
+        workflowPath,
+        workflowRunId,
+      })),
+    };
+  }
   return `sha256:${createHash('sha256').update(JSON.stringify(payload)).digest('hex')}`;
 }
 
@@ -1570,6 +1587,10 @@ export async function checkChangeGate(
     includePaths = [],
     excludePaths = [],
     provider = 'local-git',
+    deliveryProvider,
+    repository,
+    deliveryRemote,
+    requiredChecks = [],
     adapterRegistry = defaultAdapterRegistry,
   } = {},
 ) {
@@ -1586,6 +1607,33 @@ export async function checkChangeGate(
   }
   if (hasExemption && !CHANGE_GATE_EXEMPTIONS.has(exemption)) {
     modeErrors.push({ code: 'invalid-change-gate-exemption', exemption });
+  }
+  const hasDeliveryConfiguration =
+    deliveryProvider !== undefined ||
+    repository !== undefined ||
+    deliveryRemote !== undefined ||
+    (Array.isArray(requiredChecks) && requiredChecks.length > 0);
+  if (!Array.isArray(requiredChecks) || requiredChecks.some((value) => typeof value !== 'string')) {
+    modeErrors.push({ code: 'invalid-change-gate-delivery-checks' });
+  }
+  if (hasDeliveryConfiguration && phase !== 'delivery') {
+    modeErrors.push({ code: 'change-gate-delivery-provider-phase', message: '外部交付 Provider 只允许用于 delivery 阶段' });
+  }
+  const usesAutomaticDeliveryProvider =
+    hasDeliveryConfiguration && (deliveryProvider === undefined || deliveryProvider === 'auto') && repository === undefined;
+  const usesExplicitDeliveryProvider =
+    typeof deliveryProvider === 'string' && deliveryProvider && deliveryProvider !== 'auto' && typeof repository === 'string' && repository;
+  if (hasDeliveryConfiguration && (!requiredChecks.length || (!usesAutomaticDeliveryProvider && !usesExplicitDeliveryProvider))) {
+    modeErrors.push({
+      code: 'change-gate-delivery-provider-config-invalid',
+      message: '外部交付门禁必须提供 requiredChecks，并选择自动识别或同时显式提供 Provider 与 Repository',
+    });
+  }
+  if (deliveryRemote !== undefined && !usesAutomaticDeliveryProvider) {
+    modeErrors.push({
+      code: 'change-gate-delivery-remote-mode',
+      message: 'deliveryRemote 只用于自动识别外部交付 Provider',
+    });
   }
   if (modeErrors.length) return changeGateResult(projectRoot, phase, modeErrors, null);
 
@@ -1627,6 +1675,9 @@ export async function checkChangeGate(
   if (!changedPaths.length) errors.push({ code: 'change-gate-empty-candidate' });
   let association;
   const delivery = [];
+  let externalDelivery;
+  let selectedDeliveryProvider = deliveryProvider;
+  let selectedRepository = repository;
   if (hasExemption) {
     const mismatchedPaths = changedPaths.filter((candidate) => !changeGatePathMatchesExemption(exemption, candidate));
     if (mismatchedPaths.length) {
@@ -1677,6 +1728,58 @@ export async function checkChangeGate(
       evidencePaths: changedPaths.filter((candidate) => !implementationPaths.includes(candidate)),
     };
   }
+  if (hasDeliveryConfiguration && errors.length === 0) {
+    if (usesAutomaticDeliveryProvider) {
+      try {
+        const resolved = resolveDeliveryEvidenceProvider({
+          projectRoot,
+          adapterRegistry,
+          remoteName: deliveryRemote,
+        });
+        selectedDeliveryProvider = resolved.provider;
+        selectedRepository = resolved.repository;
+      } catch (error) {
+        errors.push({
+          code: error.code || 'delivery-evidence-provider-resolution-failed',
+          message: '无法从 Git Remote 选择外部交付 Provider',
+        });
+      }
+    }
+    const adapter = adapterRegistry?.get?.('delivery-evidence', selectedDeliveryProvider);
+    if (!adapter || typeof adapter.inspectDeliveryEvidence !== 'function') {
+      if (errors.length === 0) {
+        errors.push({ code: 'delivery-evidence-provider-unavailable', provider: selectedDeliveryProvider });
+      }
+    } else if (errors.length === 0) {
+      try {
+        const candidate = await adapter.inspectDeliveryEvidence({
+          repository: selectedRepository,
+          revision: fullSnapshot.sourceRevision,
+          requiredChecks,
+        });
+        if (
+          !candidate ||
+          candidate.capability !== 'delivery-evidence' ||
+          candidate.provider !== selectedDeliveryProvider ||
+          candidate.repository !== selectedRepository ||
+          candidate.revision !== fullSnapshot.sourceRevision ||
+          !Array.isArray(candidate.checks)
+        ) {
+          errors.push({ code: 'delivery-evidence-binding-mismatch', provider: selectedDeliveryProvider });
+        } else {
+          externalDelivery = {
+            ...candidate,
+            providerSelection: usesAutomaticDeliveryProvider ? 'remote' : 'explicit',
+          };
+        }
+      } catch (error) {
+        errors.push({
+          code: error.code || 'delivery-evidence-inspect-failed',
+          message: '外部交付证据复核失败',
+        });
+      }
+    }
+  }
   const evidence = {
     schemaVersion: 2,
     phase,
@@ -1692,6 +1795,7 @@ export async function checkChangeGate(
     changedPaths,
     association,
     delivery,
+    ...(externalDelivery ? { externalDelivery } : {}),
   };
   evidence.gateDigest = changeGateDigest(evidence);
   return changeGateResult(projectRoot, phase, errors, evidence);

@@ -12,6 +12,10 @@ on:
       spec_id:
         required: true
         type: string
+      required_check:
+        description: "必需 Check，格式为 github-actions/check-name@.github/workflows/file.yml"
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       base_sha:
@@ -26,9 +30,15 @@ on:
         description: "本次交付关联的 Spec ID"
         required: true
         type: string
+      required_check:
+        description: "必需 Check，格式为 github-actions/check-name@.github/workflows/file.yml"
+        required: true
+        type: string
 
 permissions:
   contents: read
+  checks: read
+  actions: read
 
 env:
   AGENT_FOUNDATION_PACKAGE: "REPLACE_WITH_EXACT_PACKAGE_SPEC"
@@ -53,7 +63,8 @@ jobs:
           BASE_SHA: "${{ inputs.base_sha }}"
           SOURCE_SHA: "${{ inputs.source_sha }}"
           SPEC_ID: "${{ inputs.spec_id }}"
-        run: test "${#BASE_SHA}" -eq 40 && test -z "${BASE_SHA//[0-9a-f]/}" && test "${#SOURCE_SHA}" -eq 40 && test -z "${SOURCE_SHA//[0-9a-f]/}" && test -n "$SPEC_ID" && git cat-file -e "$BASE_SHA^{commit}" && git cat-file -e "$SOURCE_SHA^{commit}"
+          REQUIRED_CHECK: "${{ inputs.required_check }}"
+        run: test "${#BASE_SHA}" -eq 40 && test -z "${BASE_SHA//[0-9a-f]/}" && test "${#SOURCE_SHA}" -eq 40 && test -z "${SOURCE_SHA//[0-9a-f]/}" && test -n "$SPEC_ID" && test -n "$REQUIRED_CHECK" && git cat-file -e "$BASE_SHA^{commit}" && git cat-file -e "$SOURCE_SHA^{commit}"
       - name: 检查项目结构和受管 Skill
         run: agent-foundation doctor
       - name: 检查长期知识
@@ -67,6 +78,8 @@ jobs:
           BASE_SHA: "${{ inputs.base_sha }}"
           SOURCE_SHA: "${{ inputs.source_sha }}"
           SPEC_ID: "${{ inputs.spec_id }}"
-        run: agent-foundation change gate check --base "$BASE_SHA" --source "$SOURCE_SHA" --spec-id "$SPEC_ID" --phase delivery
+          REQUIRED_CHECK: "${{ inputs.required_check }}"
+          GITHUB_TOKEN: "${{ github.token }}"
+        run: agent-foundation change gate check --base "$BASE_SHA" --source "$SOURCE_SHA" --spec-id "$SPEC_ID" --phase delivery --required-check "$REQUIRED_CHECK"
       - name: 确认检查没有改写项目
         run: git diff --exit-code

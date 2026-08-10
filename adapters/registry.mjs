@@ -1,4 +1,5 @@
 import { openAgentHost } from './open-agent/index.mjs';
+import { githubActionsDeliveryEvidence } from './delivery-evidence/github-actions.mjs';
 import { localGitSourceControl } from './source-control/local-git.mjs';
 
 const IDENTIFIER_PATTERN = /^[a-z0-9][a-z0-9-]{0,63}$/u;
@@ -29,4 +30,8 @@ export function createAdapterRegistry(adapters = []) {
   });
 }
 
-export const defaultAdapterRegistry = createAdapterRegistry([openAgentHost, localGitSourceControl]);
+export const defaultAdapterRegistry = createAdapterRegistry([
+  openAgentHost,
+  localGitSourceControl,
+  githubActionsDeliveryEvidence,
+]);

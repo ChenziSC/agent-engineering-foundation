@@ -1765,12 +1765,15 @@ test('采用项目 Delivery CI 模板只接受不可变 Git 候选并调用只�
   assert.match(template, /base_sha:/u);
   assert.match(template, /source_sha:/u);
   assert.match(template, /spec_id:/u);
+  assert.match(template, /required_check:/u);
+  assert.match(template, /checks: read/u);
   assert.match(template, /test "\$\{#BASE_SHA\}" -eq 40/u);
   assert.match(template, /test "\$\{#SOURCE_SHA\}" -eq 40/u);
   assert.match(
     template,
-    /agent-foundation change gate check --base "\$BASE_SHA" --source "\$SOURCE_SHA" --spec-id "\$SPEC_ID" --phase delivery/u,
+    /agent-foundation change gate check --base "\$BASE_SHA" --source "\$SOURCE_SHA" --spec-id "\$SPEC_ID" --phase delivery --required-check "\$REQUIRED_CHECK"/u,
   );
+  assert.doesNotMatch(template, /--delivery-provider|--repository/u);
   for (const command of [
     'agent-foundation doctor',
     'agent-foundation knowledge check',

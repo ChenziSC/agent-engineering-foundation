@@ -98,6 +98,7 @@ Harness 内已有多个真实消费者的统一错误、项目内路径与 Symli
 - 自然语言 Skill 的正式回放只证明所测行为，不证明底层静态分析、运行态或完整性语义。
 - 没有确定性实现时，可以称“调研”“审计”“候选生成”或 `designed`，不能称“AST 切片已实现”“完整调用图”“运行态验证”或 `reference-implemented`。
 - Adapter 支撑的能力必须分别标记核心契约与 Adapter 成熟度，不能用合成 Schema 测试替代真实 Provider Evidence。
+- 真实外部证据按能力拆分薄 Adapter：本地 Git 负责 Merge Candidate 与 Receipt Scope；Change Gate 从 Git Remote 与显式 Registry 自动选择唯一匹配的 Delivery Evidence Adapter，Core 不包含平台分支；GitHub Actions Adapter 只读复核同一最终 Source SHA 上 App、Check Name 与 Workflow Path 精确匹配的 Check/Workflow Run。平台路由不猜测 Required Checks，外部 Check 成功也不扩张为 Branch Protection、审批、合入、部署或发布语义。
 - 能力名称、Docs 投影、Eval Rubric 和实际代码必须指向同一层交付事实。
 
 以 Context 为例：`init plan` 只判断 Starter 的结构差异，`project-context-bootstrap` 只生成存量项目规则、稳定契约、Knowledge 与代码入口候选；候选经维护者审核并另行授权落地后，`context resolve` 才承担日常任务和新会话的最小上下文加载。局部代码阅读只是候选取证方法，普通任务代码探索由 Agent Host 和当前 Spec 承担，不形成独立 Skill 模式。字段级正反向 AST 数据流、读写/累加/透传边、风险规则和结构化时序尚无确定性实现；只有出现真实消费者、语言 Adapter 和相对 Host 基线的收益证据后，才作为独立能力建设。
