@@ -12,4 +12,5 @@
 ## 状态
 
 - `local-verified`：聚焦 Provider 测试 7/7、全量测试 108/108、规模回归 2/2，Repository、Doctor、Distribution、Knowledge、Specflow 与 Knowledge Projection 均通过。
-- 真实 Foundation/fwwb PR Evidence 待完成。
+- 真实 Active 负向 Evidence 已完成：Foundation Run `31376631603`、fwwb Run `31376683138` 均只剩 `change-gate-spec-not-archived`，且失败后只读复核成功。
+- Archived 正向 Evidence 待独立终态授权。

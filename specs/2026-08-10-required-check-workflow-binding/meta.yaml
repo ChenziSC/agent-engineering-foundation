@@ -41,7 +41,7 @@ freshness:
     - "GitHub Check Suite、Workflow Run 或 Required Check 语义变化"
     - "Provider 输出 Schema 或选择器格式变化"
 active_context:
-  summary: "Provider、合成回归和契约已完成本地验证；当前构建干净制品并升级 fwwb 后复核真实 PR。"
-  next_task_id: "T-02"
+  summary: "Provider、本地回归、fwwb 固定制品升级及两仓 Active 负向 PR 均已验证；当前等待独立终态授权。"
+  next_task_id: "V-01"
 authorization:
   terminal_transition_confirmed: false
