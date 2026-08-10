@@ -27,7 +27,7 @@ entries:
       - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:4481bd8610153914333bf9cb6a01c50177128cbf6120ee0070ea364f82196316"
+        digest: "sha256:60ff09df8da56e22511784ba3406eb887607bda6976825253235d1361dcfdf19"
       - path: "README.md"
         digest: "sha256:903251425fa39d9aa7d9d6ebaee2965d134912a8e8fa933c47ca5bc10fcac756"
       - path: "packages/harness/README.md"
@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-maturity-projection-consistency"
-      action: "update"
+      spec_id: "2026-08-10-public-release-source-review"
+      action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:557acdf7fefe9aee532e5f69cbb586356f5fbf433142a73c9a018701763a7ac8"
+      decision_digest: "sha256:ce4f6fc6a1795e98746fb5981ddc08fcc6489a7d4315de21ec8efe2fe0f5593c"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -73,7 +73,7 @@ entries:
       - "packages/harness/README.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:4481bd8610153914333bf9cb6a01c50177128cbf6120ee0070ea364f82196316"
+        digest: "sha256:60ff09df8da56e22511784ba3406eb887607bda6976825253235d1361dcfdf19"
       - path: "blueprints/skill-runtime/README.md"
         digest: "sha256:d6af9c65590f8f726d0885493453cea492c9c29d2d732b7fd1d54c7a711f6736"
       - path: "distribution/README.md"
@@ -91,10 +91,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-maturity-projection-consistency"
+      spec_id: "2026-08-10-public-release-source-review"
       action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:fe1ac74cbf50c3f8d80079d08a5e79137363cf2a5c082fad82c1b0fb349bc7ec"
+      decision_digest: "sha256:5fa473873e386695aec5f47b97254f1d1ec64cd0290d3df80347d4aa76b4f52d"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -124,7 +124,7 @@ entries:
       - ".github/workflows/quality.yml"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:4481bd8610153914333bf9cb6a01c50177128cbf6120ee0070ea364f82196316"
+        digest: "sha256:60ff09df8da56e22511784ba3406eb887607bda6976825253235d1361dcfdf19"
       - path: "specs/README.md"
         digest: "sha256:79f9ac67d1365a6397dd928adf5dbbef7d233498408e91c70687b8795d784b8b"
       - path: "skills/specflow/SKILL.md"
@@ -148,10 +148,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-maturity-projection-consistency"
-      action: "update"
+      spec_id: "2026-08-10-public-release-source-review"
+      action: "still-valid"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:bcea8cdd93c9392a133eb9439ad44574c61114526b354acb6af81896d81dae9d"
+      decision_digest: "sha256:4594d27fee7bbd5492c43af5f04fd16f7cd603da8b7245ac2ae812c585afeae9"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -176,11 +176,11 @@ entries:
       - "docs/公开内容来源说明.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:4481bd8610153914333bf9cb6a01c50177128cbf6120ee0070ea364f82196316"
+        digest: "sha256:60ff09df8da56e22511784ba3406eb887607bda6976825253235d1361dcfdf19"
       - path: "docs/公开发布检查清单.md"
-        digest: "sha256:a65d24e7ed2922be3881e0329d9b01a202270fba492fe502052cb3aafc98954c"
+        digest: "sha256:d6dfb0a24c1fdee2c0153aad6d1f5a2461dde3ceaf962a30e26dc3aeb44b956f"
       - path: "docs/公开内容来源说明.md"
-        digest: "sha256:b1d4d73cd56360312eb07bf6e8988e4a05b6fe73d239f91b63eb33050d6899bf"
+        digest: "sha256:b2ef92b510389220a65544b92fbc55d0e8befd2bc52736e5705326831378d595"
     refresh_triggers:
       - "公开处理等级或准入规则变化"
       - "发布前人工来源与权属复核要求变化"
@@ -192,7 +192,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-maturity-projection-consistency"
-      action: "still-valid"
+      spec_id: "2026-08-10-public-release-source-review"
+      action: "update"
       reviewed_at: "2026-08-10"
-      decision_digest: "sha256:216d39f0c25d0e3068aa597e497f3d7b1c1dc7a275c9b26ed325d0fe8005885f"
+      decision_digest: "sha256:b190a8069526a43dd0855906e7d38323ddc35c95498896760cd7380258cd0ace"
