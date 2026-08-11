@@ -41,25 +41,44 @@
 - 验证：每项完成条件有实际 Evidence，未覆盖外部状态保持可见。
 - 阻塞条件：工作区含范围外变化或回归失败。
 
-### T-04 收口并发布 0.1.0
+### T-04 冻结仓内发布候选
 
-- 状态：`in-progress`
+- 状态：`done`
+- 依赖：`T-03`、`T-05`
+- 对应：`AC-008`
+- 输入：已验证的实现候选、终态授权和 Knowledge Projection。
+- 动作：冻结不可变 Source Candidate，形成 Receipt 候选并保持 Git、npm、Provenance 和 Host/项目就绪状态分层。
+- 产物：可归档、可提交并进入 `main` 的仓内候选；不创建 Tag、npm 包或 GitHub Release。
+- 验证：Receipt、Lifecycle、Change Gate 与最终 Merge Candidate 摘要一致。
+- 阻塞条件：终态未授权、候选不干净或任一仓内门禁失败。
+
+### T-06 执行 npm 外部首发
+
+- 状态：`skipped`
+- 依赖：`T-04`
+- 对应：`AC-007`
+- 原因：本轮授权只覆盖归档、Commit、Push 和合并到 `main`，未授权创建 `v0.1.0` Tag 或触发 npm 发布；外部首发保留为后续单独授权动作。
+- 后续验证：执行时必须核对 npm integrity、Provenance 与 Tag Source Revision，且不得创建 GitHub Release。
+
+### T-05 实现项目级快速升级
+
+- 状态：`done`
 - 依赖：`T-03`
-- 对应：`AC-007`、`AC-008`
-- 输入：干净不可变 Commit、终态授权、已配置的 npmjs Secret、GitHub 权限。
-- 动作：生成 Receipt、提交并推送、创建并推送 `v0.1.0` Tag、触发 npm 发布 Workflow、核对 Registry 外部结果。
-- 产物：npm `0.1.0`、Provenance 和外部 Evidence；不创建 GitHub Release。
-- 验证：npm integrity、Provenance 与 Tag Source Revision 一致。
-- 阻塞条件：终态或 Tag/npm 发布未授权、包名被占用或任一门禁失败。
+- 对应：`AC-009`
+- 输入：已安装项目的 Foundation 版本记录、目标版本包内 Distribution Manifest 与现有安全更新实现。
+- 动作：增加 `upgrade plan/apply`；比较版本方向，复用 Distribution Plan/Apply/Verify，补充精确版本使用说明和升级失败边界。
+- 产物：Harness/CLI、测试、Install/README/Harness 文档和验证证据。
+- 验证：升级、幂等、旧状态迁移、未安装、降级、用户修改、未知文件、CLI 与源码仓外 tarball 场景。
+- 阻塞条件：实现需要自动联网解析 npm、绕过用户修改保护或建立第二套安装状态。
 
 ## 验收任务
 
 ### V-01 完成条件复核
 
-- 状态：`in-progress`
+- 状态：`done`
 - 动作：逐项检查 Spec 的完成条件和 npm Registry 真实状态。
 - 产物：完成条件复核与 `validation-report.md`。
-- 验证：本地通过不替代 npm Registry 外部 Evidence，Workflow 启动不标记为发布完成。
+- 验证：AC-001～006、AC-008～009 已通过；AC-007 明确保留为未执行的外部交付条件，本地通过、归档和合并均不替代 npm Registry Evidence。
 
 ## 状态说明
 

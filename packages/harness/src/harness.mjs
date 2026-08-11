@@ -2340,6 +2340,55 @@ async function readFoundationVersion(repoRoot = REPO_ROOT) {
   return packageJson.version;
 }
 
+function parseComparableSemver(value) {
+  if (typeof value !== 'string') return null;
+  const match = value.match(/^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/u);
+  if (!match) return null;
+  return {
+    core: match.slice(1, 4).map((part) => BigInt(part)),
+    prerelease: match[4] === undefined ? null : match[4].split('.'),
+  };
+}
+
+function comparePrereleaseIdentifiers(left, right) {
+  if (left === right) return 0;
+  const leftNumeric = /^\d+$/u.test(left);
+  const rightNumeric = /^\d+$/u.test(right);
+  if (leftNumeric && rightNumeric) {
+    const leftValue = BigInt(left);
+    const rightValue = BigInt(right);
+    return leftValue < rightValue ? -1 : 1;
+  }
+  if (leftNumeric !== rightNumeric) return leftNumeric ? -1 : 1;
+  return left < right ? -1 : 1;
+}
+
+function compareSemver(left, right) {
+  const parsedLeft = parseComparableSemver(left);
+  const parsedRight = parseComparableSemver(right);
+  if (!parsedLeft || !parsedRight) return null;
+  for (let index = 0; index < parsedLeft.core.length; index += 1) {
+    if (parsedLeft.core[index] === parsedRight.core[index]) continue;
+    return parsedLeft.core[index] < parsedRight.core[index] ? -1 : 1;
+  }
+  if (parsedLeft.prerelease === null || parsedRight.prerelease === null) {
+    if (parsedLeft.prerelease === parsedRight.prerelease) return 0;
+    return parsedLeft.prerelease === null ? 1 : -1;
+  }
+  const length = Math.max(parsedLeft.prerelease.length, parsedRight.prerelease.length);
+  for (let index = 0; index < length; index += 1) {
+    const leftIdentifier = parsedLeft.prerelease[index];
+    const rightIdentifier = parsedRight.prerelease[index];
+    if (leftIdentifier === undefined || rightIdentifier === undefined) {
+      if (leftIdentifier === rightIdentifier) return 0;
+      return leftIdentifier === undefined ? -1 : 1;
+    }
+    const comparison = comparePrereleaseIdentifiers(leftIdentifier, rightIdentifier);
+    if (comparison !== 0) return comparison;
+  }
+  return 0;
+}
+
 async function writeInstallState(projectRoot, state) {
   const statePath = path.join(projectRoot, STATE_RELATIVE_PATH);
   const directory = path.dirname(statePath);
@@ -3137,6 +3186,90 @@ export async function verifyDistribution({
     target: projectRoot,
     errors,
     checks,
+  };
+}
+
+function distributionHasManagedState(plan) {
+  if (plan.runtimeMode === 'source-link') return plan.sourceLinkAction !== 'add';
+  return plan.items.some(({ plan: itemPlan }) => itemPlan.managed);
+}
+
+function distributionNeedsApply(plan) {
+  if (plan.runtimeMode === 'source-link') return plan.sourceLinkAction !== 'noop';
+  return plan.items.some(({ action }) => action !== 'noop');
+}
+
+export async function planUpgrade(options = {}) {
+  const distribution = await planDistribution(options);
+  const installedFoundationVersion = distribution.installedFoundationVersion;
+  const foundationVersion = distribution.foundationVersion;
+  const conflicts = [...distribution.conflicts];
+  let action = 'blocked';
+
+  if (!distributionHasManagedState(distribution)) {
+    conflicts.push({
+      type: 'foundation-not-installed',
+      message: '目标项目尚未通过 Distribution 安装 Foundation；请使用安装流程而不是 Upgrade',
+    });
+  } else if (installedFoundationVersion === null) {
+    action = 'migrate';
+  } else {
+    const versionDirection = compareSemver(installedFoundationVersion, foundationVersion);
+    if (versionDirection === null) {
+      conflicts.push({ type: 'invalid-installed-foundation-version', version: installedFoundationVersion });
+    } else if (versionDirection > 0) {
+      conflicts.push({
+        type: 'foundation-downgrade-not-supported',
+        installedFoundationVersion,
+        requestedFoundationVersion: foundationVersion,
+      });
+    } else if (versionDirection < 0) {
+      action = 'upgrade';
+    } else {
+      action = distributionNeedsApply(distribution) ? 'refresh' : 'noop';
+    }
+  }
+
+  if (conflicts.length) action = 'blocked';
+  return {
+    ok: conflicts.length === 0,
+    command: 'upgrade-plan',
+    status: conflicts.length ? 'blocked' : 'planned',
+    action,
+    target: distribution.target,
+    installedFoundationVersion,
+    foundationVersion,
+    conflicts,
+    distribution,
+  };
+}
+
+export async function applyUpgrade(options = {}) {
+  const plan = await planUpgrade(options);
+  if (!plan.ok) {
+    throw new FoundationError('upgrade-conflict', 'Foundation 升级计划存在冲突，目标保持不变', { plan });
+  }
+  const distribution = plan.action === 'noop' ? null : await applyDistribution(options);
+  const verification = await verifyDistribution(options);
+  if (!verification.ok) {
+    throw new FoundationError('upgrade-verification-failed', 'Foundation 升级后校验失败', { plan, verification });
+  }
+  const statuses = {
+    migrate: 'migrated',
+    noop: 'unchanged',
+    refresh: 'refreshed',
+    upgrade: 'upgraded',
+  };
+  return {
+    ok: true,
+    command: 'upgrade-apply',
+    status: statuses[plan.action],
+    action: plan.action,
+    target: plan.target,
+    previousFoundationVersion: plan.installedFoundationVersion,
+    foundationVersion: plan.foundationVersion,
+    distribution,
+    verification,
   };
 }
 

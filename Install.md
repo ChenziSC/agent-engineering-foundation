@@ -113,6 +113,33 @@ npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
 
 完成报告后停止。后续开发任务使用目标项目的 `context resolve` 和已安装 Skill，不重复 Bootstrap。
 
+## Upgrade Existing Adoption
+
+本节只适用于已经成功执行过完整 Distribution 的项目。CLI 版本选择仍由维护者或 Agent Host 负责：先确认一个已经发布、经过批准的精确版本，再用该版本执行 Upgrade。命令不会查询 npm `latest`、修改项目依赖或配置 Hook。
+
+以下以当前固定版本演示；升级到后续版本时，把两处 `0.1.0` 同时替换为批准的目标版本：
+
+```bash
+npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
+  agent-foundation upgrade plan --target /absolute/path/to/target-project
+```
+
+Plan 只读报告已安装 Foundation 版本、目标 CLI 版本、整套 Skill 的动作与冲突。出现以下任一情况时停止，不运行 Apply：
+
+- 项目尚未通过 Distribution 安装 Foundation；
+- 目标版本低于已安装版本；
+- 受管 Skill 被采用方修改、缺失或包含未知文件；
+- Manifest、安装记录、内容摘要或 Symlink 边界不一致。
+
+只有维护者审核 Plan 并明确批准本次升级写入后，才执行：
+
+```bash
+npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
+  agent-foundation upgrade apply --target /absolute/path/to/target-project
+```
+
+Apply 复用 Distribution 的临时目录、摘要检查和冲突保护，并在写入后执行 Verify。`upgraded`、`migrated`、`refreshed` 或 `unchanged` 只证明 Foundation 受管内容一致；升级后仍应开启新的 Host 会话确认 Skill 发现，并按项目风险运行自身测试。命令不自动 Commit、Push、修改 CI 或发布项目。
+
 ## TODO
 
 - [ ] 确认目标项目和固定包版本
@@ -121,5 +148,6 @@ npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
 - [ ] 分别取得 Init 与 Distribution Apply 授权
 - [ ] 运行 Verify、Doctor 和 Host 新会话观察
 - [ ] 输出分层状态与下一动作，然后停止
+- [ ] 后续升级时先运行 `upgrade plan`，单独授权后再运行 `upgrade apply`
 
 该清单只用于当前执行编排，不是项目状态、批准或安装记录的事实来源。

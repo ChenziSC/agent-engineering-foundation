@@ -81,5 +81,8 @@ test('公共包元数据与 Agent 安装入口固定当前版本和 npmjs.org', 
   }
   assert.match(install, /不自动执行 Stage、Commit、Push、Tag、PR\/MR、CI 修改、部署或发布/u);
   assert.match(install, /distribution verify/u);
+  assert.match(install, /upgrade plan/u);
+  assert.match(install, /upgrade apply/u);
+  assert.match(readme, /upgrade plan/u);
   assert.match(install, /安装一致、项目语义、Host 发现和外部 Adapter 分开验证/u);
 });

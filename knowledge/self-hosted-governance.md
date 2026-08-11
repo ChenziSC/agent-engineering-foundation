@@ -36,7 +36,7 @@
 - Skill 行为成熟度使用 Case、Rubric、脱敏 Trace 和 Replay 配置形成可重算证据；Runner 动态读取真实目录并执行阻塞优先评分，但不把评分者的语义判断伪装成确定性事实，也不固定模型或推理强度。
 - 行为 Replay 与真实采用观察分层保存：Replay 决定所测行为是否达到行为成熟度门禁，真实样本对照补充外部有效性、上下文成本和适用范围。成本回归或覆盖不足必须保留为限制，但不能改写正式 Replay 已通过的事实，也不能被 `validated` 标签掩盖。
 - 高频 Skill 主入口使用渐进披露：普通 Spec/Plan 任务只加载核心工作流，归档、Lifecycle、关系事务和 Delivery Gate 的完整契约仅在对应终态场景触发时读取既有 Reference；固定治理输入缩减与端到端 Token 必须分层报告，不能用前者推断后者稳定下降。
-- Distribution Manifest 以运行时文件摘要声明允许分发的 Skill；采用方的 Plan/Verify 只读，Apply 只写项目级受管目录，升级时保护采用方修改和未知文件。Foundation 生产者模式只迁移摘要一致的受管副本，并严格校验 `.agents/skills -> ../skills`；源码修改可由 Host 下次读取直接可见，但发布检查仍要求 Manifest 摘要同步。
+- Distribution Manifest 以运行时文件摘要声明允许分发的 Skill；采用方的 Plan/Verify 只读，Apply 只写项目级受管目录，升级时保护采用方修改和未知文件。`upgrade plan/apply` 由精确版本 CLI 比较安装记录中的 Foundation 版本，拒绝降级和未安装项目，复用 Distribution Apply 并在写入后 Verify；它不替代 Host/npm 的版本选择。Foundation 生产者模式只迁移摘要一致的受管副本，并严格校验 `.agents/skills -> ../skills`；源码修改可由 Host 下次读取直接可见，但发布检查仍要求 Manifest 摘要同步。
 
 ## 设计原因
 

@@ -17,7 +17,7 @@
 - Docs 面向读者提供能力导航、目标结构、成熟度投影、发布检查和来源声明，不重复 Framework、Skill 或 Knowledge 的完整正文；
 - Skill、Starter、Template 和 Blueprint 支持项目采用；
 - Harness 和 Validator 负责仓库专有的确定性检查，Adapter 只隔离真实 Provider、语言工具链或无法由开放内容消除的宿主差异；
-- 当前最小参考实现覆盖 Starter、带版本来源且可独立打包的 CLI、Specflow、Knowledge、可解释的 Context 路由、项目级兼容 Skill 运行时分发、Bootstrap/Continuous/Delivery 三级采用模板、本地 Git Change Gate、基于 Remote 与 Registry 的交付平台自动路由、可选 GitHub Actions Check/Workflow 只读证据、确定性契约检查和仓库静态检查；本仓自身使用根 Manifest、严格仓内 Skill Source Link 和同一套 Doctor/Distribution/Context/Knowledge/Specflow 检查，采用项目继续使用摘要约束的不可变副本；
+- 当前最小参考实现覆盖 Starter、带版本来源且可独立打包的 CLI、Specflow、Knowledge、可解释的 Context 路由、项目级兼容 Skill 运行时分发与精确版本驱动的安全升级、Bootstrap/Continuous/Delivery 三级采用模板、本地 Git Change Gate、基于 Remote 与 Registry 的交付平台自动路由、可选 GitHub Actions Check/Workflow 只读证据、确定性契约检查和仓库静态检查；本仓自身使用根 Manifest、严格仓内 Skill Source Link 和同一套 Doctor/Distribution/Context/Knowledge/Specflow 检查，采用项目继续使用摘要约束的不可变副本；
 - 不可变包构建器只接受具有公共元数据的干净 Git Commit，生成 npm tarball 与包含 SemVer、Source Revision、SHA-256、目标 Registry 和 npm 摘要的 Release Manifest；手动 `publish-npm` Workflow 从版本 Tag 向 npmjs.org 发布该 tarball并回读 integrity，不创建 GitHub Release；Workflow、Tag 或 Run 存在不代表 npm 发布成功；
 - Context、Specflow 与 Knowledge 的规模边界使用完全合成的 small/mature/large 临时项目回归，最高覆盖 1000 个历史 Spec、3 个 Active Spec、200 个 Knowledge、500 条 Route 和 6 层祖先规则；该回归证明所测容量、预算降级和尾部错误检测，不证明真实大型团队采用效果；
 - `project-context-bootstrap` 的 7 个正式 Replay Case 已在声明范围内验证触发边界、状态语义、不确定性与敏感信息控制，行为资产标记为 `validated`；同源码同任务的真实样本只读对照仍显示规则审计和普通任务的上下文成本没有稳定下降，因此不外推为成本优化、长期团队、大型项目或其他 Host 已验证；
@@ -26,7 +26,7 @@
 - 项目自有基建通过 Integration Manifest 和显式 Registry 接入；公共核心不动态加载私有代码；
 - 组织专有词表保存在公开 Git 之外，由发布检查时显式注入且不在结果中回显；
 - 领域 Skill 可以选装，不应成为核心 Harness 的强制依赖；
-- Skill 的原生安装、更新、权限、Sandbox、Hook、MCP 和会话行为由目标 Host 负责；本仓兼容 Distribution 对采用项目只写入 Manifest 声明的运行时副本，对 Foundation 源码根只允许 `.agents/skills -> ../skills` 的生产者 Source Link。Manifest 与 Verify 证明发布白名单、内容摘要和运行时入口一致性，不证明项目配置、外部 Adapter、Host 缓存或业务行为就绪。
+- Skill 的原生安装、更新、权限、Sandbox、Hook、MCP 和会话行为由目标 Host 负责；本仓兼容 Distribution 对采用项目只写入 Manifest 声明的运行时副本，对 Foundation 源码根只允许 `.agents/skills -> ../skills` 的生产者 Source Link。`upgrade plan/apply` 只由调用者选定的精确版本 CLI 比较项目版本并复用 Distribution，不查询 Registry 或选择 `latest`。Manifest 与 Verify 证明发布白名单、内容摘要和运行时入口一致性，不证明项目配置、外部 Adapter、Host 缓存或业务行为就绪。
 - 新能力必须证明相对宿主基线的增量价值、直接消费者和验证方式；通用代码探索、计划、测试和权限遵循不能单独包装成仓库能力。
 
 ## 设计原因

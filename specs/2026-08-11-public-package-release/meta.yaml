@@ -14,6 +14,10 @@ scope:
   - "docs/能力地图.md"
   - "docs/交付形态与成熟度.md"
   - "packages/harness/src/release-package.mjs"
+  - "packages/harness/src/harness.mjs"
+  - "packages/harness/bin/agent-foundation.mjs"
+  - "packages/harness/README.md"
+  - "packages/harness/test/harness.test.mjs"
   - "packages/harness/test/release-package.test.mjs"
   - "packages/harness/test/self-hosted-workflow.test.mjs"
   - "knowledge/self-hosted-governance.md"
@@ -42,7 +46,7 @@ freshness:
     - "npm 发布 Workflow、制品清单或发布恢复策略变化"
     - "Foundation 首次接入命令、安全边界或成功标准变化"
 active_context:
-  summary: "0.1.0 npm-only 候选已通过本地与隔离验证，仓库 NPM_TOKEN Secret 已配置；实际发布仍等待终态授权与 Tag/npm 发布明确授权。"
-  next_task_id: "T-04"
+  summary: "0.1.0 npm-only 候选与项目级 upgrade plan/apply 已完成仓内、合成跨版本和源码仓外打包验证；用户已授权归档、Commit、Push 和合并到 main，Tag/npm 发布仍等待单独授权。"
+  next_task_id: null
 authorization:
   terminal_transition_confirmed: false
