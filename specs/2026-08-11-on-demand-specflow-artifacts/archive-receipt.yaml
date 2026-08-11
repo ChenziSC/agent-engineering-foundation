@@ -1,0 +1,97 @@
+schema_version: 1
+receipt_id: "2026-08-11-on-demand-specflow-artifacts:first-terminal"
+spec_id: "2026-08-11-on-demand-specflow-artifacts"
+created_at: "2026-08-11T12:08:59Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-11T12:08:59Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-11:archive"
+snapshot:
+  source_revision: "25531f36ceebc30cc5262b49b7c62151a86adf08"
+  base_revision: "52953754ea205d06c9eacc4103c407d41c3558de"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:9023014a7eab589768107d6121985ad7617394f5314563b81d835c46eb8df37a"
+    excludes:
+      - "specs/2026-08-11-on-demand-specflow-artifacts"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:8909bb25cb1b3e3b1a784fb32588c48fa02d79c3b6465882995849f8a5d517f7"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:dc799e54e57c22520e3ab57a9e17dcc9068b4ac1cd8c327d5b5c736d1a98aa80"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:ff30148f4619537a850831e033cc5f5ca5071874959e22d768a2d0372d4ffed2"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:abc143006e0c5e1dde98022920ff01b95c642678345dda6bb9411508217aa9d8"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+  unresolved_blockers: []
+  evidence_refs:
+    - "gate:work:sha256:77fb2e3d2766ae3ed3f619d6134bee9a8af66c3ba3201e2477a95964848fba6b"
+    - "snapshot:sha256:9023014a7eab589768107d6121985ad7617394f5314563b81d835c46eb8df37a"
+    - "check:quality-verify:31489583511"
+    - "check:repository-knowledge-specflow"
+    - "check:knowledge-projection-verified"
+    - "eval:specflow:13-of-13"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "still-valid"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "按需产物减少简单事项文件与上下文，但不改变仓库定位、目标使用方、顶层分层或 Starter/Harness 的最小交付边界。"
+      evidence_refs:
+        - "AGENTS.md"
+        - "starter/minimal/AGENTS.md"
+        - "knowledge/repository-positioning.md"
+    - action: "still-valid"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "本次只收敛既有 Specflow Artifact Map、Receipt、Context 和 Change Gate 契约，没有新增 Host Runtime、能力注册表或平行基础设施。"
+      evidence_refs:
+        - "AGENTS.md"
+        - "skills/specflow/scripts/archive-receipt.mjs"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "长期自举规则改为 Meta 与 Spec 最小集合、条件产物按职责创建，并让本仓与采用项目复用既有受控豁免。"
+      evidence_refs:
+        - "specs/2026-08-11-on-demand-specflow-artifacts/spec.md"
+        - "skills/specflow/SKILL.md"
+        - "knowledge/self-hosted-governance.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "本次公开内容继续只沉淀通用 Artifact Map、生命周期和消费者接入契约，没有引入内部标识、平台实现或受限数据。"
+      evidence_refs:
+        - "AGENTS.md"
+        - "knowledge/public-generalization-policy.md"
+        - "specs/2026-08-11-on-demand-specflow-artifacts/spec.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:c9cc5912d2c4e106fc29a2c03d1a11caaa1326dad790f71132723874c06f0b9a"

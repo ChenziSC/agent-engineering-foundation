@@ -3,7 +3,8 @@
 ## 结论
 
 - 结果：`pass`
-- 事项状态：保持 `in-progress`；用户未授权归档、提交、推送或创建 PR/MR。
+- 事项状态：`archived`；用户于 2026-08-11 明确授权归档，终态由不可覆盖 Receipt 与 Meta 状态最后写固定。
+- 外部交付：功能分支与 PR #4 已创建；归档不等同于已合并，仍以 Delivery Gate 和远端合并结果为准。
 - 未解决 Blocker：无。
 
 ## 完成条件与证据
@@ -31,6 +32,7 @@
 | `agent-foundation distribution verify --target .` | pass |
 | `agent-foundation knowledge check --target .` | pass |
 | `agent-foundation specflow check --target .` | pass |
+| `agent-foundation change gate check --phase work` | pass，`gateDigest` 为 `sha256:77fb2e3d2766ae3ed3f619d6134bee9a8af66c3ba3201e2477a95964848fba6b` |
 | `git diff --check` | pass |
 
 ## 全仓重新审计收敛
