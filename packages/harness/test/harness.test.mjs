@@ -9,6 +9,7 @@ import { createAdapterRegistry } from '../../../adapters/registry.mjs';
 import {
   FoundationError,
   applyDistribution,
+  applyUpgrade,
   applyKnowledgeProjection,
   checkChangeGate,
   checkKnowledgeGovernance,
@@ -22,6 +23,7 @@ import {
   inspectSourceControlSnapshot,
   planKnowledgeProjection,
   planDistribution,
+  planUpgrade,
   planProjectInit,
   planSkill,
   resolveProjectContext,
@@ -1605,6 +1607,147 @@ test('Distribution Manifest 以内容摘要执行 Plan、Apply 和 Verify', asyn
   assert.equal((await verifyDistribution({ target, repoRoot: fakeRepo })).ok, false);
 });
 
+test('Upgrade 复用 Distribution 完成版本迁移、升级、幂等与降级阻断', async () => {
+  const root = await makeTemporaryRoot();
+  const target = path.join(root, 'project');
+  const freshTarget = path.join(root, 'fresh-project');
+  const fakeRepo = path.join(root, 'source');
+  const sourceSkill = await makeFakeSkillRepo(fakeRepo, '# 第一版\n');
+  const manifestPath = path.join(fakeRepo, 'distribution', 'manifest.yaml');
+  await mkdir(path.dirname(manifestPath), { recursive: true });
+  const setVersion = (version) => writeFile(
+    path.join(fakeRepo, 'package.json'),
+    `${JSON.stringify({ name: 'synthetic-foundation', version, private: true })}\n`,
+  );
+  const refreshManifest = async () => writeFile(
+    manifestPath,
+    [
+      'version: 1',
+      'skills:',
+      '  - name: demo-skill',
+      '    source: skills/demo-skill',
+      '    version:',
+      '      type: content-hash',
+      `      value: ${await digestRelativeFiles(sourceSkill, ['SKILL.md'])}`,
+      '    distributable: true',
+      '    required_files:',
+      '      - SKILL.md',
+      '    optional_resources: []',
+      '',
+    ].join('\n'),
+  );
+
+  await setVersion('1.0.0');
+  await refreshManifest();
+  await initProject(target);
+  await initProject(freshTarget);
+  assert.equal((await planUpgrade({ target: freshTarget, repoRoot: fakeRepo })).action, 'blocked');
+  await assert.rejects(
+    applyUpgrade({ target: freshTarget, repoRoot: fakeRepo }),
+    (error) => error instanceof FoundationError && error.code === 'upgrade-conflict',
+  );
+
+  await applyDistribution({ target, repoRoot: fakeRepo });
+  assert.equal((await planUpgrade({ target, repoRoot: fakeRepo })).action, 'noop');
+  assert.equal((await applyUpgrade({ target, repoRoot: fakeRepo })).status, 'unchanged');
+
+  const statePath = path.join(target, '.agent-foundation', 'installed-skills.json');
+  const legacyState = JSON.parse(await readFile(statePath, 'utf8'));
+  delete legacyState.foundationVersion;
+  await writeFile(statePath, `${JSON.stringify(legacyState, null, 2)}\n`);
+  assert.equal((await planUpgrade({ target, repoRoot: fakeRepo })).action, 'migrate');
+  assert.equal((await applyUpgrade({ target, repoRoot: fakeRepo })).status, 'migrated');
+
+  await setVersion('2.0.0');
+  await writeFile(
+    path.join(sourceSkill, 'SKILL.md'),
+    '---\nname: demo-skill\ndescription: 在合成测试中执行一个通用演示任务。\n---\n\n# 第二版\n',
+  );
+  await refreshManifest();
+  const upgradePlan = await planUpgrade({ target, repoRoot: fakeRepo });
+  assert.equal(upgradePlan.action, 'upgrade');
+  assert.equal(upgradePlan.installedFoundationVersion, '1.0.0');
+  assert.equal(upgradePlan.foundationVersion, '2.0.0');
+  assert.equal(upgradePlan.distribution.items[0].action, 'update');
+  const upgraded = await applyUpgrade({ target, repoRoot: fakeRepo });
+  assert.equal(upgraded.status, 'upgraded');
+  assert.equal(upgraded.verification.status, 'pass');
+  assert.match(await readFile(path.join(target, '.agents', 'skills', 'demo-skill', 'SKILL.md'), 'utf8'), /第二版/u);
+  assert.equal(JSON.parse(await readFile(statePath, 'utf8')).foundationVersion, '2.0.0');
+
+  const prereleaseState = JSON.parse(await readFile(statePath, 'utf8'));
+  prereleaseState.foundationVersion = '2.1.0-beta.2';
+  await writeFile(statePath, `${JSON.stringify(prereleaseState, null, 2)}\n`);
+  await setVersion('2.1.0-beta.10');
+  assert.equal((await planUpgrade({ target, repoRoot: fakeRepo })).action, 'upgrade');
+  await setVersion('2.1.0');
+  assert.equal((await planUpgrade({ target, repoRoot: fakeRepo })).action, 'upgrade');
+
+  prereleaseState.foundationVersion = 'legacy-version';
+  await writeFile(statePath, `${JSON.stringify(prereleaseState, null, 2)}\n`);
+  const invalidVersion = await planUpgrade({ target, repoRoot: fakeRepo });
+  assert.ok(invalidVersion.conflicts.some(({ type }) => type === 'invalid-installed-foundation-version'));
+
+  prereleaseState.foundationVersion = '2.0.0';
+  await writeFile(statePath, `${JSON.stringify(prereleaseState, null, 2)}\n`);
+
+  await setVersion('1.5.0');
+  const downgrade = await planUpgrade({ target, repoRoot: fakeRepo });
+  assert.equal(downgrade.action, 'blocked');
+  assert.ok(downgrade.conflicts.some(({ type }) => type === 'foundation-downgrade-not-supported'));
+  await assert.rejects(
+    applyUpgrade({ target, repoRoot: fakeRepo }),
+    (error) => error instanceof FoundationError && error.code === 'upgrade-conflict',
+  );
+  assert.equal(JSON.parse(await readFile(statePath, 'utf8')).foundationVersion, '2.0.0');
+});
+
+test('Upgrade 保留用户修改并透传 Distribution 冲突', async () => {
+  const root = await makeTemporaryRoot();
+  const target = path.join(root, 'project');
+  const fakeRepo = path.join(root, 'source');
+  const sourceSkill = await makeFakeSkillRepo(fakeRepo, '# 第一版\n');
+  const manifestPath = path.join(fakeRepo, 'distribution', 'manifest.yaml');
+  await mkdir(path.dirname(manifestPath), { recursive: true });
+  const writeManifest = async (version) => {
+    await writeFile(path.join(fakeRepo, 'package.json'), `{"name":"synthetic-foundation","version":"${version}"}\n`);
+    await writeFile(
+      manifestPath,
+      [
+        'version: 1',
+        'skills:',
+        '  - name: demo-skill',
+        '    source: skills/demo-skill',
+        '    version:',
+        '      type: content-hash',
+        `      value: ${await digestRelativeFiles(sourceSkill, ['SKILL.md'])}`,
+        '    distributable: true',
+        '    required_files:',
+        '      - SKILL.md',
+        '    optional_resources: []',
+        '',
+      ].join('\n'),
+    );
+  };
+  await writeManifest('1.0.0');
+  await initProject(target);
+  await applyDistribution({ target, repoRoot: fakeRepo });
+  const installedSkill = path.join(target, '.agents', 'skills', 'demo-skill', 'SKILL.md');
+  await writeFile(installedSkill, `${await readFile(installedSkill, 'utf8')}\n用户修改\n`);
+  const before = await readFile(installedSkill, 'utf8');
+  await writeFile(path.join(sourceSkill, 'SKILL.md'), `${await readFile(path.join(sourceSkill, 'SKILL.md'), 'utf8')}\n第二版\n`);
+  await writeManifest('2.0.0');
+
+  const plan = await planUpgrade({ target, repoRoot: fakeRepo });
+  assert.equal(plan.action, 'blocked');
+  assert.ok(plan.conflicts.some(({ type }) => type === 'user-modified-skill'));
+  await assert.rejects(
+    applyUpgrade({ target, repoRoot: fakeRepo }),
+    (error) => error instanceof FoundationError && error.code === 'upgrade-conflict',
+  );
+  assert.equal(await readFile(installedSkill, 'utf8'), before);
+});
+
 test('Foundation 生产者 Source Link 即时读取源码且不改变采用方复制契约', async () => {
   const root = await makeTemporaryRoot();
   const sourceRepo = path.join(root, 'source');
@@ -1846,6 +1989,23 @@ test('CLI 暴露初始化、Doctor、Skill 列表和参数错误退出码', asyn
   assert.equal(repository.status, 0, repository.stderr);
   assert.equal(repository.json.status, 'pass');
 
+  const upgradeBeforeInstall = runCli(['upgrade', 'plan', '--target', target]);
+  assert.equal(upgradeBeforeInstall.status, 1);
+  assert.ok(upgradeBeforeInstall.json.conflicts.some(({ type }) => type === 'foundation-not-installed'));
+
+  const distributed = runCli(['distribution', 'apply', '--target', target]);
+  assert.equal(distributed.status, 0, distributed.stderr);
+  const statePath = path.join(target, '.agent-foundation', 'installed-skills.json');
+  const oldState = JSON.parse(await readFile(statePath, 'utf8'));
+  oldState.foundationVersion = '0.0.1';
+  await writeFile(statePath, `${JSON.stringify(oldState, null, 2)}\n`);
+  const upgradePlan = runCli(['upgrade', 'plan', '--target', target]);
+  assert.equal(upgradePlan.status, 0, upgradePlan.stderr);
+  assert.equal(upgradePlan.json.action, 'upgrade');
+  const upgradeApply = runCli(['upgrade', 'apply', '--target', target]);
+  assert.equal(upgradeApply.status, 0, upgradeApply.stderr);
+  assert.equal(upgradeApply.json.status, 'upgraded');
+
   const invalid = runCli(['skill', 'install', '--target', target]);
   assert.equal(invalid.status, 2);
   assert.equal(invalid.json.error.code, 'invalid-arguments');
@@ -1906,6 +2066,13 @@ test('npm pack 产物可在源码仓外独立完成治理命令闭环', async ()
     await readFile(path.join(target, '.agent-foundation', 'installed-skills.json'), 'utf8'),
   );
   assert.equal(installedState.foundationVersion, packageVersion);
+
+  const upgradePlan = run(['upgrade', 'plan', '--target', target]);
+  assert.equal(upgradePlan.status, 0, upgradePlan.stderr);
+  assert.equal(upgradePlan.json.action, 'noop');
+  const upgradeApply = run(['upgrade', 'apply', '--target', target]);
+  assert.equal(upgradeApply.status, 0, upgradeApply.stderr);
+  assert.equal(upgradeApply.json.status, 'unchanged');
 
   for (const args of [
     ['doctor', '--target', target],

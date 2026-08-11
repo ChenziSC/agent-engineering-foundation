@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
+import { decideRegistryAction } from '../../../.github/scripts/publish-npm-release.mjs';
 import { parsePullRequestAssociation } from '../../../.github/scripts/run-delivery-gate.mjs';
 
 test('GitHub PR 严格选择 Spec 集合或既有 Exemption', () => {
@@ -42,13 +43,46 @@ test('本仓真实 Workflow 串联 Continuous 与同 SHA Delivery Gate', async (
   assert.doesNotMatch(workflow, /--delivery-provider|--repository/u);
 });
 
-test('手动 Release Workflow 只发布已存在 Tag 的干净不可变制品', async () => {
+test('手动 npm Workflow 只从已存在 Tag 发布公共 Registry 的不可变制品', async () => {
   const workflow = await readFile(path.resolve('.github/workflows/release.yml'), 'utf8');
+  const publisher = await readFile(path.resolve('.github/scripts/publish-npm-release.mjs'), 'utf8');
   assert.match(workflow, /workflow_dispatch:/u);
-  assert.match(workflow, /contents: write/u);
-  assert.match(workflow, /git describe --tags --exact-match HEAD/u);
+  assert.match(workflow, /contents: read/u);
+  assert.match(workflow, /id-token: write/u);
   assert.match(workflow, /npm run release:pack/u);
-  assert.match(workflow, /gh release create/u);
-  assert.match(workflow, /--verify-tag/u);
-  assert.doesNotMatch(workflow, /npm publish/u);
+  assert.match(workflow, /registry-url: "https:\/\/registry\.npmjs\.org\/"/u);
+  assert.match(workflow, /node \.github\/scripts\/publish-npm-release\.mjs/u);
+  assert.match(workflow, /secrets\.NPM_TOKEN/u);
+  assert.doesNotMatch(workflow, /gh release|contents: write/u);
+  assert.match(publisher, /git', \['describe', '--tags', '--exact-match', 'HEAD'\]/u);
+  assert.match(publisher, /\['publish', artifact, '--access', 'public', '--provenance'/u);
+  assert.match(publisher, /\['view', packageSpec, 'dist\.integrity'/u);
+  assert.equal(decideRegistryAction(null, 'sha512-candidate'), 'publish');
+  assert.equal(decideRegistryAction('sha512-candidate', 'sha512-candidate'), 'skip');
+  assert.throws(
+    () => decideRegistryAction('sha512-existing', 'sha512-candidate'),
+    /integrity 与候选制品不一致/u,
+  );
+});
+
+test('公共包元数据与 Agent 安装入口固定当前版本和 npmjs.org', async () => {
+  const packageJson = JSON.parse(await readFile(path.resolve('package.json'), 'utf8'));
+  const install = await readFile(path.resolve('Install.md'), 'utf8');
+  const readme = await readFile(path.resolve('README.md'), 'utf8');
+  assert.equal(packageJson.private, false);
+  assert.equal(packageJson.license, 'Apache-2.0');
+  assert.equal(packageJson.publishConfig.access, 'public');
+  assert.equal(packageJson.publishConfig.registry, 'https://registry.npmjs.org/');
+  assert.equal(packageJson.publishConfig.provenance, true);
+  assert.ok(packageJson.files.includes('Install.md'));
+  for (const content of [install, readme]) {
+    assert.match(content, new RegExp(`agent-engineering-foundation@${packageJson.version.replaceAll('.', '\\.')}`, 'u'));
+    assert.doesNotMatch(content, /agent-engineering-foundation@latest/u);
+  }
+  assert.match(install, /不自动执行 Stage、Commit、Push、Tag、PR\/MR、CI 修改、部署或发布/u);
+  assert.match(install, /distribution verify/u);
+  assert.match(install, /upgrade plan/u);
+  assert.match(install, /upgrade apply/u);
+  assert.match(readme, /upgrade plan/u);
+  assert.match(install, /安装一致、项目语义、Host 发现和外部 Adapter 分开验证/u);
 });

@@ -11,11 +11,28 @@ function git(root, args) {
   assert.equal(result.status, 0, result.stderr);
 }
 
+function publicPackage(overrides = {}) {
+  return {
+    name: 'synthetic-foundation',
+    version: '1.2.3',
+    private: false,
+    license: 'Apache-2.0',
+    repository: { type: 'git', url: 'git+https://example.com/synthetic/foundation.git' },
+    publishConfig: {
+      access: 'public',
+      registry: 'https://registry.npmjs.org/',
+      provenance: true,
+    },
+    files: ['index.mjs'],
+    ...overrides,
+  };
+}
+
 test('Release Packager 只从干净 Commit 生成绑定 Source SHA 的包与摘要', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'foundation-release-test-'));
   const output = await mkdtemp(path.join(os.tmpdir(), 'foundation-release-output-'));
   try {
-    await writeFile(path.join(root, 'package.json'), JSON.stringify({ name: 'synthetic-foundation', version: '1.2.3', files: ['index.mjs'] }));
+    await writeFile(path.join(root, 'package.json'), JSON.stringify(publicPackage()));
     await writeFile(path.join(root, 'index.mjs'), 'export const value = 1;\n');
     git(root, ['init']);
     git(root, ['config', 'user.name', 'Synthetic Tester']);
@@ -29,6 +46,8 @@ test('Release Packager 只从干净 Commit 生成绑定 Source SHA 的包与摘�
     assert.equal(manifest.package.version, '1.2.3');
     assert.match(manifest.package.sha256, /^sha256:[a-f0-9]{64}$/u);
     assert.match(manifest.package.npmIntegrity, /^sha512-/u);
+    assert.equal(manifest.package.registry, 'https://registry.npmjs.org/');
+    assert.equal(manifest.package.access, 'public');
     assert.match(manifest.source.revision, /^[a-f0-9]{40}$/u);
     await assert.rejects(buildReleasePackage({ target: root, output }), /Release Manifest 已存在/u);
 
@@ -37,5 +56,32 @@ test('Release Packager 只从干净 Commit 生成绑定 Source SHA 的包与摘�
   } finally {
     await rm(root, { recursive: true, force: true });
     await rm(output, { recursive: true, force: true });
+  }
+});
+
+test('Release Packager 拒绝 private 或未固定公共 Registry 的候选', async () => {
+  for (const [label, metadata, expected] of [
+    ['private', publicPackage({ private: true }), /private: false/u],
+    [
+      'registry',
+      publicPackage({ publishConfig: { access: 'public', registry: 'https://registry.example.invalid/', provenance: true } }),
+      /npmjs\.org/u,
+    ],
+  ]) {
+    const root = await mkdtemp(path.join(os.tmpdir(), `foundation-release-${label}-`));
+    const output = await mkdtemp(path.join(os.tmpdir(), `foundation-release-${label}-output-`));
+    try {
+      await writeFile(path.join(root, 'package.json'), JSON.stringify(metadata));
+      await writeFile(path.join(root, 'index.mjs'), 'export const value = 1;\n');
+      git(root, ['init']);
+      git(root, ['config', 'user.name', 'Synthetic Tester']);
+      git(root, ['config', 'user.email', 'synthetic@example.invalid']);
+      git(root, ['add', '.']);
+      git(root, ['commit', '-m', 'baseline']);
+      await assert.rejects(buildReleasePackage({ target: root, output }), expected);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+      await rm(output, { recursive: true, force: true });
+    }
   }
 });

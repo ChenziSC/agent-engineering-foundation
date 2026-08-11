@@ -29,9 +29,9 @@ entries:
       - path: "AGENTS.md"
         digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
       - path: "README.md"
-        digest: "sha256:903251425fa39d9aa7d9d6ebaee2965d134912a8e8fa933c47ca5bc10fcac756"
+        digest: "sha256:acf468d4d0cf491b71bda1a9cd010d2b91b17f87276b8298107654272f8f1b79"
       - path: "packages/harness/README.md"
-        digest: "sha256:2cebf70436c8c9aeb450df6c93c726c07550fbabc114dfcd6ceadb4e9cf41cf3"
+        digest: "sha256:da5bf49b23bc9d36dd0356139665344ae75c3138fad8a1b08982ccd8dfa13c6d"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
         digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
     refresh_triggers:
@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-on-demand-specflow-artifacts"
-      action: "still-valid"
+      spec_id: "2026-08-11-public-package-release"
+      action: "update"
       reviewed_at: "2026-08-11"
-      decision_digest: "sha256:de4086ceba9c0b2481e486c07ff3db3f14349b7476660f59c36a6508509ac221"
+      decision_digest: "sha256:9b71c592cc4d38ba998e6f6b64cd2c74214e91cb4e6bb0641287f4867fd56ed2"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -79,7 +79,7 @@ entries:
       - path: "distribution/README.md"
         digest: "sha256:1f7749806c5a9b0e211f064902c84f9137de2bfca2493cf64fd419e7ba29c40d"
       - path: "packages/harness/README.md"
-        digest: "sha256:2cebf70436c8c9aeb450df6c93c726c07550fbabc114dfcd6ceadb4e9cf41cf3"
+        digest: "sha256:da5bf49b23bc9d36dd0356139665344ae75c3138fad8a1b08982ccd8dfa13c6d"
     refresh_triggers:
       - "主流 Agent Host 原生能力边界变化"
       - "Harness、Framework、Skill、Package 或 Adapter 依赖方向变化"
@@ -91,10 +91,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-on-demand-specflow-artifacts"
-      action: "still-valid"
+      spec_id: "2026-08-11-public-package-release"
+      action: "update"
       reviewed_at: "2026-08-11"
-      decision_digest: "sha256:af669e25f612e6cc0fea83c0f7cb324b66ee3893015fe853e9dc8a44b68c7791"
+      decision_digest: "sha256:33a51f23d01749a167829b933a66a591ef4d96184b7db8a9fef9f58d9afc47f8"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -148,10 +148,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-on-demand-specflow-artifacts"
+      spec_id: "2026-08-11-public-package-release"
       action: "update"
       reviewed_at: "2026-08-11"
-      decision_digest: "sha256:062d01cd9e2a313a6758dfcb5425aa2aab80c0c722e06072c8627fefc41e6437"
+      decision_digest: "sha256:a0c1b559e8594efabc451c6a559444e7993544cee59fee03a0d53687babac213"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -178,7 +178,7 @@ entries:
       - path: "AGENTS.md"
         digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
       - path: "docs/公开发布检查清单.md"
-        digest: "sha256:d6dfb0a24c1fdee2c0153aad6d1f5a2461dde3ceaf962a30e26dc3aeb44b956f"
+        digest: "sha256:81c231f78fb99c459e9c0f257d1afb8e3bd4b3136d7878f9e08285b0bb28d6a3"
       - path: "docs/公开内容来源说明.md"
         digest: "sha256:b2ef92b510389220a65544b92fbc55d0e8befd2bc52736e5705326831378d595"
     refresh_triggers:
@@ -192,7 +192,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-on-demand-specflow-artifacts"
+      spec_id: "2026-08-11-public-package-release"
       action: "still-valid"
       reviewed_at: "2026-08-11"
-      decision_digest: "sha256:71fa7327917c9f8e0f0de3da94c4776aac313387d5e5557660cfda8d347a43c4"
+      decision_digest: "sha256:63ca7778681e9d2a702846a3b15c4df1e92319667e2b276f042239e229067539"

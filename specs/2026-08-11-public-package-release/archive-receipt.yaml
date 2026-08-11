@@ -1,0 +1,119 @@
+schema_version: 1
+receipt_id: "2026-08-11-public-package-release:first-terminal"
+spec_id: "2026-08-11-public-package-release"
+created_at: "2026-08-11T13:44:07Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-11T13:44:07Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-11:archive-commit-push-merge-main"
+snapshot:
+  source_revision: "f0056d4f22baf00cf88aa65b8ec4acc1c330344d"
+  base_revision: "965f78e2f75df2b5ef6f210da40e73158fdf57f0"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:dde2889883de2fb367d84f3bfa4630dd6045b3f3ae2fc1132ed9a03ebd0b923b"
+    excludes:
+      - "specs/2026-08-11-public-package-release"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:b87af45994fe250c380d52564d8d71b0785d4651c38a10176403d4e13678c043"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:8623106505d21dca38303aa63dda024ba0389259e36f6abba08364a0610efe4f"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:6d9e9adb94298215e04c933eb5c698cecd25c43a8a4f306289c7d5cdabcbdeb2"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:161affeb9f252efb2f2271854d76f2c1f9bae6f9a2516fd9352ba0c4ddd86283"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-008"
+    - "AC-009"
+  unresolved_blockers: []
+  evidence_refs:
+    - "gate:work:sha256:eb98029f1bf1460c5ce5572872532f2acc804ef9c479a251c9d2b20bcdc55c34"
+    - "snapshot:sha256:dde2889883de2fb367d84f3bfa4630dd6045b3f3ae2fc1132ed9a03ebd0b923b"
+    - "check:npm-test:119-of-119"
+    - "check:scale:2-of-2"
+    - "check:repository-doctor-distribution-knowledge-specflow"
+    - "check:knowledge-projection-verified"
+    - "check:npm-pack-dry-run:111-files"
+    - "external:npm-publish:not-executed"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "公开交付形态从源码仓库扩展为 npm 公共包，并为采用项目增加由精确版本 CLI 驱动的安全升级入口；不创建 GitHub Release，也不建设自动联网安装器。"
+      evidence_refs:
+        - "package.json"
+        - "Install.md"
+        - "README.md"
+        - ".github/workflows/release.yml"
+        - ".github/scripts/publish-npm-release.mjs"
+        - "docs/不可变包交付.md"
+        - "docs/能力地图.md"
+        - "docs/交付形态与成熟度.md"
+        - "packages/harness/README.md"
+        - "packages/harness/src/harness.mjs"
+        - "knowledge/repository-positioning.md"
+    - action: "update"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "发布前新增公共包门禁与窄 Upgrade 包装；版本选择仍由 Host/npm 负责，Harness 只确定性比较版本并复用 Distribution 安全迁移。"
+      evidence_refs:
+        - "package.json"
+        - ".github/workflows/release.yml"
+        - ".github/scripts/publish-npm-release.mjs"
+        - "packages/harness/src/release-package.mjs"
+        - "packages/harness/src/harness.mjs"
+        - "packages/harness/bin/agent-foundation.mjs"
+        - "packages/harness/test/harness.test.mjs"
+        - "packages/harness/README.md"
+        - "packages/harness/test/release-package.test.mjs"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "自举发布工作流改为仅发布 npm 公共包，同时明确采用项目 Upgrade 的版本记录、冲突保护和写后 Verify 契约。"
+      evidence_refs:
+        - ".github/workflows/release.yml"
+        - ".github/scripts/publish-npm-release.mjs"
+        - "package.json"
+        - "packages/harness/test/self-hosted-workflow.test.mjs"
+        - "packages/harness/src/harness.mjs"
+        - "packages/harness/test/harness.test.mjs"
+        - "docs/不可变包交付.md"
+        - "knowledge/self-hosted-governance.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "本次发布准备没有改变公开泛化边界；公开检查清单的仓库可见性事实已更新，既有政策仍然有效。"
+      evidence_refs:
+        - "docs/公开发布检查清单.md"
+        - "knowledge/public-generalization-policy.md"
+        - "specs/2026-08-11-public-package-release/spec.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:dbb0cf233d1720c9297b0bb301861524832734b1dedac097f5674595a4cf72f3"

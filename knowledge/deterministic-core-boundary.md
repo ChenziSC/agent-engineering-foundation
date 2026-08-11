@@ -85,7 +85,7 @@ Skill 只编排公开入口或携带真正自包含的脚本
 
 Harness 内已有多个真实消费者的统一错误、项目内路径与 Symlink 安全、稳定文件树摘要和 JSON/YAML 子集解析由 `packages/harness/src/shared/` 持有；共享模块不反向导入 Harness 聚合入口、Adapter、Framework 或 Skill。`harness.mjs` 继续作为兼容聚合入口，模块抽取不能要求采用方改写公共导入路径。
 
-不可变包构建属于 `packages/` 的确定性边界：它只在干净 Git Commit 上调用标准 `npm pack`，计算并持久化 Source Revision、文件大小和摘要，且拒绝覆盖既有 Release Manifest。Tag 创建、Registry 上传、GitHub Release、权限与发布授权仍属于外部交付系统和维护者职责，不能下沉为构建器的隐式副作用。
+不可变包构建属于 `packages/` 的确定性边界：它只在具有公共元数据的干净 Git Commit 上调用标准 `npm pack`，计算并持久化 Source Revision、文件大小、目标 Registry 和摘要，且拒绝覆盖既有 Release Manifest。Tag 创建、Registry 上传、Provenance、权限与发布授权仍属于外部交付系统和维护者职责，不能下沉为构建器的隐式副作用。
 
 ## Skill 发布边界
 
@@ -93,7 +93,7 @@ Harness 内已有多个真实消费者的统一错误、项目内路径与 Symli
 - `distribution/manifest.yaml` 只作为本仓运行时发布白名单和声明文件摘要；默认分发不包含 Eval、Trace、Replay、运行报告或测试，也不演进为通用安装协议或运行时能力协商层。
 - Skill 内脚本必须自包含，或通过宿主原生机制声明外部命令、MCP、Package 或 Plugin 依赖；不能依赖本仓未随包发布的相对路径。
 - 跨宿主差异优先通过相同内容兼容；只有经过真实宿主验证且无法消除的差异才增加薄 Adapter。
-- 现有项目级 `skill install/update` 与 `distribution apply` 是参考兼容实现，可以维护受管摘要、安全迁移和回归测试；它们只清理未被采用方修改的旧受管文件，不继续扩展用户级安装、动态插件、通用 Hook、权限、Sandbox 或 Capability Registry。
+- 现有项目级 `skill install/update`、`distribution apply` 与精确版本驱动的 `upgrade plan/apply` 是参考兼容实现，可以维护受管摘要、版本方向、安全迁移和回归测试；Upgrade 只组合调用者已选择版本中的 Distribution，不联网查询 Registry、选择 `latest` 或修改项目依赖。它们只清理未被采用方修改的旧受管文件，不继续扩展用户级安装、动态插件、通用 Hook、权限、Sandbox 或 Capability Registry。
 - Foundation 源码仓可通过 Open Agent 薄 Adapter 声明生产者 Source Link；Harness 只允许当前源码根的 `.agents/skills -> ../skills`，并继续以 Distribution Manifest 校验发布摘要。该特例不允许采用项目直接读取 Foundation 工作区，也不放宽其他 Symlink 或构成通用 Runtime。
 
 ## 成熟度与名称

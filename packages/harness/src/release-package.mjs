@@ -20,6 +20,21 @@ function assertPackageMetadata(value) {
     typeof value.version !== 'string' ||
     !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(value.version)
   ) throw new Error('Package 必须声明有效 name 与 SemVer version');
+  if (value.private !== false) throw new Error('公开 Package 必须显式声明 private: false');
+  if (typeof value.license !== 'string' || !value.license.trim()) {
+    throw new Error('公开 Package 必须声明 license');
+  }
+  const repositoryUrl = typeof value.repository === 'string' ? value.repository : value.repository?.url;
+  if (typeof repositoryUrl !== 'string' || !/^git\+https:\/\/|^https:\/\//u.test(repositoryUrl)) {
+    throw new Error('公开 Package 必须声明可公开访问的 HTTPS repository');
+  }
+  if (
+    value.publishConfig?.access !== 'public' ||
+    value.publishConfig?.registry !== 'https://registry.npmjs.org/' ||
+    value.publishConfig?.provenance !== true
+  ) {
+    throw new Error('公开 Package 必须固定 npmjs.org、public access 与 provenance');
+  }
   return value;
 }
 
@@ -61,6 +76,8 @@ export async function buildReleasePackage({ target = '.', output } = {}) {
       sha256: `sha256:${createHash('sha256').update(artifact).digest('hex')}`,
       npmIntegrity: packed[0].integrity,
       npmShasum: packed[0].shasum,
+      registry: packageJson.publishConfig.registry,
+      access: packageJson.publishConfig.access,
     },
     source: {
       revision: sourceRevision,

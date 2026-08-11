@@ -49,9 +49,13 @@ node packages/harness/bin/agent-foundation.mjs skill install --name specflow --t
 node packages/harness/bin/agent-foundation.mjs distribution plan --target /path/to/project
 node packages/harness/bin/agent-foundation.mjs distribution apply --target /path/to/project
 node packages/harness/bin/agent-foundation.mjs distribution verify --target /path/to/project
+node packages/harness/bin/agent-foundation.mjs upgrade plan --target /path/to/project
+node packages/harness/bin/agent-foundation.mjs upgrade apply --target /path/to/project
 ```
 
 `list`、`check`、`plan` 和 `verify` 只读；`install`、`update` 和 Distribution `apply` 只操作 Manifest 明确纳管且未被采用方修改的内容。完整底座接入默认使用 Distribution；单项 `skill install` 仅用于明确的局部采用或维护。Distribution 安装状态在顶层保存生成它的 Foundation 版本；`verify` 同时复核工具版本来源、Manifest、受管记录和目标内容。安装成功只证明这些内容一致，不证明项目配置、外部 Adapter 或运行环境已经就绪。确定性核心与可分发 Skill 的依赖方向见[长期依赖契约](../../knowledge/deterministic-core-boundary.md)。
+
+`upgrade` 只面向已经完成项目级 Distribution 的采用项目。调用者先通过 npm 或 Host 选择一个精确目标版本，再由该版本 CLI 比较安装状态中的 Foundation 版本并复用完整 Distribution。`plan` 不写入；`apply` 拒绝降级、未安装状态、用户修改、未知文件和路径冲突，成功写入后再次 Verify。它不查询 Registry、不选择 `latest`，也不修改项目依赖、Git、CI 或 Host Hook。早期受管记录存在但缺少 Foundation 版本时，Plan 使用 `migrate` 显式补齐；已一致时 Apply 返回 `unchanged`。
 
 Foundation 源码仓可在 `open-agent` Integration 中使用受控的 `foundation-source://skills` 配置：仅当目标就是当前源码根时，Distribution 才允许 `.agents/skills -> ../skills`，让 Host 的下一次读取直接使用唯一源码。该模式不要求日常源码修改后重新 Apply，但 Repository/Distribution 仍会阻断未更新的发布摘要。其他项目声明该配置、错误链接目标或任意 Symlink 都会失败关闭；普通采用方始终使用不可变复制模式。
 

@@ -1,0 +1,54 @@
+impact: reviewed
+decisions:
+  - knowledge_id: repository-positioning
+    action: update
+    target_knowledge_id: null
+    reason: 公开交付形态从源码仓库扩展为 npm 公共包，并为采用项目增加由精确版本 CLI 驱动的安全升级入口；不创建 GitHub Release，也不建设自动联网安装器。
+    evidence_refs:
+      - package.json
+      - Install.md
+      - README.md
+      - .github/workflows/release.yml
+      - .github/scripts/publish-npm-release.mjs
+      - docs/不可变包交付.md
+      - docs/能力地图.md
+      - docs/交付形态与成熟度.md
+      - packages/harness/README.md
+      - packages/harness/src/harness.mjs
+      - knowledge/repository-positioning.md
+  - knowledge_id: deterministic-core-boundary
+    action: update
+    target_knowledge_id: null
+    reason: 发布前新增公共包门禁与窄 Upgrade 包装；版本选择仍由 Host/npm 负责，Harness 只确定性比较版本并复用 Distribution 安全迁移。
+    evidence_refs:
+      - package.json
+      - .github/workflows/release.yml
+      - .github/scripts/publish-npm-release.mjs
+      - packages/harness/src/release-package.mjs
+      - packages/harness/src/harness.mjs
+      - packages/harness/bin/agent-foundation.mjs
+      - packages/harness/test/harness.test.mjs
+      - packages/harness/README.md
+      - packages/harness/test/release-package.test.mjs
+      - knowledge/deterministic-core-boundary.md
+  - knowledge_id: self-hosted-governance
+    action: update
+    target_knowledge_id: null
+    reason: 自举发布工作流改为仅发布 npm 公共包，同时明确采用项目 Upgrade 的版本记录、冲突保护和写后 Verify 契约。
+    evidence_refs:
+      - .github/workflows/release.yml
+      - .github/scripts/publish-npm-release.mjs
+      - package.json
+      - packages/harness/test/self-hosted-workflow.test.mjs
+      - packages/harness/src/harness.mjs
+      - packages/harness/test/harness.test.mjs
+      - docs/不可变包交付.md
+      - knowledge/self-hosted-governance.md
+  - knowledge_id: public-generalization-policy
+    action: still-valid
+    target_knowledge_id: null
+    reason: 本次发布准备没有改变公开泛化边界；公开检查清单的仓库可见性事实已更新，既有政策仍然有效。
+    evidence_refs:
+      - docs/公开发布检查清单.md
+      - knowledge/public-generalization-policy.md
+      - specs/2026-08-11-public-package-release/spec.md
