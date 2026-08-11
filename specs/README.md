@@ -9,10 +9,10 @@ specs/
 └── YYYY-MM-DD-<slug>/
     ├── meta.yaml
     ├── spec.md
-    ├── plan.md
-    ├── tasks.md
+    ├── plan.md                # 按需：需要显式技术决策时
+    ├── tasks.md               # 按需：多单元、阶段或跨会话工作
     ├── research.md            # 仅重大未知需要独立实验时创建
-    └── validation-report.md
+    └── validation-report.md   # 按需：需要独立证据映射时
 ```
 
 模板由 [`skills/specflow/assets/`](../skills/specflow/assets/) 统一维护，本目录不复制第二份模板。
@@ -20,6 +20,7 @@ specs/
 ## 使用规则
 
 - 新请求先读取全部 `meta.yaml`，按状态和影响范围选择相关事项。
+- 需要长期追溯的行为事项至少包含 Meta 与 Spec；Plan、Tasks、Research、Validation Report 按 [`specflow` Skill](../skills/specflow/SKILL.md#目标) 的条件创建，未创建项在 Meta 中写 `null`。
 - 产品或治理范围变化先更新 Spec，技术路径变化更新 Plan，执行拆分和验证结果更新 Tasks。
 - `meta.yaml` 是事项状态、关系和影响范围的唯一事实来源。
 - 普通 Commit、Push、Draft PR/MR 或 Agent 自述不构成归档授权。

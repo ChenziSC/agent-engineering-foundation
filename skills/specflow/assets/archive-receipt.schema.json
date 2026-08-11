@@ -73,7 +73,14 @@
         },
         "artifacts": {
           "type": "array",
-          "minItems": 4,
+          "minItems": 1,
+          "contains": {
+            "type": "object",
+            "required": ["role"],
+            "properties": { "role": { "const": "spec" } }
+          },
+          "minContains": 1,
+          "maxContains": 1,
           "items": {
             "type": "object",
             "additionalProperties": false,

@@ -142,7 +142,7 @@ function syntheticKnowledgeEntry({ id, status, scope, sourceContent, pathName = 
   };
 }
 
-async function writeSyntheticGateSpec(target, { id, scope, status = 'in-progress' }) {
+async function writeSyntheticGateSpec(target, { id, scope, status = 'in-progress', minimal = false }) {
   const specDirectory = path.join(target, 'specs', id);
   await mkdir(specDirectory, { recursive: true });
   const meta = {
@@ -155,10 +155,10 @@ async function writeSyntheticGateSpec(target, { id, scope, status = 'in-progress
     relations: { parent: null, children: [], supersedes: [], superseded_by: null },
     artifacts: {
       spec: './spec.md',
-      plan: './plan.md',
-      tasks: './tasks.md',
+      plan: minimal ? null : './plan.md',
+      tasks: minimal ? null : './tasks.md',
       research: null,
-      validation_report: './validation-report.md',
+      validation_report: minimal ? null : './validation-report.md',
       archive_receipt: null,
       lifecycle_dir: './lifecycle',
     },
@@ -167,12 +167,13 @@ async function writeSyntheticGateSpec(target, { id, scope, status = 'in-progress
     authorization: { terminal_transition_confirmed: false },
   };
   await writeFile(path.join(specDirectory, 'meta.yaml'), stringifyYamlSubset(meta));
-  for (const [name, content] of [
-    ['spec.md', '# Spec\n'],
+  const files = [['spec.md', '# Spec\n']];
+  if (!minimal) files.push(
     ['plan.md', '# Plan\n'],
     ['tasks.md', '# Tasks\n'],
     ['validation-report.md', '# Validation\n'],
-  ]) await writeFile(path.join(specDirectory, name), content);
+  );
+  for (const [name, content] of files) await writeFile(path.join(specDirectory, name), content);
   return { specDirectory, meta };
 }
 
@@ -224,6 +225,9 @@ test('init 创建最小 Starter，重复执行保持幂等，Doctor 通过', asy
   const first = await initProject(target);
   assert.equal(first.status, 'initialized');
   assert.ok(first.added.includes('AGENTS.md'));
+  const starterInstructions = await readFile(path.join(target, 'AGENTS.md'), 'utf8');
+  assert.match(starterInstructions, /只有命中已安装 `specflow` Skill 的创建条件时才补建/u);
+  assert.doesNotMatch(starterInstructions, /执行状态和验证更新 Tasks/u);
 
   const second = await initProject(target);
   assert.equal(second.status, 'unchanged');
@@ -319,15 +323,15 @@ test('Context 按路径解析 Active Spec 与 Knowledge，并由来源摘要检�
   );
   const specRoot = path.join(target, 'specs', 'demo-work');
   await mkdir(specRoot);
-  for (const file of ['spec.md', 'plan.md', 'tasks.md']) await writeFile(path.join(specRoot, file), `# ${file}\n`);
+  await writeFile(path.join(specRoot, 'spec.md'), '# spec.md\n');
   await writeFile(
     path.join(specRoot, 'meta.json'),
     `${JSON.stringify({
       id: 'demo-work',
       status: 'in-progress',
       scope: ['src/demo/'],
-      artifacts: { spec: './spec.md', plan: './plan.md', tasks: './tasks.md' },
-      active_context: { summary: '继续合成工作', next_task_id: 'T-02' },
+      artifacts: { spec: './spec.md', plan: null, tasks: null },
+      active_context: { summary: '继续合成工作', next_task_id: null },
     }, null, 2)}\n`,
   );
 
@@ -345,6 +349,8 @@ test('Context 按路径解析 Active Spec 与 Knowledge，并由来源摘要检�
   assert.equal(context.contextBudget.sectionedSpecCount, 0);
   assert.ok(context.loadPlan.includes('AGENTS.md'));
   assert.ok(context.loadPlan.includes('specs/demo-work/spec.md'));
+  assert.ok(!context.loadPlan.includes('specs/demo-work/plan.md'));
+  assert.ok(!context.loadPlan.includes('specs/demo-work/tasks.md'));
   assert.ok(context.loadPlan.includes('knowledge/demo.md'));
 
   const rootContext = await resolveProjectContext(target, { paths: ['.'] });
@@ -358,6 +364,26 @@ test('Context 按路径解析 Active Spec 与 Knowledge，并由来源摘要检�
   });
   assert.deepEqual(rootRuleContext.knowledge.map((entry) => entry.id), ['demo-knowledge']);
   assert.ok(rootRuleContext.loadPlan.includes('AGENTS.md'));
+
+  const fullSpecRoot = path.join(target, 'specs', 'full-work');
+  await mkdir(fullSpecRoot);
+  for (const file of ['spec.md', 'plan.md', 'tasks.md']) {
+    await writeFile(path.join(fullSpecRoot, file), `# ${file}\n`);
+  }
+  await writeFile(
+    path.join(fullSpecRoot, 'meta.json'),
+    `${JSON.stringify({
+      id: 'full-work',
+      status: 'in-progress',
+      scope: ['src/full/'],
+      artifacts: { spec: './spec.md', plan: './plan.md', tasks: './tasks.md' },
+      active_context: { summary: '完整合成事项', next_task_id: 'T-01' },
+    }, null, 2)}\n`,
+  );
+  const fullContext = await resolveProjectContext(target, { paths: ['src/full/index.mjs'] });
+  assert.deepEqual(context.activeSpecs[0].artifacts, ['specs/demo-work/spec.md']);
+  assert.equal(fullContext.activeSpecs[0].artifacts.length, 3);
+  assert.ok(context.activeSpecs[0].markdownBytes < fullContext.activeSpecs[0].markdownBytes);
 
   const metaPath = path.join(specRoot, 'meta.json');
   const unsafeMeta = JSON.parse(await readFile(metaPath, 'utf8'));
@@ -472,6 +498,7 @@ test('Specflow Check 校验完整 Meta、产物与本地关系互反', async () 
   await initProject(target);
   const parent = await writeSyntheticGateSpec(target, { id: 'parent-spec', scope: ['src/parent/'] });
   const child = await writeSyntheticGateSpec(target, { id: 'child-spec', scope: ['src/child/'] });
+  await writeSyntheticGateSpec(target, { id: 'minimal-spec', scope: ['src/minimal/'], minimal: true });
   parent.meta.relations.children = ['child-spec'];
   child.meta.relations.parent = 'parent-spec';
   await writeFile(path.join(parent.specDirectory, 'meta.yaml'), stringifyYamlSubset(parent.meta));
@@ -1921,14 +1948,14 @@ test('采用项目 Delivery CI 模板只接受不可变 Git 候选并调用只�
   assert.match(template, /base_sha:/u);
   assert.match(template, /source_sha:/u);
   assert.match(template, /spec_id:/u);
+  assert.match(template, /exemption:/u);
   assert.match(template, /required_check:/u);
   assert.match(template, /checks: read/u);
   assert.match(template, /test "\$\{#BASE_SHA\}" -eq 40/u);
   assert.match(template, /test "\$\{#SOURCE_SHA\}" -eq 40/u);
-  assert.match(
-    template,
-    /agent-foundation change gate check --base "\$BASE_SHA" --source "\$SOURCE_SHA" --spec-id "\$SPEC_ID" --phase delivery --required-check "\$REQUIRED_CHECK"/u,
-  );
+  assert.match(template, /association_args=\(--spec-id "\$SPEC_ID"\)/u);
+  assert.match(template, /association_args=\(--exemption "\$EXEMPTION"\)/u);
+  assert.match(template, /"\$\{association_args\[@\]\}" --phase delivery --required-check "\$REQUIRED_CHECK"/u);
   assert.doesNotMatch(template, /--delivery-provider|--repository/u);
   for (const command of [
     'agent-foundation doctor',

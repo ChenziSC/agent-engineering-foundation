@@ -9,7 +9,7 @@ Draft → Planned → In Progress → Archived → Superseded
 ```
 
 - Draft：范围或完成条件尚未闭合。
-- Planned：Spec 和 Plan 已可执行。
+- Planned：Spec 已闭合，必要的设计决策已解决，可以执行。
 - In Progress：实施或验证已经开始。
 - Archived：最终产物和验证已经收口。
 - Superseded：被另一个事项取代；Active 首次进入该状态时使用 Receipt，Archived 后变化使用追加式 Event。
@@ -30,7 +30,7 @@ Draft → Planned → In Progress → Archived → Superseded
 1. 读取可访问的 `meta.yaml`；
 2. 找出非终态事项；
 3. 根据影响范围和当前请求选取相关事项；
-4. 只加载所选事项的 Spec、Plan 和未完成 Tasks；
+4. 只加载所选事项在 Meta 中实际声明的 Spec、Plan 和 Tasks；
 5. 大文档先读取 Section Index，再按需展开。
 
 没有 Active 事项时返回空结果，不虚构上下文，也不机械创建新事项。

@@ -25,7 +25,7 @@ function digest(value) {
   return `sha256:${createHash('sha256').update(value).digest('hex')}`;
 }
 
-async function makeItem() {
+async function makeItem({ minimal = false } = {}) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'specflow-archive-'));
   const meta = {
     id: 'synthetic-work',
@@ -37,10 +37,10 @@ async function makeItem() {
     relations: { parent: null, children: [], supersedes: [], superseded_by: null },
     artifacts: {
       spec: './spec.md',
-      plan: './plan.md',
-      tasks: './tasks.md',
+      plan: minimal ? null : './plan.md',
+      tasks: minimal ? null : './tasks.md',
       research: null,
-      validation_report: './validation-report.md',
+      validation_report: minimal ? null : './validation-report.md',
       archive_receipt: null,
       lifecycle_dir: './lifecycle',
     },
@@ -48,13 +48,16 @@ async function makeItem() {
     active_context: { summary: 'Synthetic', next_task_id: null },
     authorization: { terminal_transition_confirmed: false },
   };
-  for (const [name, content] of [
+  const files = [
     ['meta.yaml', stringifyYamlSubset(meta)],
     ['spec.md', '# Spec\n'],
+  ];
+  if (!minimal) files.push(
     ['plan.md', '# Plan\n'],
     ['tasks.md', '# Tasks\n'],
     ['validation-report.md', '# Validation\n'],
-  ]) await writeFile(path.join(root, name), content);
+  );
+  for (const [name, content] of files) await writeFile(path.join(root, name), content);
   const candidate = {
     schema_version: 1,
     receipt_id: 'synthetic-work:first-terminal',
@@ -71,12 +74,14 @@ async function makeItem() {
       source_revision: 'synthetic-source-revision',
       base_revision: 'synthetic-base-revision',
       change: { algorithm: 'sha256', scope: 'committed-range', digest: digest('synthetic-change'), excludes: [] },
-      artifacts: [
-        { role: 'spec', path: './spec.md', digest: digest('placeholder') },
-        { role: 'plan', path: './plan.md', digest: digest('placeholder') },
-        { role: 'tasks', path: './tasks.md', digest: digest('placeholder') },
-        { role: 'validation-report', path: './validation-report.md', digest: digest('placeholder') },
-      ],
+      artifacts: minimal
+        ? [{ role: 'spec', path: './spec.md', digest: digest('placeholder') }]
+        : [
+          { role: 'spec', path: './spec.md', digest: digest('placeholder') },
+          { role: 'plan', path: './plan.md', digest: digest('placeholder') },
+          { role: 'tasks', path: './tasks.md', digest: digest('placeholder') },
+          { role: 'validation-report', path: './validation-report.md', digest: digest('placeholder') },
+        ],
     },
     validation: {
       result: 'pass',
@@ -224,6 +229,81 @@ test('首次 Seal 计算产物摘要、不可覆盖写入并回读校验', async
   assert.equal(receipt.snapshot.artifacts[0].digest, digest('# Spec\n'));
   assert.equal(await readFile(path.join(root, 'meta.yaml'), 'utf8'), metaBefore);
   assert.equal((await sealArchiveReceipt(root, './candidate.yaml')).status, 'unchanged');
+});
+
+test('Seal 接受模板中的待计算 Artifact Digest 占位符', async () => {
+  const { root, candidate } = await makeItem({ minimal: true });
+  candidate.snapshot.artifacts[0].digest = 'sha256:<computed-value>';
+  await writeFile(path.join(root, 'candidate.yaml'), stringifyYamlSubset(candidate));
+  await sealArchiveReceipt(root, './candidate.yaml');
+  const receipt = parseYamlSubset(await readFile(path.join(root, 'archive-receipt.yaml'), 'utf8'));
+  assert.equal(receipt.snapshot.artifacts[0].digest, digest('# Spec\n'));
+});
+
+test('仅 Meta 与 Spec 的事项可以生成并验证 Receipt', async () => {
+  const { root } = await makeItem({ minimal: true });
+  await finalizeArchiveReceipt(root, './candidate.yaml');
+  const receipt = parseYamlSubset(await readFile(path.join(root, 'archive-receipt.yaml'), 'utf8'));
+  assert.deepEqual(receipt.snapshot.artifacts.map(({ role }) => role), ['spec']);
+  assert.equal(receipt.validation.result, 'pass');
+  assert.equal((await verifyArchiveReceipt(root)).status, 'verified');
+});
+
+test('Receipt 仍必须冻结 Spec', async () => {
+  const { root, candidate } = await makeItem({ minimal: true });
+  candidate.snapshot.artifacts = [];
+  await writeFile(path.join(root, 'candidate.yaml'), stringifyYamlSubset(candidate));
+  await assert.rejects(
+    sealArchiveReceipt(root, './candidate.yaml'),
+    (error) => error instanceof SpecflowArchiveError && error.code === 'invalid-receipt',
+  );
+});
+
+test('Receipt 不能漏掉 Meta 已声明的条件产物', async () => {
+  const { root, candidate } = await makeItem();
+  candidate.snapshot.artifacts = candidate.snapshot.artifacts.filter(({ role }) => role !== 'plan');
+  await writeFile(path.join(root, 'candidate.yaml'), stringifyYamlSubset(candidate));
+  await assert.rejects(
+    sealArchiveReceipt(root, './candidate.yaml'),
+    (error) => error instanceof SpecflowArchiveError && error.code === 'receipt-artifact-map-mismatch',
+  );
+});
+
+test('Receipt 验证阻断终态 Meta 的 Artifact Map 漂移', async () => {
+  const { root } = await makeItem({ minimal: true });
+  await finalizeArchiveReceipt(root, './candidate.yaml');
+  const metaPath = path.join(root, 'meta.yaml');
+  const meta = parseYamlSubset(await readFile(metaPath, 'utf8'));
+  meta.artifacts.plan = './plan.md';
+  await writeFile(path.join(root, 'plan.md'), '# Late Plan\n');
+  await writeFile(metaPath, stringifyYamlSubset(meta));
+  await assert.rejects(
+    verifyArchiveReceipt(root),
+    (error) => error instanceof SpecflowArchiveError && error.code === 'receipt-artifact-map-mismatch',
+  );
+  await assert.rejects(
+    verifyLifecycleChain(root),
+    (error) => error instanceof SpecflowArchiveError && error.code === 'receipt-artifact-map-mismatch',
+  );
+});
+
+test('自定义 Meta 路径贯穿 Receipt Seal、状态最后写和 Verify', async () => {
+  const { root } = await makeItem({ minimal: true });
+  await rename(path.join(root, 'meta.yaml'), path.join(root, 'custom-meta.yaml'));
+  await finalizeArchiveReceipt(root, './candidate.yaml', { metaPath: './custom-meta.yaml' });
+  assert.equal(
+    (await verifyArchiveReceipt(root, './archive-receipt.yaml', './custom-meta.yaml')).status,
+    'verified',
+  );
+  assert.equal(parseYamlSubset(await readFile(path.join(root, 'custom-meta.yaml'), 'utf8')).status, 'archived');
+});
+
+test('Receipt Schema 明确要求包含且只包含一个 Spec 角色', async () => {
+  const schema = JSON.parse(await readFile(new URL('../assets/archive-receipt.schema.json', import.meta.url), 'utf8'));
+  const artifacts = schema.$defs.snapshot.properties.artifacts;
+  assert.equal(artifacts.minContains, 1);
+  assert.equal(artifacts.maxContains, 1);
+  assert.equal(artifacts.contains.properties.role.const, 'spec');
 });
 
 test('Receipt 已存在且候选变化时拒绝覆盖', async () => {

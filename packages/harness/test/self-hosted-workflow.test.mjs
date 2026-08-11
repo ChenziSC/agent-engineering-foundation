@@ -2,17 +2,22 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
-import { parsePullRequestSpecIds } from '../../../.github/scripts/run-delivery-gate.mjs';
+import { parsePullRequestAssociation } from '../../../.github/scripts/run-delivery-gate.mjs';
 
-test('GitHub PR Spec-IDs 策略严格解析 1～3 个显式事项', () => {
+test('GitHub PR 严格选择 Spec 集合或既有 Exemption', () => {
   assert.deepEqual(
-    parsePullRequestSpecIds('说明\nSpec-IDs: beta-spec,alpha-spec\n更多说明'),
-    ['alpha-spec', 'beta-spec'],
+    parsePullRequestAssociation('说明\nSpec-IDs: beta-spec,alpha-spec\n更多说明'),
+    { mode: 'spec', specIds: ['alpha-spec', 'beta-spec'] },
   );
-  assert.throws(() => parsePullRequestSpecIds('没有事项声明'), /必须且只能包含一行/u);
-  assert.throws(() => parsePullRequestSpecIds('Spec-IDs: one\nSpec-IDs: two'), /必须且只能包含一行/u);
-  assert.throws(() => parsePullRequestSpecIds('Spec-IDs: one,two,three,four'), /1～3/u);
-  assert.throws(() => parsePullRequestSpecIds('Spec-IDs: valid,../invalid'), /无效事项标识/u);
+  assert.deepEqual(
+    parsePullRequestAssociation('说明\nSpec-Exemption: docs-only'),
+    { mode: 'exemption', exemption: 'docs-only' },
+  );
+  assert.throws(() => parsePullRequestAssociation('没有事项声明'), /必须且只能声明一行/u);
+  assert.throws(() => parsePullRequestAssociation('Spec-IDs: one\nSpec-IDs: two'), /必须且只能声明一行/u);
+  assert.throws(() => parsePullRequestAssociation('Spec-IDs: one\nSpec-Exemption: docs-only'), /必须且只能声明一行/u);
+  assert.throws(() => parsePullRequestAssociation('Spec-IDs: one,two,three,four'), /1～3/u);
+  assert.throws(() => parsePullRequestAssociation('Spec-IDs: valid,../invalid'), /无效事项标识/u);
 });
 
 test('本仓真实 Workflow 串联 Continuous 与同 SHA Delivery Gate', async () => {

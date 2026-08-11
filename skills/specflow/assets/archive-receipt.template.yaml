@@ -25,15 +25,6 @@ snapshot:
     - role: "spec"
       path: "./spec.md"
       digest: "sha256:<computed-value>"
-    - role: "plan"
-      path: "./plan.md"
-      digest: "sha256:<computed-value>"
-    - role: "tasks"
-      path: "./tasks.md"
-      digest: "sha256:<computed-value>"
-    - role: "validation-report"
-      path: "./validation-report.md"
-      digest: "sha256:<computed-value>"
 validation:
   result: "pass"
   completed_conditions:

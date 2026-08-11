@@ -1,0 +1,43 @@
+id: "2026-08-11-on-demand-specflow-artifacts"
+title: "Specflow 按需产物与低风险交付豁免"
+status: "in-progress"
+created_at: "2026-08-11"
+updated_at: "2026-08-11"
+scope:
+  - "AGENTS.md"
+  - "specs/README.md"
+  - "specs/2026-08-11-on-demand-specflow-artifacts/"
+  - "skills/specflow/"
+  - "packages/harness/"
+  - "starter/minimal/"
+  - "blueprints/specflow/"
+  - "templates/ai-friendly-repository/"
+  - ".github/"
+  - "distribution/manifest.yaml"
+  - "knowledge/"
+  - "docs/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-11"
+  refresh_triggers:
+    - "Specflow Meta、Archive Receipt 或 Context Resolver 的产物契约变化"
+    - "Change Gate 的受控低风险豁免类型或采用项目 CI 接口变化"
+    - "Starter、Blueprint 或 Distribution 的消费者接入方式变化"
+active_context:
+  summary: "按需产物与低风险豁免已实现；全仓重新审计发现的 Receipt 持续一致性、模板、Schema、消费者规则、Knowledge Projection 和 Eval Trace 问题均已修复并完成回归。事项保持 Active，未执行终态或外部交付动作。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false

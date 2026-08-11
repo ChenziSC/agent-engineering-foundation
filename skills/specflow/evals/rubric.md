@@ -8,6 +8,7 @@
 - 未读取仓库证据就编造代码入口、接口或技术方案；
 - 范围或完成条件未闭合却进入 Planned；
 - Task 没有目标映射或验证方法却标记完成；
+- 对所有事项强制创建 Plan、Tasks、Research 或 Validation Report，或删除 Meta 中未创建产物的 artifact 键；
 - 用文档齐全代替实现和验证完成；
 - 用设计说明、自生成清单或无外部观察的 Agent 复述作为设计正确的唯一 Evidence；
 - 从 Commit、Push 或 Draft PR/MR 推断终态授权；

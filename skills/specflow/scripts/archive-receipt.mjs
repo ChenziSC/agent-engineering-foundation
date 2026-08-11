@@ -7,7 +7,14 @@ import { pathToFileURL } from 'node:url';
 
 const CANONICALIZATION = 'canonical-json-v1';
 const ACCEPTED_CANONICALIZATIONS = new Set([CANONICALIZATION, 'canonical-json-v1:recursive-key-sort:utf8']);
-const REQUIRED_ARTIFACT_ROLES = ['spec', 'plan', 'tasks', 'validation-report'];
+const REQUIRED_ARTIFACT_ROLES = ['spec'];
+const RECEIPT_ROLE_BY_META_ARTIFACT = new Map([
+  ['spec', 'spec'],
+  ['plan', 'plan'],
+  ['tasks', 'tasks'],
+  ['research', 'research'],
+  ['validation_report', 'validation-report'],
+]);
 const TERMINAL_STATES = new Set(['archived', 'cancelled', 'superseded']);
 const ACTIVE_STATES = new Set(['draft', 'planned', 'in-progress']);
 const RELATION_FIELDS = ['parent', 'children', 'supersedes', 'superseded_by'];
@@ -431,19 +438,7 @@ export function validateReceiptStructure(receipt) {
   assertDigest(receipt.snapshot.change.digest, 'snapshot.change.digest');
   assertStringArray(receipt.snapshot.change.excludes, 'snapshot.change.excludes');
 
-  if (!Array.isArray(receipt.snapshot.artifacts)) fail('invalid-receipt', 'snapshot.artifacts 必须是数组');
-  const roles = new Set();
-  for (const artifact of receipt.snapshot.artifacts) {
-    assertExactKeys(artifact, ['role', 'path', 'digest'], [], 'artifact');
-    if (!['spec', 'plan', 'tasks', 'validation-report', 'research'].includes(artifact.role) || roles.has(artifact.role)) {
-      fail('invalid-receipt', 'artifact role 无效或重复', { role: artifact.role });
-    }
-    roles.add(artifact.role);
-    assertString(artifact.path, 'artifact.path');
-    assertDigest(artifact.digest, `artifact ${artifact.role} digest`);
-  }
-  const missingRoles = REQUIRED_ARTIFACT_ROLES.filter((role) => !roles.has(role));
-  if (missingRoles.length) fail('invalid-receipt', '缺少必需归档产物', { missingRoles });
+  validateReceiptArtifactDescriptors(receipt.snapshot.artifacts, { requireDigest: true });
 
   assertExactKeys(receipt.validation, ['result', 'completed_conditions', 'unresolved_blockers', 'evidence_refs'], [], 'validation');
   if (!['pass', 'partial', 'fail'].includes(receipt.validation.result)) fail('invalid-receipt', 'validation.result 无效');
@@ -465,6 +460,22 @@ export function validateReceiptStructure(receipt) {
   return receipt;
 }
 
+function validateReceiptArtifactDescriptors(artifacts, { requireDigest }) {
+  if (!Array.isArray(artifacts)) fail('invalid-receipt', 'snapshot.artifacts 必须是数组');
+  const roles = new Set();
+  for (const artifact of artifacts) {
+    assertExactKeys(artifact, ['role', 'path', 'digest'], [], 'artifact');
+    if (!['spec', 'plan', 'tasks', 'validation-report', 'research'].includes(artifact.role) || roles.has(artifact.role)) {
+      fail('invalid-receipt', 'artifact role 无效或重复', { role: artifact.role });
+    }
+    roles.add(artifact.role);
+    assertString(artifact.path, 'artifact.path');
+    if (requireDigest) assertDigest(artifact.digest, `artifact ${artifact.role} digest`);
+  }
+  const missingRoles = REQUIRED_ARTIFACT_ROLES.filter((role) => !roles.has(role));
+  if (missingRoles.length) fail('invalid-receipt', '缺少必需归档产物', { missingRoles });
+}
+
 async function computeArtifactDigest(specDir, artifact) {
   const artifactPath = resolveInside(specDir, artifact.path, `artifact ${artifact.role}`);
   await assertNoSymlinkSegments(specDir, artifactPath);
@@ -473,13 +484,19 @@ async function computeArtifactDigest(specDir, artifact) {
   return sha256(await readFile(artifactPath));
 }
 
-export async function verifyArchiveReceipt(specDir, receiptPath = './archive-receipt.yaml') {
+export async function verifyArchiveReceipt(specDir, receiptPath = './archive-receipt.yaml', metaPath = './meta.yaml') {
   const root = path.resolve(specDir);
   const absoluteReceipt = resolveInside(root, receiptPath, 'Archive Receipt');
   await assertNoSymlinkSegments(root, absoluteReceipt);
   const entry = await statOrNull(absoluteReceipt);
   if (!entry?.isFile()) fail('receipt-missing', 'Archive Receipt 不存在', { path: receiptPath });
   const receipt = validateReceiptStructure(parseYamlSubset(await readFile(absoluteReceipt, 'utf8')));
+  const metaAbsolute = resolveInside(root, metaPath, 'Meta');
+  await assertNoSymlinkSegments(root, metaAbsolute);
+  const meta = validateSpecMetaStructure(parseYamlSubset(await readFile(metaAbsolute, 'utf8')), {
+    expectedId: receipt.spec_id,
+  });
+  validateReceiptArtifactMap(meta, receipt.snapshot.artifacts);
   for (const artifact of receipt.snapshot.artifacts) {
     const actual = await computeArtifactDigest(root, artifact);
     if (actual !== artifact.digest) {
@@ -501,7 +518,25 @@ export async function verifyArchiveReceipt(specDir, receiptPath = './archive-rec
   };
 }
 
-export async function sealArchiveReceipt(specDir, candidatePath, receiptPath = './archive-receipt.yaml') {
+function validateReceiptArtifactMap(meta, artifacts) {
+  const expected = [...RECEIPT_ROLE_BY_META_ARTIFACT]
+    .filter(([metaKey]) => meta.artifacts[metaKey] !== null)
+    .map(([metaKey, role]) => [role, meta.artifacts[metaKey]])
+    .sort(([left], [right]) => left.localeCompare(right));
+  const actual = artifacts
+    .map(({ role, path: artifactPath }) => [role, artifactPath])
+    .sort(([left], [right]) => left.localeCompare(right));
+  if (canonicalJson(actual) !== canonicalJson(expected)) {
+    fail('receipt-artifact-map-mismatch', 'Receipt 产物集合必须与 Meta 实际声明的产物一致', { expected, actual });
+  }
+}
+
+export async function sealArchiveReceipt(
+  specDir,
+  candidatePath,
+  receiptPath = './archive-receipt.yaml',
+  metaPath = './meta.yaml',
+) {
   const root = path.resolve(specDir);
   const rootEntry = await statOrNull(root);
   if (!rootEntry?.isDirectory() || rootEntry.isSymbolicLink()) fail('unsafe-path', '事项目录必须是普通目录');
@@ -520,6 +555,16 @@ export async function sealArchiveReceipt(specDir, candidatePath, receiptPath = '
   if (!candidate.snapshot || !Array.isArray(candidate.snapshot.artifacts)) {
     fail('invalid-receipt', '候选 Receipt 缺少 snapshot.artifacts');
   }
+  validateReceiptArtifactDescriptors(candidate.snapshot.artifacts, { requireDigest: false });
+  for (const artifact of candidate.snapshot.artifacts) {
+    resolveInside(root, artifact.path, `artifact ${artifact.role}`);
+  }
+  const metaAbsolute = resolveInside(root, metaPath, 'Meta');
+  await assertNoSymlinkSegments(root, metaAbsolute);
+  const meta = validateSpecMetaStructure(parseYamlSubset(await readFile(metaAbsolute, 'utf8')), {
+    expectedId: candidate.spec_id,
+  });
+  validateReceiptArtifactMap(meta, candidate.snapshot.artifacts);
   for (const artifact of candidate.snapshot.artifacts) artifact.digest = await computeArtifactDigest(root, artifact);
   candidate.integrity.payload_digest = computeReceiptPayloadDigest(candidate);
   validateReceiptStructure(candidate);
@@ -527,7 +572,7 @@ export async function sealArchiveReceipt(specDir, candidatePath, receiptPath = '
 
   const existing = await statOrNull(outputAbsolute);
   if (existing) {
-    const verified = await verifyArchiveReceipt(root, receiptPath);
+    const verified = await verifyArchiveReceipt(root, receiptPath, metaPath);
     const current = parseYamlSubset(await readFile(outputAbsolute, 'utf8'));
     if (!receiptPayloadEquals(current, candidate)) {
       fail('immutable-receipt-conflict', 'Archive Receipt 已存在且与当前候选不同，拒绝覆盖');
@@ -541,7 +586,7 @@ export async function sealArchiveReceipt(specDir, candidatePath, receiptPath = '
     if (error.code !== 'EEXIST') throw error;
     fail('immutable-receipt-conflict', 'Archive Receipt 在写入期间已由其他进程创建，拒绝覆盖');
   }
-  const verified = await verifyArchiveReceipt(root, receiptPath);
+  const verified = await verifyArchiveReceipt(root, receiptPath, metaPath);
   return { ...verified, command: 'seal-receipt', status: 'sealed', nextAction: 'update-meta-last' };
 }
 
@@ -611,8 +656,10 @@ export function validateSpecMetaStructure(meta, { expectedId } = {}) {
     ['archive_receipt', 'lifecycle_dir'],
     'Meta artifacts',
   );
-  for (const key of ['spec', 'plan', 'tasks', 'validation_report']) assertLocalArtifactPath(meta.artifacts[key], `Meta artifacts.${key}`);
-  if (meta.artifacts.research !== null) assertLocalArtifactPath(meta.artifacts.research, 'Meta artifacts.research');
+  assertLocalArtifactPath(meta.artifacts.spec, 'Meta artifacts.spec');
+  for (const key of ['plan', 'tasks', 'research', 'validation_report']) {
+    if (meta.artifacts[key] !== null) assertLocalArtifactPath(meta.artifacts[key], `Meta artifacts.${key}`);
+  }
   if (meta.artifacts.archive_receipt !== undefined && meta.artifacts.archive_receipt !== null) {
     assertLocalArtifactPath(meta.artifacts.archive_receipt, 'Meta artifacts.archive_receipt');
   }
@@ -677,8 +724,8 @@ async function mutateMetaAtomically(specDir, metaPath, mutate, { beforeRename } 
   }
 }
 
-async function readReceipt(specDir, receiptPath) {
-  await verifyArchiveReceipt(specDir, receiptPath);
+async function readReceipt(specDir, receiptPath, metaPath = './meta.yaml') {
+  await verifyArchiveReceipt(specDir, receiptPath, metaPath);
   return parseYamlSubset(await readFile(resolveInside(specDir, receiptPath, 'Archive Receipt'), 'utf8'));
 }
 
@@ -698,7 +745,7 @@ export async function applyReceiptTransition(
   options = {},
 ) {
   const root = path.resolve(specDir);
-  const receipt = await readReceipt(root, receiptPath);
+  const receipt = await readReceipt(root, receiptPath, metaPath);
   return mutateMetaAtomically(
     root,
     metaPath,
@@ -753,7 +800,7 @@ export async function finalizeArchiveReceipt(
   candidatePath,
   { receiptPath = './archive-receipt.yaml', metaPath = './meta.yaml', beforeMetaRename } = {},
 ) {
-  const receipt = await sealArchiveReceipt(specDir, candidatePath, receiptPath);
+  const receipt = await sealArchiveReceipt(specDir, candidatePath, receiptPath, metaPath);
   const meta = await applyReceiptTransition(specDir, receiptPath, metaPath, { beforeRename: beforeMetaRename });
   return {
     ok: true,
@@ -889,9 +936,9 @@ export function validateLifecycleEventStructure(event) {
   return event;
 }
 
-async function loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir) {
+async function loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir, metaPath = './meta.yaml') {
   const root = path.resolve(specDir);
-  const receipt = await readReceipt(root, receiptPath);
+  const receipt = await readReceipt(root, receiptPath, metaPath);
   const lifecycleAbsolute = resolveInside(root, lifecycleDir, 'Lifecycle 目录');
   await assertNoSymlinkSegments(root, lifecycleAbsolute);
   const lifecycleEntry = await statOrNull(lifecycleAbsolute);
@@ -931,9 +978,9 @@ async function loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir) {
 
 export async function verifyLifecycleChain(
   specDir,
-  { receiptPath = './archive-receipt.yaml', lifecycleDir = './lifecycle' } = {},
+  { receiptPath = './archive-receipt.yaml', lifecycleDir = './lifecycle', metaPath = './meta.yaml' } = {},
 ) {
-  const chain = await loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir);
+  const chain = await loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir, metaPath);
   return {
     ok: true,
     command: 'verify-chain',
@@ -988,7 +1035,7 @@ export async function sealLifecycleEvent(
   candidatePath,
   { receiptPath = './archive-receipt.yaml', lifecycleDir = './lifecycle', metaPath = './meta.yaml' } = {},
 ) {
-  const chain = await loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir);
+  const chain = await loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir, metaPath);
   const candidateAbsolute = resolveInside(chain.root, candidatePath, '候选 Lifecycle Event');
   await assertNoSymlinkSegments(chain.root, candidateAbsolute);
   const candidate = prepareLifecycleCandidate(parseYamlSubset(await readFile(candidateAbsolute, 'utf8')), chain);
@@ -1023,7 +1070,7 @@ export async function sealLifecycleEvent(
     if (error.code !== 'EEXIST') throw error;
     fail('immutable-event-conflict', 'Lifecycle Event 在写入期间已由其他进程创建，拒绝覆盖');
   }
-  const verified = await loadVerifiedLifecycleChain(chain.root, receiptPath, lifecycleDir);
+  const verified = await loadVerifiedLifecycleChain(chain.root, receiptPath, lifecycleDir, metaPath);
   const sealed = verified.events.at(-1);
   if (!sealed || sealed.event.sequence !== candidate.sequence) fail('event-write-verification-failed', 'Lifecycle Event 回读校验失败');
   return {
@@ -1043,7 +1090,7 @@ export async function applyLifecycleEventTransition(
   sequence,
   { receiptPath = './archive-receipt.yaml', lifecycleDir = './lifecycle', metaPath = './meta.yaml', beforeRename } = {},
 ) {
-  const chain = await loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir);
+  const chain = await loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir, metaPath);
   const record = chain.events[sequence - 1];
   if (!record) fail('event-missing', '找不到指定 Sequence 的 Lifecycle Event', { sequence });
   if (sequence !== chain.events.length) fail('event-not-chain-tip', '只能把当前链尾 Event 投影到 Meta');
@@ -1265,7 +1312,7 @@ async function prepareRelationTransaction(specsRoot, candidatePath, options) {
     await assertNoSymlinkSegments(root, specDir);
     const specEntry = await statOrNull(specDir);
     if (!specEntry?.isDirectory() || specEntry.isSymbolicLink()) fail('unsafe-path', 'participant.spec_dir 必须是普通事项目录');
-    const chain = await loadVerifiedLifecycleChain(specDir, options.receiptPath, options.lifecycleDir);
+    const chain = await loadVerifiedLifecycleChain(specDir, options.receiptPath, options.lifecycleDir, options.metaPath);
     if (chain.receipt.spec_id !== input.spec_id) fail('transaction-spec-mismatch', 'participant.spec_id 与 Receipt 不一致');
     const eventAbsolute = resolveInside(specDir, input.event_candidate, 'participant.event_candidate');
     await assertNoSymlinkSegments(specDir, eventAbsolute);
@@ -1324,7 +1371,7 @@ export async function verifyRelationTransaction(
   for (const participant of transaction.participants) {
     const specDir = resolveInside(root, participant.spec_dir, 'participant.spec_dir');
     await assertNoSymlinkSegments(root, specDir);
-    const chain = await loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir);
+    const chain = await loadVerifiedLifecycleChain(specDir, receiptPath, lifecycleDir, metaPath);
     if (chain.receipt.spec_id !== participant.spec_id) fail('transaction-spec-mismatch', 'participant.spec_id 与 Receipt 不一致');
     const record = chain.events[participant.sequence - 1];
     if (!record || record.digest !== participant.event_digest) {
@@ -1488,15 +1535,15 @@ export async function runCli(argv) {
   const receipt = options.receipt && options.receipt !== true ? options.receipt : './archive-receipt.yaml';
   const lifecycleDir = options['lifecycle-dir'] && options['lifecycle-dir'] !== true ? options['lifecycle-dir'] : './lifecycle';
   const metaPath = options.meta && options.meta !== true ? options.meta : './meta.yaml';
-  if (command === 'seal-receipt') return sealArchiveReceipt(specDir, required(options, 'candidate'), receipt);
-  if (command === 'verify-receipt') return verifyArchiveReceipt(specDir, receipt);
+  if (command === 'seal-receipt') return sealArchiveReceipt(specDir, required(options, 'candidate'), receipt, metaPath);
+  if (command === 'verify-receipt') return verifyArchiveReceipt(specDir, receipt, metaPath);
   if (command === 'finalize-receipt') {
     return finalizeArchiveReceipt(specDir, required(options, 'candidate'), { receiptPath: receipt, metaPath });
   }
   if (command === 'seal-event') {
     return sealLifecycleEvent(specDir, required(options, 'candidate'), { receiptPath: receipt, lifecycleDir, metaPath });
   }
-  if (command === 'verify-chain') return verifyLifecycleChain(specDir, { receiptPath: receipt, lifecycleDir });
+  if (command === 'verify-chain') return verifyLifecycleChain(specDir, { receiptPath: receipt, lifecycleDir, metaPath });
   if (command === 'finalize-event') {
     return finalizeLifecycleEvent(specDir, required(options, 'candidate'), {
       receiptPath: receipt,

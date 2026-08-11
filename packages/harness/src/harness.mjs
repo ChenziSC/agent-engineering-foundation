@@ -1241,15 +1241,16 @@ export async function resolveProjectContext(target, { taskType, paths = [] } = {
       const artifacts = [];
       for (const role of ['spec', 'plan', 'tasks']) {
         const value = meta.artifacts[role];
+        if (role !== 'spec' && value === null) continue;
         if (typeof value !== 'string' || path.isAbsolute(value)) {
-          throw new FoundationError('invalid-spec-meta', 'Active Spec 缺少安全的核心产物路径', { directory: directory.name, role });
+          throw new FoundationError('invalid-spec-meta', 'Active Spec 缺少安全的必需或已声明产物路径', { directory: directory.name, role });
         }
         const specDirectory = path.join(specsRoot, directory.name);
         const artifactPath = path.resolve(specDirectory, value);
         relativeInside(specDirectory, artifactPath);
         await assertNoSymlinkSegments(projectRoot, artifactPath);
         if (!(await statOrNull(artifactPath))?.isFile()) {
-          throw new FoundationError('spec-artifact-missing', 'Active Spec 核心产物不存在', { directory: directory.name, role });
+          throw new FoundationError('spec-artifact-missing', 'Active Spec 必需或已声明产物不存在', { directory: directory.name, role });
         }
         const relativePath = path.relative(projectRoot, artifactPath).split(path.sep).join('/');
         artifacts.push({ role, path: relativePath, buffer: await readFile(artifactPath) });

@@ -2,11 +2,11 @@
 
 成熟度：Skill 与模板 `usable`；本地 Receipt/Event/Meta、双终态事项 Relation Transaction、Knowledge Projection Registry、Git 摘要与 Change Gate 子集 `reference-implemented`；Active 事项关系事务、三个及以上事项关系事务、跨仓库关系事务与其他 Provider 自动化 `designed`
 
-Specflow 用仓库内的 Spec、Plan、Tasks 和 Meta 管理一个研发事项的目标、技术决策、执行拆分和业务生命周期。它优先解决跨会话恢复与可审计性，不要求接入特定 Issue、代码托管或 CI 平台。
+Specflow 用仓库内的 Meta、Spec 和按需产物管理一个研发事项的目标、技术决策、执行拆分和业务生命周期。它优先解决跨会话恢复与可审计性，不要求接入特定 Issue、代码托管或 CI 平台。
 
 ## 推荐目录
 
-使用方可以调整根目录，但核心产物应位于同一个事项目录；只有出现重大技术未知时才增加 `research.md`：
+使用方可以调整根目录，但同一事项的产物应位于同一个事项目录。`meta.yaml + spec.md` 是需要长期追溯的行为事项最小集合；其他 Markdown 仅在 [Specflow Skill 的创建条件](../../skills/specflow/SKILL.md#目标)命中时存在：
 
 ```text
 .agent-work/
@@ -14,17 +14,17 @@ Specflow 用仓库内的 Spec、Plan、Tasks 和 Meta 管理一个研发事项�
 │   └── <transaction-id>.yaml
 └── <work-id>/
     ├── spec.md
-    ├── plan.md
-    ├── tasks.md
     ├── meta.yaml
-    ├── research.md            # 可选
-    ├── validation-report.md
+    ├── plan.md                # 按需：设计决策
+    ├── tasks.md               # 按需：多执行单元或跨会话恢复
+    ├── research.md            # 按需：重大未知实验
+    ├── validation-report.md   # 按需：独立证据映射
     ├── archive-receipt.yaml   # 首次终态生成，不可覆盖
     └── lifecycle/             # 归档后的追加式事件，按需创建
         └── 0001-<event>.yaml
 ```
 
-Agent 执行流程由 [`specflow` Skill](../../skills/specflow/SKILL.md) 定义。项目接入时可复制以下 Skill 资产：
+Agent 执行流程由 [`specflow` Skill](../../skills/specflow/SKILL.md) 定义。采用方必须保留 Meta 的完整 Artifact Map：`spec` 为安全路径，未创建的 `plan`、`tasks`、`research`、`validation_report` 为 `null`；Context、校验和 Receipt 只处理实际声明的产物。项目接入时可复制以下 Skill 资产：
 
 - [spec.md](../../skills/specflow/assets/spec.md)
 - [plan.md](../../skills/specflow/assets/plan.md)
@@ -45,17 +45,17 @@ Agent 执行流程由 [`specflow` Skill](../../skills/specflow/SKILL.md) 定义�
 
 ## 产物所有权
 
-| 产物 | 唯一职责 | 不应包含 |
-| --- | --- | --- |
-| Spec | 做什么、为什么做、怎样算完成 | 逐步实现过程 |
-| Plan | 如何实现、依据、风险和验证策略 | 当前任务勾选状态 |
-| Tasks | 可执行步骤、顺序和验证 | 新的需求范围 |
-| Meta | 状态、关系、影响范围和新鲜度 | 聊天摘要和运行日志 |
-| Research | 对重大未知的限时实验与结论 | 普通代码浏览记录 |
-| Validation Report | 结构、关系和新鲜度检查结果 | 业务评审结论 |
-| Archive Receipt | 首次终态的最终实现、产物、验证、授权和知识投影快照 | 完整 Diff、聊天全文或外部平台状态 |
-| Lifecycle Event | 首次终态之后的状态或关系变化 | 新业务实现和第二份 Receipt |
-| Relation Transaction | 两个终态事项之间互反关系的协调意图和双方 Event 摘要 | 远端状态、第三个事项或可变执行日志 |
+| 产物 | 唯一职责 |
+| --- | --- |
+| Spec | 做什么、为什么做、怎样算完成 |
+| Plan（按需） | 如何实现、依据、风险和验证策略 |
+| Tasks（按需） | 可执行步骤、顺序和验证 |
+| Meta | 状态、关系、影响范围和新鲜度 |
+| Research（按需） | 对重大未知的限时实验与结论 |
+| Validation Report（按需） | 结构、关系和新鲜度检查结果 |
+| Archive Receipt | 首次终态的最终实现、产物、验证、授权和知识投影快照 |
+| Lifecycle Event | 首次终态之后的状态或关系变化 |
+| Relation Transaction | 两个终态事项之间互反关系的协调意图和双方 Event 摘要 |
 
 ## 生命周期
 
@@ -69,8 +69,8 @@ Draft
 ```
 
 - `Draft`：范围或完成条件尚未闭合；
-- `Planned`：Spec 和 Plan 已完成评审，可以执行；
-- `In Progress`：至少一个 Task 正在执行；
+- `Planned`：Spec 已闭合，必要的设计决策已解决，可以执行；
+- `In Progress`：实现或验证已经开始；
 - `Archived`：完成条件已经验证且用户明确归档；
 - `Superseded`：被另一个事项取代；
 - `Cancelled`：不再继续，但不是由另一个事项取代。
@@ -92,7 +92,7 @@ Markdown 中使用上面的展示名称；`meta.yaml` 使用对应的小写标�
 1. 读取全部 `meta.yaml`；
 2. 找出非终态事项；
 3. 根据影响范围和当前请求选择相关事项；
-4. 只加载所选事项的 Spec、Plan 和未完成 Tasks；
+4. 只加载所选事项在 Meta 中实际声明的 Spec、Plan 和 Tasks；
 5. 大文档优先读取 Section Index，再加载相关章节。
 
 如果没有 Active 事项，返回空结果，不创建虚构上下文。
@@ -125,16 +125,8 @@ Markdown 中使用上面的展示名称；`meta.yaml` 使用对应的小写标�
 至少检查：
 
 1. Spec 的范围、非目标和完成条件是否闭合；
-2. Plan 是否能追溯到 Spec；
-3. 每个 Task 是否有验证方法；
+2. 已创建的 Plan 是否能追溯到 Spec；
+3. 已创建的每个 Task 是否有验证方法；
 4. Meta 的关系是否双向一致；
 5. 终态是否有明确授权和完成证据；
 6. 代码变化是否使归档内容过期。
-
-## 未来可选工程化
-
-- Provider Neutral 的 CI 报告；
-- Active 事项、三个及以上事项或跨仓库的关系事务；
-- 其他版本控制变更摘要 Provider 和受保护历史检查；
-- Knowledge 正文生成和刷新触发语义检查；
-- 宿主 Trace 归一化和长期回归趋势。

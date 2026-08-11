@@ -47,7 +47,7 @@
 
 | 目录 | 职责 |
 | --- | --- |
-| `specs/` | 当前研发事项的 Spec、Plan、Tasks、Meta 和验证报告 |
+| `specs/` | 当前研发事项的 Meta、Spec 与按需的 Plan、Tasks、验证报告 |
 | `knowledge/` | 长期稳定事实、设计原因、契约、代码入口和刷新条件 |
 | `frameworks/` | 通用问题模型、不变量和职责边界 |
 | `skills/` | Agent 可直接执行的能力编排及其 Assets、References 和 Evals |
@@ -66,7 +66,8 @@
 - 同一会话、同一分支和同一任务范围内复用已解析结果，不因后续追问、继续实施、验证或状态查询机械重复自举。切换分支、Active 事项集合变化、任务目标或相关路径明显变化、用户明确要求刷新时，重新解析上下文。
 - 改变仓库定位、公开契约、目录职责、治理规则，或新增/实质修改 Skill、Framework、Blueprint、Harness、Adapter、Validator 时，建立或继续一个 Spec。
 - 不改变语义的错别字、链接、格式修正和单一低风险维护动作通常不要求 Spec，除非现有事项或规则另有要求。
-- 范围与完成条件变化写 Spec，技术路径和关键决策变化写 Plan，执行拆分、状态和验证结果写 Tasks。
+- 需要长期追溯的行为事项以 Meta 与 Spec 为最小集合；Plan、Tasks、Research、Validation Report 按 `specflow` Skill 的条件创建，未创建项在 Meta 中写 `null`。
+- 范围与完成条件变化写 Spec；存在对应产物或达到创建条件时，技术路径和关键决策写 Plan，执行拆分与状态写 Tasks，独立验收证据写 Validation Report。
 - `meta.yaml` 是事项生命周期、关系和影响范围的唯一事实来源；Checkpoint 不复制业务状态。
 - 归档、取代和取消需要明确授权。Commit、Push、Draft PR/MR、检查错误或 Agent 自述都不能推断终态。
 - 不为采用本规则之前的历史批量伪造 Spec、Plan、Tasks、归档回执或验证证据。
@@ -88,5 +89,5 @@ Knowledge 准入与状态规则见 [`knowledge/README.md`](knowledge/README.md)�
 1. 读取根 `AGENTS.md`。
 2. 当前会话尚未完成本仓上下文恢复，或分支、Active 事项、任务范围、相关路径发生上述变化时，运行 `node packages/harness/bin/agent-foundation.mjs context resolve --task-type "<任务类型>" --paths <相关路径>`；否则复用本会话已有结果。没有 Harness 时人工读取索引。
 3. 按结果加载相关 Active Spec、长期 Knowledge 和代码入口；空结果不生成虚构上下文。
-4. 执行范围内工作并同步 Spec、Plan、Tasks 和验证证据。
+4. 执行范围内工作并同步 Meta 实际声明的产物和验证证据。
 5. 只有用户明确要求收口时才进入归档；提交、推送和外部操作分别遵循用户授权。

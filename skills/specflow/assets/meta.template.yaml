@@ -12,10 +12,10 @@ relations:
   superseded_by: null
 artifacts:
   spec: "./spec.md"
-  plan: "./plan.md"
-  tasks: "./tasks.md"
+  plan: null
+  tasks: null
   research: null
-  validation_report: "./validation-report.md"
+  validation_report: null
   archive_receipt: null
   lifecycle_dir: "./lifecycle"
 freshness:
@@ -26,6 +26,6 @@ freshness:
     - "依赖的契约或 Schema 变化"
 active_context:
   summary: "只描述当前事项范围，不保存聊天摘要"
-  next_task_id: "T-01"
+  next_task_id: null
 authorization:
   terminal_transition_confirmed: false

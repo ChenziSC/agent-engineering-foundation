@@ -31,7 +31,7 @@
 9. 完成 Harness 化后，日常任务与新会话使用 `context resolve`；使用 Doctor 检查规则预算、失效入口、路由结构矛盾和精确继承重复。
 10. 发布或大规模调整前使用人工检查清单复核自然语言语义冲突。
 11. 需要持续门禁时，显式复制持续治理模板，并把 `REPLACE_WITH_EXACT_PACKAGE_SPEC` 替换为已批准的精确 CLI 包版本、不可变 tarball URL 或 Commit SHA；使用 Release Asset 时还必须复核随版本发布的 `release-manifest.json` SHA-256，不能只信任可替换 URL。当前仓不会自动写入 Workflow，也不会替采用方选择发布渠道。
-12. 需要交付门禁时，再显式复制对应平台的 Delivery 模板；由采用方工作流传入目标和最终候选的不可变 Commit SHA、本次 Spec ID，以及平台特定的 Required Checks。Change Gate 从 Git Remote 与已注册 Adapter 自动选择平台，模板不写死 Provider/Repository；当前 GitHub 模板用 `checks: read` 与 `actions: read` 复核同一 SHA 的 `github-actions/check-name@workflow-path` Evidence，Workflow Path 只绑定 Check 来源，门禁结论仍只取显式 Check，不从分支名、聊天或当前成功项猜测交付关联和门禁策略。
+12. 需要交付门禁时，再显式复制对应平台的 Delivery 模板；由采用方工作流传入目标和最终候选的不可变 Commit SHA、Spec ID 或既有受控豁免（二选一），以及平台特定的 Required Checks。Change Gate 从 Git Remote 与已注册 Adapter 自动选择平台，模板不写死 Provider/Repository；当前 GitHub 模板用 `checks: read` 与 `actions: read` 复核同一 SHA 的 `github-actions/check-name@workflow-path` Evidence，Workflow Path 只绑定 Check 来源，门禁结论仍只取显式 Check，不从分支名、聊天或当前成功项猜测交付关联和门禁策略。
 
 ## 三级采用路径
 
@@ -41,7 +41,7 @@
 | Continuous | 日常任务或普通 CI 持续发现结构、摘要和路由漂移 | `doctor`、`knowledge check`、`specflow check`、`distribution verify`、`git diff --exit-code` | 全部只读 |
 | Delivery | 对不可变 Git 候选复核 Spec Scope、Receipt、Projection、最终差异与平台外部检查 | Continuous 全部命令，加 `change gate check --phase delivery`；Remote 自动选择已注册 Provider | 全部只读，不猜测 Required Checks，也不推断终态授权、Branch Protection 或外部发布成功 |
 
-两个 CI 模板不运行 Distribution Apply，不创建 Hook，也不执行 Commit、Push、归档、发布或外部平台写入。持续治理模板只在 Pull Request 和默认分支 Push 上运行，避免同一功能分支 SHA 同时产生两个同名 Required Check；采用方默认分支不是 `main` 时必须显式替换。Delivery 失败后仍以 `always()` 执行工作区只读复核。Delivery 模板的本地候选、Receipt 校验与平台路由保持 Provider-neutral；当前 GitHub Actions Adapter 只读取 Checks/Workflow Runs。采用方负责从自身事件安全解析不可变最终 SHA、Spec ID 和受信策略；在 Pull Request 场景必须明确选择 Head SHA 或 Merge SHA。新增其他平台时应提供对应薄 Adapter 和模板，不在 Core 增加平台判断。CLI 包尚未进入采用方批准的发布渠道时，不应删除精确版本占位保护。
+两个 CI 模板不运行 Distribution Apply，不创建 Hook，也不执行 Commit、Push、归档、发布或外部平台写入。持续治理模板只在 Pull Request 和默认分支 Push 上运行，避免同一功能分支 SHA 同时产生两个同名 Required Check；采用方默认分支不是 `main` 时必须显式替换。Delivery 失败后仍以 `always()` 执行工作区只读复核。Delivery 模板的本地候选、Receipt 校验与平台路由保持 Provider-neutral；当前 GitHub Actions Adapter 只读取 Checks/Workflow Runs。采用方负责从自身事件安全解析不可变最终 SHA、Spec ID 或豁免以及受信策略；在 Pull Request 场景必须明确选择 Head SHA 或 Merge SHA。新增其他平台时应提供对应薄 Adapter 和模板，不在 Core 增加平台判断。CLI 包尚未进入采用方批准的发布渠道时，不应删除精确版本占位保护。
 
 `required_check` 应指向 Delivery Job 之前已经完成的上游 Workflow/Job，不能选择正在执行的 Delivery Job 自身，否则它会按“尚未完成”失败关闭。
 
