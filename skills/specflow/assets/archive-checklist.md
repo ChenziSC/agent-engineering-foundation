@@ -12,7 +12,7 @@
 - [ ] Spec 反映最终范围和完成条件；
 - [ ] Plan 反映最终实现路径和关键决策；
 - [ ] Tasks 状态与真实执行结果一致；
-- [ ] Validation Report 为每个完成项提供证据；
+- [ ] 每个完成项都有真实证据；需要独立审计时，Validation Report 已提供映射；
 - [ ] 未完成项、Blocker、风险和未验证结论保持可见。
 
 ## 版本与摘要
@@ -22,7 +22,8 @@
 - [ ] 完整 Merge Candidate 已显式关联一个或多个 Spec，且其 Scope 并集覆盖全部实现变更；或者全部路径满足一个受控低风险豁免；
 - [ ] 没有同时声明 Spec 与豁免，也没有用 Include/Exclude 隐藏关联检查范围；
 - [ ] 实现变化摘要的 Scope、算法和排除项明确；
-- [ ] Spec、Plan、Tasks 和 Validation Report 内容摘要已计算并回读；
+- [ ] Meta 实际声明的产物（至少包含 Spec）内容摘要已计算并回读；
+- [ ] Receipt 自身的 Validation 结构完整，不依赖独立 Validation Report 是否存在；
 - [ ] 变更摘要由稳定版本边界或 Provider 产生，没有用 Agent 总结伪造；产物和 Payload 摘要由 Receipt 脚本计算。
 
 ## Knowledge Projection

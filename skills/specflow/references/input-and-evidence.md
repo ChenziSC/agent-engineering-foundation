@@ -9,7 +9,7 @@
 - GitHub Issue、GitLab Issue 或其他工作项；
 - 评审纪要、用户反馈和缺陷描述；
 - 自然语言目标；
-- 已有 Spec、Plan、Tasks 和 Meta。
+- 已有 Meta 及其声明的 Spec、Plan、Tasks 等产物。
 
 PRD 是文档类型，Figma 是公开的第三方设计平台。二者无需因公开沉淀而删除。需要隔离的是特定组织的空间、账号、链接、项目标识、权限流程和专用字段。
 

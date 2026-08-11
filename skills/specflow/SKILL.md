@@ -1,6 +1,6 @@
 ---
 name: specflow
-description: 将 PRD、Figma 设计稿、Issue、评审纪要或自然语言需求转化为可审计、可验证、可跨会话恢复的 Spec、Plan、Tasks 和研发交付。用于需要分析或实现产品需求、规划跨阶段研发事项、继续既有 Spec、核对实现与验收条件，或在明确授权后收口交付时；不用于无需长期产物的一次性小改、单纯记录 Agent 执行断点，或未经授权提交、推送、创建 PR/MR 和变更外部工作项。
+description: 将 PRD、Figma 设计稿、Issue、评审纪要或自然语言需求转化为可审计、可验证、可跨会话恢复的研发事项，并按需要生成 Spec、Plan、Tasks 和验证证据。用于需要分析或实现产品需求、规划跨阶段研发事项、继续既有 Spec、核对实现与验收条件，或在明确授权后收口交付时；不用于无需长期产物的一次性小改、单纯记录 Agent 执行断点，或未经授权提交、推送、创建 PR/MR 和变更外部工作项。
 ---
 
 # Spec 驱动研发流程
@@ -9,7 +9,16 @@ description: 将 PRD、Figma 设计稿、Issue、评审纪要或自然语言需�
 
 把产品输入推进为有明确范围、技术依据、执行清单和验证证据的研发交付。PRD、Figma、Issue 和评审纪要都是输入来源，不是 Spec 的替代品，也不绑定任何公司内部平台。
 
-核心产物为 `meta.yaml`、`spec.md`、`plan.md`、`tasks.md` 和 `validation-report.md`。存在需要独立验证的重大技术未知时，再增加 `research.md`。
+需要长期追溯的行为事项以 `meta.yaml + spec.md` 为最小集合；其余产物只在承担独立职责时创建，不用空文件换取形式完整：
+
+| 产物 | 创建条件 |
+| --- | --- |
+| Plan | 存在多种可行方案需要取舍，或涉及公共契约、跨模块协作、安全、性能、兼容、回滚等需要显式设计的决策 |
+| Tasks | 工作需要多个执行单元、多个参与者、分阶段推进或跨会话恢复 |
+| Research | 重大技术未知必须通过限时实验才能决策 |
+| Validation Report | 风险、交付或审计要求需要一份独立的完成条件—证据映射 |
+
+`meta.yaml` 始终保留完整 Artifact Map：`spec` 必须指向安全的本地路径；未创建的 `plan`、`tasks`、`research`、`validation_report` 写 `null`。这不是复杂度评分，不新增事项类型或生命周期状态；发现上述条件时直接补建对应产物。
 
 `meta.yaml` 使用 [meta.schema.json](assets/meta.schema.json) 的完整契约。采用本仓 Harness 时，使用以下只读命令校验所有事项的 Meta、产物路径、终态链和本地关系互反性：
 
@@ -31,11 +40,11 @@ agent-foundation specflow check --target <project-root>
 
 1. 搜索目标仓库中的既有 Specflow 事项，判断是新建、继续、修改还是取代；不要为同一事项建立重复目录。
 2. 使用 [spec.md](assets/spec.md) 把输入整理成目标、非目标、场景、行为契约和可判定的完成条件，不逐句搬运 PRD。
-3. 读取相关代码、测试、配置、文档和版本证据，再使用 [plan.md](assets/plan.md) 记录实现方案、关键决策、风险和验证策略；同时判断改变的是产品行为、稳定契约、技术路径还是局部实现，列出不能猜测的不变量、允许依赖的事实和相对独立的验证来源。
+3. 读取相关代码、测试、配置、文档和版本证据。命中 Plan 条件时，使用 [plan.md](assets/plan.md) 记录实现方案、关键决策、风险和验证策略；否则把必要实现约束和验证方式留在 Spec，不生成 Plan。
 4. 只有重大未知需要独立实验时，使用 [research.md](assets/research.md)；普通代码调研直接写入 Plan 的证据部分。
-5. 使用 [tasks.md](assets/tasks.md) 按依赖拆解工作，使每个任务都能追溯到 Spec 或 Plan，并具有验证方式。
-6. 用户明确要求实现时，按 Tasks 修改授权范围内的代码和文档；目标、范围或用户行为变化返回 Spec，公共契约、不变量、兼容或回滚策略变化返回 Plan 并按需同步 Spec，局部实现和纯验证变化更新 Plan/Tasks。
-7. 执行与风险匹配的测试、静态检查或人工验证，并使用 [validation-report.md](assets/validation-report.md) 核对完成条件、产物关系、Evidence 来源关系和未解决问题。同一设计的复述或自生成清单不能作为该设计正确的唯一证据。有不可变 Base/Source 候选时，按 [change-gate.md](references/change-gate.md) 运行工作态关联检查；没有提交授权或候选仍含未提交内容时保持未验证，不能为了通过门禁自行 Commit。
+5. 命中 Tasks 条件时，使用 [tasks.md](assets/tasks.md) 按依赖拆解工作，使每个任务都能追溯到 Spec 或 Plan，并具有验证方式；单一执行单元直接实施，`next_task_id` 保持 `null`。
+6. 用户明确要求实现时，按已声明产物修改授权范围内的代码和文档；目标、范围或用户行为变化返回 Spec，公共契约、不变量、兼容或回滚策略变化时补建或更新 Plan，执行拆分达到触发条件时补建或更新 Tasks。
+7. 执行与风险匹配的测试、静态检查或人工验证。命中独立报告条件时使用 [validation-report.md](assets/validation-report.md)；否则直接保留可复核证据，终态 Receipt 仍使用自身固定的 `validation` 结构。同一设计的复述或自生成清单不能作为该设计正确的唯一证据。有不可变 Base/Source 候选时，按 [change-gate.md](references/change-gate.md) 运行工作态关联检查；没有提交授权或候选仍含未提交内容时保持未验证，不能为了通过门禁自行 Commit。
 8. 只有用户明确要求收口、归档或准备最终交付时，才按 [archive-and-lifecycle.md](references/archive-and-lifecycle.md) 复核最终产物、实现摘要、Knowledge Projection、Receipt 和状态最后写；一般状态与上下文恢复规则见 [lifecycle-and-context.md](references/lifecycle-and-context.md)。提交、推送、PR/MR 和外部工作项变更分别服从用户授权及宿主规则。
 
 各阶段的退出条件和回退规则见 [workflow.md](references/workflow.md)。
@@ -54,27 +63,14 @@ agent-foundation specflow check --target <project-root>
 
 进入终态场景后，以 Reference、Schema、模板和脚本为完整事实来源；本节只负责触发和安全路由，不复制命令与字段细节。
 
-## 产物职责
-
-| 产物 | 唯一职责 | 不应包含 |
-| --- | --- | --- |
-| Spec | 做什么、为什么做、怎样算完成 | 逐步文件修改和执行日志 |
-| Plan | 如何实现、依据、风险和验证策略 | 当前任务勾选状态和重复需求正文 |
-| Tasks | 执行顺序、依赖、产物和验证 | 新的需求范围和 Commit 日记 |
-| Meta | 状态、关系、影响范围和新鲜度 | 聊天摘要和测试正文 |
-| Research | 对重大未知的限时实验及结论 | 普通代码浏览记录 |
-| Validation Report | 完成条件、结构、关系和验证结果 | 没有证据的完成声明 |
-
-`meta.yaml` 是事项状态、关系和影响范围的唯一事实来源。Spec 只引用 Meta，不保存这些动态事实的第二份副本；Checkpoint 只能保存一次 Agent 执行的恢复位置，不得复制 `Draft`、`Planned`、`In Progress` 或终态。
-
 ## 硬性门禁
 
 - 不把 PRD、Figma 或 Issue 原样复制为 Spec。
 - 没有仓库证据时，不编造代码入口、接口、影响范围或技术方案。
 - Spec 的范围和关键完成条件未闭合时，保持 Draft。
-- Plan 的关键决策没有证据时，明确标记 Assumption 或 Blocker。
+- 已创建 Plan 的关键决策没有证据时，明确标记 Assumption 或 Blocker。
 - 不把同一设计的说明、自生成检查清单或无外部观察的 Agent 复述作为设计正确的唯一 Evidence；高风险契约至少需要测试执行、运行观察、静态契约检查或独立 Review 中与主张匹配的一类真实观察。
-- Task 没有关联目标或验证方式时，不得标记为完成。
+- 已创建 Task 没有关联目标或验证方式时，不得标记为完成。
 - 不用文档齐全代替代码、测试或行为验证完成。
 - 不从 Commit、Push、Draft PR/MR 或 Agent 自述推断归档授权。
 - 不先写终态再补 Receipt；首次终态必须先形成并回读不可覆盖的归档证据，Meta 状态最后写。
@@ -93,8 +89,8 @@ agent-foundation specflow check --target <project-root>
 ## 输出状态
 
 - `draft`：范围、完成条件或关键输入仍需闭合；
-- `planned`：Spec 和 Plan 足以进入实施；
-- `in-progress`：至少一个 Task 正在执行或验证；
+- `planned`：Spec 已闭合，必要的设计决策已解决，可以进入实施；
+- `in-progress`：实现或验证已经开始；
 - `archived`：经明确授权完成收口，产物反映最终实现和验证；
 - `superseded`：经明确授权被另一个事项取代；
 - `cancelled`：经明确授权停止，且不是被其他事项取代。

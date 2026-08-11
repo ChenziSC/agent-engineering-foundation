@@ -33,7 +33,7 @@ Receipt 和 Event 是证据；Meta 仍是当前状态的机器单一信源。Che
 
 从 `draft`、`planned` 或 `in-progress` 进入 `archived`、`cancelled` 或 `superseded` 时生成首个 Receipt：
 
-- `archived`：必须冻结最终 Spec、Plan、Tasks、Validation Report 和实现变化摘要；
+- `archived`：必须冻结 Meta 实际声明的最终产物（至少包含 Spec）、Receipt 自身的验证结构和实现变化摘要；
 - `cancelled`：必须记录停止原因、授权和未交付范围；允许 `change.scope: none`；
 - `superseded`：必须记录替代事项，并保证双向关系可验证。
 
@@ -43,9 +43,9 @@ Receipt 和 Event 是证据；Meta 仍是当前状态的机器单一信源。Che
 
 确定性实现应遵循以下顺序：
 
-1. 读取 Meta、最终产物、实现版本和相关 Knowledge；
+1. 读取 Meta、Meta 实际声明的最终产物、实现版本和相关 Knowledge；
 2. 验证状态转换、双向关系、完成条件、未解决 Blocker 和终态授权；
-3. 计算实现变化摘要和 Spec/Plan/Tasks/Validation Report 内容摘要；
+3. 计算实现变化摘要和所有已声明产物的内容摘要；
 4. 形成 Knowledge Projection，并验证受影响知识的新鲜度；
 5. 在内存或临时文件中构造完整 Receipt，校验 Schema 和全部 Digest；
 6. 以“目标不存在”为前提写入 Receipt；已经存在时只允许验证完全相同，不得覆盖；
@@ -71,13 +71,7 @@ Receipt 不保存完整 Diff，只保存可复现摘要：
 
 ## 产物摘要
 
-Receipt 至少冻结：
-
-- `spec.md`；
-- `plan.md`；
-- `tasks.md`；
-- `validation-report.md`；
-- 存在时的 `research.md`。
+Receipt 至少冻结 `spec.md`，并冻结 Meta 中所有非 `null` 的 Plan、Tasks、Research、Validation Report。Receipt 的 `validation` 字段不因缺少独立 Validation Report 而省略。
 
 摘要覆盖 UTF-8 原始字节。路径必须位于事项目录内，不能使用绝对路径。Receipt 自身和生命周期事件不进入自身摘要。
 

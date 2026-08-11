@@ -46,10 +46,10 @@
       "required": ["spec", "plan", "tasks", "research", "validation_report"],
       "properties": {
         "spec": { "$ref": "#/$defs/localPath" },
-        "plan": { "$ref": "#/$defs/localPath" },
-        "tasks": { "$ref": "#/$defs/localPath" },
+        "plan": { "anyOf": [{ "$ref": "#/$defs/localPath" }, { "type": "null" }] },
+        "tasks": { "anyOf": [{ "$ref": "#/$defs/localPath" }, { "type": "null" }] },
         "research": { "anyOf": [{ "$ref": "#/$defs/localPath" }, { "type": "null" }] },
-        "validation_report": { "$ref": "#/$defs/localPath" },
+        "validation_report": { "anyOf": [{ "$ref": "#/$defs/localPath" }, { "type": "null" }] },
         "archive_receipt": { "anyOf": [{ "$ref": "#/$defs/localPath" }, { "type": "null" }] },
         "lifecycle_dir": { "anyOf": [{ "$ref": "#/$defs/localPath" }, { "type": "null" }] }
       }

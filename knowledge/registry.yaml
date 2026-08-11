@@ -19,7 +19,7 @@ entries:
       - "repository-positioning"
       - "agent-harness"
       - "content-layering"
-    last_reviewed_at: "2026-08-10"
+    last_reviewed_at: "2026-08-11"
     authoritative_sources:
       - "AGENTS.md"
       - "README.md"
@@ -27,7 +27,7 @@ entries:
       - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:60ff09df8da56e22511784ba3406eb887607bda6976825253235d1361dcfdf19"
+        digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
       - path: "README.md"
         digest: "sha256:903251425fa39d9aa7d9d6ebaee2965d134912a8e8fa933c47ca5bc10fcac756"
       - path: "packages/harness/README.md"
@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-public-release-source-review"
+      spec_id: "2026-08-11-on-demand-specflow-artifacts"
       action: "still-valid"
-      reviewed_at: "2026-08-10"
-      decision_digest: "sha256:ce4f6fc6a1795e98746fb5981ddc08fcc6489a7d4315de21ec8efe2fe0f5593c"
+      reviewed_at: "2026-08-11"
+      decision_digest: "sha256:de4086ceba9c0b2481e486c07ff3db3f14349b7476660f59c36a6508509ac221"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -65,7 +65,7 @@ entries:
       - "host-boundary"
       - "skill-publication"
       - "dependency-direction"
-    last_reviewed_at: "2026-08-10"
+    last_reviewed_at: "2026-08-11"
     authoritative_sources:
       - "AGENTS.md"
       - "blueprints/skill-runtime/README.md"
@@ -73,7 +73,7 @@ entries:
       - "packages/harness/README.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:60ff09df8da56e22511784ba3406eb887607bda6976825253235d1361dcfdf19"
+        digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
       - path: "blueprints/skill-runtime/README.md"
         digest: "sha256:d6af9c65590f8f726d0885493453cea492c9c29d2d732b7fd1d54c7a711f6736"
       - path: "distribution/README.md"
@@ -91,10 +91,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-public-release-source-review"
+      spec_id: "2026-08-11-on-demand-specflow-artifacts"
       action: "still-valid"
-      reviewed_at: "2026-08-10"
-      decision_digest: "sha256:5fa473873e386695aec5f47b97254f1d1ec64cd0290d3df80347d4aa76b4f52d"
+      reviewed_at: "2026-08-11"
+      decision_digest: "sha256:af669e25f612e6cc0fea83c0f7cb324b66ee3893015fe853e9dc8a44b68c7791"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -113,7 +113,7 @@ entries:
       - "specflow"
       - "knowledge-governance"
       - "traceability"
-    last_reviewed_at: "2026-08-10"
+    last_reviewed_at: "2026-08-11"
     authoritative_sources:
       - "AGENTS.md"
       - "specs/README.md"
@@ -124,17 +124,17 @@ entries:
       - ".github/workflows/quality.yml"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:60ff09df8da56e22511784ba3406eb887607bda6976825253235d1361dcfdf19"
+        digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
       - path: "specs/README.md"
-        digest: "sha256:79f9ac67d1365a6397dd928adf5dbbef7d233498408e91c70687b8795d784b8b"
+        digest: "sha256:73644e794c4892f909e6fe2e8768fe19995f78e863d057c5fc87b01b379dafd3"
       - path: "skills/specflow/SKILL.md"
-        digest: "sha256:da860f5d28f71d0a76b23c070018d067fe7b3676eb498bccb462fc9469aa46e7"
+        digest: "sha256:52195d99740fc6b6fd7f884a22443c59b834f7b390ff68cbcbe8e8dd20a834f9"
       - path: "skills/specflow/scripts/archive-receipt.mjs"
-        digest: "sha256:d394e322fa802ff2bb6beccfc45af27286d23a0550b2b168b12a633c8e2f48ad"
+        digest: "sha256:b720016ba682aa6a192ab3dbe6a4fc082d4344d9d27413ef7651ca78b8221103"
       - path: "agent-foundation.json"
         digest: "sha256:af758326649a79910904dce1397cc9b37652e65304c3775a136c27279ee19e72"
       - path: "distribution/manifest.yaml"
-        digest: "sha256:691f56116a910e14dc45824e4fa580a3e76320e61752c12b6e439f7fd845cd3a"
+        digest: "sha256:29aab7fd494249f20fb62e286795608940e73ea5b60f7d71df0c94c631de35f4"
       - path: ".github/workflows/quality.yml"
         digest: "sha256:f3eb7e0ea6c536d7215a545849c8dd8a0a5d412d510ccaff29af7a59f3cab473"
     refresh_triggers:
@@ -148,10 +148,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-public-release-source-review"
-      action: "still-valid"
-      reviewed_at: "2026-08-10"
-      decision_digest: "sha256:4594d27fee7bbd5492c43af5f04fd16f7cd603da8b7245ac2ae812c585afeae9"
+      spec_id: "2026-08-11-on-demand-specflow-artifacts"
+      action: "update"
+      reviewed_at: "2026-08-11"
+      decision_digest: "sha256:062d01cd9e2a313a6758dfcb5425aa2aab80c0c722e06072c8627fefc41e6437"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -169,14 +169,14 @@ entries:
       - "public-generalization"
       - "rights-and-redaction"
       - "release-safety"
-    last_reviewed_at: "2026-08-10"
+    last_reviewed_at: "2026-08-11"
     authoritative_sources:
       - "AGENTS.md"
       - "docs/公开发布检查清单.md"
       - "docs/公开内容来源说明.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:60ff09df8da56e22511784ba3406eb887607bda6976825253235d1361dcfdf19"
+        digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
       - path: "docs/公开发布检查清单.md"
         digest: "sha256:d6dfb0a24c1fdee2c0153aad6d1f5a2461dde3ceaf962a30e26dc3aeb44b956f"
       - path: "docs/公开内容来源说明.md"
@@ -192,7 +192,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-10-public-release-source-review"
-      action: "update"
-      reviewed_at: "2026-08-10"
-      decision_digest: "sha256:b190a8069526a43dd0855906e7d38323ddc35c95498896760cd7380258cd0ace"
+      spec_id: "2026-08-11-on-demand-specflow-artifacts"
+      action: "still-valid"
+      reviewed_at: "2026-08-11"
+      decision_digest: "sha256:71fa7327917c9f8e0f0de3da94c4776aac313387d5e5557660cfda8d347a43c4"

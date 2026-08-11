@@ -1,0 +1,43 @@
+id: "2026-08-11-on-demand-specflow-artifacts"
+title: "Specflow 按需产物与低风险交付豁免"
+status: "archived"
+created_at: "2026-08-11"
+updated_at: "2026-08-11"
+scope:
+  - "AGENTS.md"
+  - "specs/README.md"
+  - "specs/2026-08-11-on-demand-specflow-artifacts/"
+  - "skills/specflow/"
+  - "packages/harness/"
+  - "starter/minimal/"
+  - "blueprints/specflow/"
+  - "templates/ai-friendly-repository/"
+  - ".github/"
+  - "distribution/manifest.yaml"
+  - "knowledge/"
+  - "docs/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: "./archive-receipt.yaml"
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-11"
+  refresh_triggers:
+    - "Specflow Meta、Archive Receipt 或 Context Resolver 的产物契约变化"
+    - "Change Gate 的受控低风险豁免类型或采用项目 CI 接口变化"
+    - "Starter、Blueprint 或 Distribution 的消费者接入方式变化"
+active_context:
+  summary: "按需产物与低风险豁免及全仓审计修复已完成；115 个单测、2 个规模测试、13 个 Eval Case 和治理门禁通过。用户已明确授权归档，外部合并仍由 PR #4 与 Delivery Gate 独立确认。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: true
