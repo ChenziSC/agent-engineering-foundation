@@ -85,7 +85,7 @@ Skill 只编排公开入口或携带真正自包含的脚本
 
 Harness 内已有多个真实消费者的统一错误、项目内路径与 Symlink 安全、稳定文件树摘要和 JSON/YAML 子集解析由 `packages/harness/src/shared/` 持有；共享模块不反向导入 Harness 聚合入口、Adapter、Framework 或 Skill。`harness.mjs` 继续作为兼容聚合入口，模块抽取不能要求采用方改写公共导入路径。
 
-不可变包构建属于 `packages/` 的确定性边界：它只在干净 Git Commit 上调用标准 `npm pack`，计算并持久化 Source Revision、文件大小和摘要，且拒绝覆盖既有 Release Manifest。Tag 创建、Registry 上传、GitHub Release、权限与发布授权仍属于外部交付系统和维护者职责，不能下沉为构建器的隐式副作用。
+不可变包构建属于 `packages/` 的确定性边界：它只在具有公共元数据的干净 Git Commit 上调用标准 `npm pack`，计算并持久化 Source Revision、文件大小、目标 Registry 和摘要，且拒绝覆盖既有 Release Manifest。Tag 创建、Registry 上传、Provenance、权限与发布授权仍属于外部交付系统和维护者职责，不能下沉为构建器的隐式副作用。
 
 ## Skill 发布边界
 

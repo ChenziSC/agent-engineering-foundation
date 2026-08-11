@@ -10,6 +10,20 @@
 
 ## 快速开始
 
+### 使用公开 CLI
+
+需要 Node.js 20+。采用项目固定使用明确版本，不依赖可变的 `latest`：
+
+```bash
+npm exec --yes --package=agent-engineering-foundation@0.1.0 -- agent-foundation --version
+npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
+  agent-foundation init plan --target /path/to/existing-project
+```
+
+面向 Coding Agent 的完整接入决策树、安全边界、授权点和成功标准见 [`Install.md`](Install.md)。对既有项目先运行只读 `init plan`，审阅待新增、复用和冲突文件；Harness 不自动合并同路径的未知内容。
+
+### 从源码开发
+
 需要 Node.js 20+；仓库自身无运行时依赖。
 
 ```bash
@@ -22,7 +36,7 @@ node packages/harness/bin/agent-foundation.mjs doctor --target /path/to/project
 node packages/harness/bin/agent-foundation.mjs context resolve --target /path/to/project --task-type "新增或修改 Skill" --paths skills/example
 ```
 
-对既有项目先运行只读的 `init plan`，审阅待新增、复用和冲突文件；Harness 不自动合并同路径的未知内容。完整命令、写入边界和模块职责见 [Harness 使用说明](packages/harness/README.md)。
+完整命令、写入边界和模块职责见 [Harness 使用说明](packages/harness/README.md)。
 
 ## 仓库分层
 
@@ -46,7 +60,7 @@ node packages/harness/bin/agent-foundation.mjs context resolve --target /path/to
 
 当前参考实现覆盖：项目初始化与 Doctor、项目级兼容 Skill 安装、发布内容校验、Specflow 与 Knowledge 检查、最小上下文解析、Knowledge Projection、本地 Git Merge Candidate、Change Gate、仓库扫描，以及多组确定性契约校验。
 
-真实 Browser、Design、Coverage、Tracking 和企业研发平台 Adapter，以及完整 Agent Runtime、跨仓库事务仍由采用方或后续实现补齐。本仓已提供只接受干净 Commit 的不可变包构建器和手动 GitHub Release Workflow，但尚未创建 Tag 或发布正式制品。能力成熟度、证据和缺口的唯一投影见[交付形态与成熟度](docs/交付形态与成熟度.md)。
+真实 Browser、Design、Coverage、Tracking 和企业研发平台 Adapter，以及完整 Agent Runtime、跨仓库事务仍由采用方或后续实现补齐。本仓提供只接受干净 Commit 的不可变包构建器，以及从版本 Tag 向 npmjs.org 发布固定 tarball并生成 Provenance 的手动 Workflow；不创建 GitHub Release。能力成熟度、证据和缺口的唯一投影见[交付形态与成熟度](docs/交付形态与成熟度.md)。
 
 ## 自举治理
 

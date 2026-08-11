@@ -1,4 +1,4 @@
-name: release
+name: publish-npm
 
 on:
   workflow_dispatch:
@@ -9,10 +9,11 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
+  id-token: write
 
 jobs:
-  package-release:
+  publish-npm:
     runs-on: ubuntu-latest
     steps:
       - name: 检出已授权 Tag
@@ -20,22 +21,24 @@ jobs:
         with:
           fetch-depth: 0
           ref: "${{ inputs.tag }}"
-      - name: 配置 Node.js
+      - name: 配置 Node.js 与公共 npm Registry
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: 校验 Tag 与包版本
-        env:
-          RELEASE_TAG: "${{ inputs.tag }}"
-        run: test "$RELEASE_TAG" = "v$(node -p 'require("./package.json").version')" && test "$(git describe --tags --exact-match HEAD)" = "$RELEASE_TAG"
-      - name: 执行发布前回归
-        run: npm test && npm run test:scale && npm run check
+          registry-url: "https://registry.npmjs.org/"
+      - name: 执行 Harness 测试
+        run: npm test
+      - name: 执行大型治理规模回归
+        run: npm run test:scale
+      - name: 执行仓库级只读检查
+        run: npm run check
       - name: 验证本仓采用状态
-        run: node packages/harness/bin/agent-foundation.mjs doctor --target . && node packages/harness/bin/agent-foundation.mjs distribution verify --target .
+        run: node packages/harness/bin/agent-foundation.mjs doctor --target .
+      - name: 验证本仓 Skill 分发
+        run: node packages/harness/bin/agent-foundation.mjs distribution verify --target .
       - name: 生成不可变包和摘要清单
         run: npm run release:pack -- --target . --output "$RUNNER_TEMP/agent-foundation-release"
-      - name: 创建 GitHub Release
+      - name: 发布并回读 npm Registry 完整性
         env:
-          GH_TOKEN: "${{ github.token }}"
-          RELEASE_TAG: "${{ inputs.tag }}"
-        run: gh release create "$RELEASE_TAG" "$RUNNER_TEMP"/agent-foundation-release/* --verify-tag --generate-notes
+          NODE_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}"
+        run: node .github/scripts/publish-npm-release.mjs --tag "${{ inputs.tag }}" --release-dir "$RUNNER_TEMP/agent-foundation-release"

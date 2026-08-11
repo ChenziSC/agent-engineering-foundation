@@ -23,7 +23,7 @@
 - 普通提交、推送和 PR/MR 不构成归档授权。
 - `skills/` 是本仓唯一 Skill 源码；本仓根 Integration Manifest 通过受控 Source 配置让 `.agents/skills` 精确指向同仓 `skills/`，安装状态、Doctor、Distribution 和 Repository Check 共同验证该入口。采用项目不继承该特例，仍使用摘要约束的受管副本。
 - Continuous CI 固定执行单元测试、规模回归、Repository Check、Doctor、Distribution Verify、Knowledge 和 Specflow；功能分支只由 Pull Request 事件产生 Required Check，Push 事件限默认分支，避免同一 Source SHA 的同名 Check 形成歧义。PR Delivery Job 在 Continuous 成功后检出同一 Source SHA，并通过 PR 正文显式关联 1～3 个 Spec，或声明一个由完整候选路径证明的既有受控豁免；两者不能混用。门禁失败后仍执行只读工作区复核。平台由 Git Remote 与 Registry 路由，Workflow 不替代 Branch Protection、审批或合入授权。
-- 不可变包必须从干净 Commit 构建并记录 Source Revision 与制品摘要；手动 Release Workflow 仍要求独立的 Tag 与发布授权，不能因本地构建成功或 Workflow 存在而声称已发布。
+- 不可变包必须从具有公共元数据的干净 Commit 构建并记录 Source Revision、目标 npm Registry 与制品摘要；手动 `publish-npm` Workflow 仍要求独立的 Tag、npmjs 凭证与发布授权，不能因本地构建成功、Tag 或 Workflow 存在而声称已发布，也不创建 GitHub Release。
 - 单事项目录内 Receipt、Lifecycle Event 和 Meta 的确定性生命周期由 Specflow 自带脚本负责：先不可覆盖地写入并回读证据，再最后原子更新 Meta；脚本不计算未知版本变化，也不自行确认授权。
 - Harness 根据任务类型、相关路径、Active Meta、Knowledge Registry 和 Code Entry Map 生成最小加载计划；同时提供任务类型和路径时以路径 Route 为更具体选择器，并返回匹配原因、代码入口和未知或冲突 warning；Active Spec 只加载 Meta 实际声明的 Spec、Plan、Tasks，在可配置预算内全文加载，超限时只返回确定性的章节与未完成项位置索引；Registry 使用权威来源摘要暴露知识过期风险，但不自动改写知识状态或正文。
 - Context、Specflow 和 Knowledge 的容量回归使用临时生成的三档合成项目；历史 Spec 可扩展到 1000 个，但正常 Active Spec 固定不超过 3 个，并通过尾部失效回执、来源摘要和悬空 Route 验证完整集合不会漏检。该测试规模不是采用项目的硬性并发门禁。
@@ -82,4 +82,4 @@
 | 自举规则只约束使用方 | 仓库自身不回归 | 本仓使用同一 Manifest、Distribution、Doctor 与 CI 契约持续回归 |
 | 源码 Skill 与运行时入口同时手改 | 把入口变成第二事实源 | 本仓只修改 `skills/` 并验证 Source Link；采用方只通过 Distribution 更新副本 |
 | 为生产者便利允许任意 Symlink | 扩大路径逃逸和消费者绕过面 | 只接受 Foundation 源码根的 `.agents/skills -> ../skills`，其他链接失败关闭 |
-| 有 Release Workflow 就声称已发布 | 混淆交付能力与外部写操作 | 分别记录构建器验证、Tag 授权和真实 Release Evidence |
+| 有 npm 发布 Workflow 就声称已发布 | 混淆交付能力与外部写操作 | 分别记录构建器验证、Tag 授权、Registry integrity 与真实 npm Evidence |
