@@ -6,7 +6,7 @@
 - 检查日期：`2026-08-12`
 - 基线：`origin/main` 的合并提交 `6487819`
 - 结果：`pass`
-- 生命周期：实现与验证已完成，事项仍为 `in-progress`；未获得归档、Commit 或 Push 授权。
+- 生命周期：实现与验证已完成；维护者已明确授权归档、Commit、Push、创建并推送 `v0.2.0` Tag、触发 npm 发布，以及完整性验证通过后合并 `main`。
 
 ## 完成条件映射
 
@@ -30,6 +30,7 @@
 - `npm test`：121/121 通过；包含新旧 Distribution 状态、可选 Skill 持续维护、CLI、Source Link、安全冲突和源码仓外 npm pack 闭环。
 - `npm run test:scale`：2/2 通过。
 - `npm run check` / `repository check`：通过；推荐契约显示默认 `core`、2 个 Profile、9 个发布 Skill。
+- CLI、公共包、安装文档与源码仓 Distribution 状态统一为 `0.2.0`；`npm pack --dry-run --json` 生成 112 个文件的 `agent-engineering-foundation@0.2.0` 预览。
 - `doctor --target .`：通过。
 - `distribution verify --target .`：通过；Foundation 生产者模式为 `full`，9 个 Skill 均受管。
 - `knowledge check --target .`：通过；相关长期 Knowledge 与来源摘要已刷新。
@@ -54,4 +55,4 @@
 
 - 未实现自动项目分类、依赖求解、领域组合 Profile、卸载、用户级安装或远端 Marketplace。
 - 安装与摘要一致不证明项目配置、外部 Adapter、Host 缓存或领域能力已经就绪。
-- 未执行 Commit、Push、Tag、npm 发布或任何外部写操作。
+- 本报告冻结时尚未执行 Tag、npm 发布或 `main` 合并；这些外部交付动作在归档 Receipt 与不可变候选形成后，按维护者授权顺序单独验证。

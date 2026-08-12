@@ -37,7 +37,7 @@ freshness:
     - "公开 Skill 集合或默认推荐集合变化"
     - "Agent Host 的项目级 Skill 发现和上下文成本边界变化"
 active_context:
-  summary: "推荐 Profile、首次显式选择门禁与 core+可选组合闭环已实现并通过验证；事项保持 Active，等待维护者决定是否收口。"
+  summary: "0.2.0 向后兼容候选、推荐 Profile、首次显式选择门禁与 core+可选组合闭环已完成并通过验证；归档证据与外部发布按维护者授权顺序收口。"
   next_task_id: null
 authorization:
   terminal_transition_confirmed: false

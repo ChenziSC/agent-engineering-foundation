@@ -29,7 +29,7 @@ entries:
       - path: "AGENTS.md"
         digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
       - path: "README.md"
-        digest: "sha256:6d86472d0d9e9b36fe9ed6df0ddeaa0401b36e5481253d5722bd62729f8ddbe2"
+        digest: "sha256:2aaf3ca788f20db69e553e6150e9c77221dd17e33e2378ddacf09173795a955c"
       - path: "packages/harness/README.md"
         digest: "sha256:71cd019796e075cf9b4b03209e2de97b70187cc66a93924fcd2fc2cb8e0bd4f7"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"

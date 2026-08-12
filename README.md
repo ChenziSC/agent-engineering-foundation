@@ -15,8 +15,8 @@
 需要 Node.js 20+。采用项目固定使用明确版本，不依赖可变的 `latest`：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.1.0 -- agent-foundation --version
-npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.2.0 -- agent-foundation --version
+npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
   agent-foundation init plan --target /path/to/existing-project
 ```
 
@@ -27,13 +27,13 @@ Skill 发布白名单与默认安装建议相互独立。首次接入时，Agent
 已经完成 Distribution 接入的项目升级时，先由维护者选择一个已发布的精确版本，再使用该版本 CLI 计划和应用记录 Profile 与已有受管 Skill 的更新：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
   agent-foundation upgrade plan --target /path/to/adopted-project
-npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
   agent-foundation upgrade apply --target /path/to/adopted-project
 ```
 
-示例中的 `0.1.0` 应替换为维护者批准的目标版本。CLI 不自动追随 `latest`；Plan 只读，Apply 复用 Distribution 的用户修改保护并在写入后 Verify。
+示例中的 `0.2.0` 应替换为维护者批准的目标版本。CLI 不自动追随 `latest`；Plan 只读，Apply 复用 Distribution 的用户修改保护并在写入后 Verify。
 
 ### 从源码开发
 
