@@ -19,7 +19,7 @@ entries:
       - "repository-positioning"
       - "agent-harness"
       - "content-layering"
-    last_reviewed_at: "2026-08-11"
+    last_reviewed_at: "2026-08-12"
     authoritative_sources:
       - "AGENTS.md"
       - "README.md"
@@ -29,9 +29,9 @@ entries:
       - path: "AGENTS.md"
         digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
       - path: "README.md"
-        digest: "sha256:acf468d4d0cf491b71bda1a9cd010d2b91b17f87276b8298107654272f8f1b79"
+        digest: "sha256:2aaf3ca788f20db69e553e6150e9c77221dd17e33e2378ddacf09173795a955c"
       - path: "packages/harness/README.md"
-        digest: "sha256:da5bf49b23bc9d36dd0356139665344ae75c3138fad8a1b08982ccd8dfa13c6d"
+        digest: "sha256:71cd019796e075cf9b4b03209e2de97b70187cc66a93924fcd2fc2cb8e0bd4f7"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
         digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
     refresh_triggers:
@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-public-package-release"
+      spec_id: "2026-08-11-skill-install-recommendation-profiles"
       action: "update"
-      reviewed_at: "2026-08-11"
-      decision_digest: "sha256:9b71c592cc4d38ba998e6f6b64cd2c74214e91cb4e6bb0641287f4867fd56ed2"
+      reviewed_at: "2026-08-12"
+      decision_digest: "sha256:6d043866f5699b600daf0961a9e2c22d49366f66d358feb9955359a53f704873"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -65,7 +65,7 @@ entries:
       - "host-boundary"
       - "skill-publication"
       - "dependency-direction"
-    last_reviewed_at: "2026-08-11"
+    last_reviewed_at: "2026-08-12"
     authoritative_sources:
       - "AGENTS.md"
       - "blueprints/skill-runtime/README.md"
@@ -75,11 +75,11 @@ entries:
       - path: "AGENTS.md"
         digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
       - path: "blueprints/skill-runtime/README.md"
-        digest: "sha256:d6af9c65590f8f726d0885493453cea492c9c29d2d732b7fd1d54c7a711f6736"
+        digest: "sha256:f7a440a019ff8fc23a16e2a8c3f21746fcb08a72736f9ee9ae07da41a2df32ae"
       - path: "distribution/README.md"
-        digest: "sha256:1f7749806c5a9b0e211f064902c84f9137de2bfca2493cf64fd419e7ba29c40d"
+        digest: "sha256:7472e43a23a41bd611f9dec2d8ccaf2edcfef20ddf488b2ddfe09228f1928451"
       - path: "packages/harness/README.md"
-        digest: "sha256:da5bf49b23bc9d36dd0356139665344ae75c3138fad8a1b08982ccd8dfa13c6d"
+        digest: "sha256:71cd019796e075cf9b4b03209e2de97b70187cc66a93924fcd2fc2cb8e0bd4f7"
     refresh_triggers:
       - "主流 Agent Host 原生能力边界变化"
       - "Harness、Framework、Skill、Package 或 Adapter 依赖方向变化"
@@ -91,10 +91,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-public-package-release"
+      spec_id: "2026-08-11-skill-install-recommendation-profiles"
       action: "update"
-      reviewed_at: "2026-08-11"
-      decision_digest: "sha256:33a51f23d01749a167829b933a66a591ef4d96184b7db8a9fef9f58d9afc47f8"
+      reviewed_at: "2026-08-12"
+      decision_digest: "sha256:a139b9ea95c30b8d2629e3130c3d0f32d70229d2347040ef68bd0856e62f00d0"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -113,7 +113,7 @@ entries:
       - "specflow"
       - "knowledge-governance"
       - "traceability"
-    last_reviewed_at: "2026-08-11"
+    last_reviewed_at: "2026-08-12"
     authoritative_sources:
       - "AGENTS.md"
       - "specs/README.md"
@@ -134,7 +134,7 @@ entries:
       - path: "agent-foundation.json"
         digest: "sha256:af758326649a79910904dce1397cc9b37652e65304c3775a136c27279ee19e72"
       - path: "distribution/manifest.yaml"
-        digest: "sha256:29aab7fd494249f20fb62e286795608940e73ea5b60f7d71df0c94c631de35f4"
+        digest: "sha256:94533d99b1271cb132fb632b379295c772e9ae7a803e3b6e0b19f5229b0bf676"
       - path: ".github/workflows/quality.yml"
         digest: "sha256:f3eb7e0ea6c536d7215a545849c8dd8a0a5d412d510ccaff29af7a59f3cab473"
     refresh_triggers:
@@ -148,10 +148,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-public-package-release"
+      spec_id: "2026-08-11-skill-install-recommendation-profiles"
       action: "update"
-      reviewed_at: "2026-08-11"
-      decision_digest: "sha256:a0c1b559e8594efabc451c6a559444e7993544cee59fee03a0d53687babac213"
+      reviewed_at: "2026-08-12"
+      decision_digest: "sha256:b25f1a652509dac0d26749c059a496548d9c7668c9e9735717e8a7b4b2ef1251"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -169,7 +169,7 @@ entries:
       - "public-generalization"
       - "rights-and-redaction"
       - "release-safety"
-    last_reviewed_at: "2026-08-11"
+    last_reviewed_at: "2026-08-12"
     authoritative_sources:
       - "AGENTS.md"
       - "docs/公开发布检查清单.md"
@@ -192,7 +192,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-public-package-release"
+      spec_id: "2026-08-11-skill-install-recommendation-profiles"
       action: "still-valid"
-      reviewed_at: "2026-08-11"
-      decision_digest: "sha256:63ca7778681e9d2a702846a3b15c4df1e92319667e2b276f042239e229067539"
+      reviewed_at: "2026-08-12"
+      decision_digest: "sha256:3e561a624d4dd18576ac395a0bbdb5be42551c297b54765689f285f1931e336f"

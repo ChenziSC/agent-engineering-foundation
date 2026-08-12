@@ -26,6 +26,7 @@ import {
   planUpgrade,
   planProjectInit,
   planSkill,
+  recommendSkills,
   resolveProjectContext,
   updateSkill,
   verifyDistribution,
@@ -661,7 +662,7 @@ test('成熟项目夹具端到端覆盖嵌套规则、多 Active Spec、Section 
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
   assert.equal((await checkSpecflowGovernance(target)).status, 'pass');
-  assert.equal((await applyDistribution({ target })).status, 'applied');
+  assert.equal((await applyDistribution({ target, profile: 'core' })).status, 'applied');
   assert.equal((await verifyDistribution({ target })).status, 'pass');
 
   const context = await resolveProjectContext(target, {
@@ -1419,7 +1420,226 @@ test('Skill Plan 是只读操作，Install 幂等并被 Doctor 复核', async ()
   assert.ok(doctor.checks.some((check) => check.code === 'installed-skill'));
 });
 
-test('存量项目采用闭环串联 Starter、Knowledge、完整 Skill Distribution 与 Context', async () => {
+test('Skill 推荐契约将新项目默认 core 与显式 full 分离，并持续维护已有可选 Skill', async () => {
+  const root = await makeTemporaryRoot();
+  const target = path.join(root, 'project');
+  const optionalTarget = path.join(root, 'project-with-optional');
+  await initProject(target);
+  await initProject(optionalTarget);
+
+  const recommendations = await recommendSkills();
+  assert.equal(recommendations.defaultProfile, 'core');
+  assert.deepEqual(
+    recommendations.profiles.find(({ name }) => name === 'core').skills,
+    ['specflow'],
+  );
+  assert.equal(
+    recommendations.profiles.find(({ name }) => name === 'full').skills.length,
+    (await discoverSkills()).length,
+  );
+  assert.equal(recommendations.firstApplyRequiresExplicitSelection, true);
+  assert.deepEqual(recommendations.selectionOptions.map(({ id }) => id), [
+    'core',
+    'core-plus-optional',
+    'full',
+  ]);
+  const specflowRecommendation = recommendations.skills.find(({ name }) => name === 'specflow');
+  assert.equal(specflowRecommendation.defaultSelected, true);
+  assert.match(specflowRecommendation.requiredWhen, /完整治理流程/u);
+  assert.match(specflowRecommendation.reason, /不是无条件依赖/u);
+
+  const corePlan = await planDistribution({ target });
+  assert.equal(corePlan.profile, 'core');
+  assert.equal(corePlan.profileSource, 'default');
+  assert.equal(corePlan.firstApplyRequiresExplicitSelection, true);
+  assert.deepEqual(corePlan.maintainedSkills, ['specflow']);
+  assert.deepEqual(corePlan.items.map(({ name }) => name), ['specflow']);
+  await assert.rejects(
+    applyDistribution({ target }),
+    (error) => error instanceof FoundationError && error.code === 'skill-selection-required',
+  );
+  assert.equal((await applyDistribution({ target, profile: 'core' })).profile, 'core');
+  const coreState = JSON.parse(
+    await readFile(path.join(target, '.agent-foundation', 'installed-skills.json'), 'utf8'),
+  );
+  assert.equal(coreState.distributionProfile, 'core');
+  assert.deepEqual(Object.keys(coreState.records), ['specflow']);
+  assert.equal((await verifyDistribution({ target })).status, 'pass');
+
+  const fullPlan = await planDistribution({ target, profile: 'full' });
+  assert.equal(fullPlan.profile, 'full');
+  assert.equal(fullPlan.profileSource, 'explicit');
+  assert.equal(fullPlan.items.length, recommendations.skills.length);
+  assert.equal((await applyDistribution({ target, profile: 'full' })).profile, 'full');
+  const fullStatePath = path.join(target, '.agent-foundation', 'installed-skills.json');
+  const fullState = JSON.parse(await readFile(fullStatePath, 'utf8'));
+  assert.equal(fullState.distributionProfile, 'full');
+  assert.equal(Object.keys(fullState.records).length, recommendations.skills.length);
+
+  delete fullState.distributionProfile;
+  await writeFile(fullStatePath, `${JSON.stringify(fullState, null, 2)}\n`);
+  const legacyPlan = await planDistribution({ target });
+  assert.equal(legacyPlan.profile, 'full');
+  assert.equal(legacyPlan.profileSource, 'legacy-full');
+  assert.equal(legacyPlan.items.length, recommendations.skills.length);
+
+  const narrowed = await applyDistribution({ target, profile: 'core' });
+  assert.equal(narrowed.status, 'applied');
+  const narrowedState = JSON.parse(await readFile(fullStatePath, 'utf8'));
+  assert.equal(narrowedState.distributionProfile, 'core');
+  assert.equal(Object.keys(narrowedState.records).length, recommendations.skills.length);
+  const narrowedVerification = await verifyDistribution({ target });
+  assert.equal(narrowedVerification.status, 'pass');
+  assert.equal(narrowedVerification.profile, 'core');
+  assert.equal(narrowedVerification.maintainedSkills.length, recommendations.skills.length);
+
+  await installSkill({ target: optionalTarget, name: 'safe-change' });
+  const optionalPlan = await planDistribution({ target: optionalTarget });
+  assert.equal(optionalPlan.profile, 'core');
+  assert.deepEqual(optionalPlan.maintainedSkills, ['safe-change', 'specflow']);
+  assert.equal((await applyDistribution({ target: optionalTarget })).profile, 'core');
+  const optionalState = JSON.parse(
+    await readFile(path.join(optionalTarget, '.agent-foundation', 'installed-skills.json'), 'utf8'),
+  );
+  assert.deepEqual(Object.keys(optionalState.records).sort(), ['safe-change', 'specflow']);
+  assert.equal((await verifyDistribution({ target: optionalTarget })).status, 'pass');
+  const optionalUpgrade = await planUpgrade({ target: optionalTarget });
+  assert.equal(optionalUpgrade.action, 'noop');
+  assert.deepEqual(optionalUpgrade.distribution.maintainedSkills, ['safe-change', 'specflow']);
+  const optionalUpgradeApplied = await applyUpgrade({ target: optionalTarget });
+  assert.equal(optionalUpgradeApplied.status, 'unchanged');
+  assert.deepEqual(optionalUpgradeApplied.verification.maintainedSkills, ['safe-change', 'specflow']);
+
+  const combinedTarget = path.join(root, 'project-with-selection');
+  await initProject(combinedTarget);
+  const combinedPlan = await planDistribution({
+    target: combinedTarget,
+    profile: 'core',
+    includeSkills: ['safe-change', 'design-to-code'],
+  });
+  assert.deepEqual(combinedPlan.includedSkills, ['design-to-code', 'safe-change']);
+  assert.deepEqual(combinedPlan.maintainedSkills, ['design-to-code', 'safe-change', 'specflow']);
+  const combinedApply = await applyDistribution({
+    target: combinedTarget,
+    profile: 'core',
+    includeSkills: ['safe-change', 'design-to-code'],
+  });
+  assert.equal(combinedApply.status, 'applied');
+  assert.deepEqual(combinedApply.includedSkills, ['design-to-code', 'safe-change']);
+  const combinedVerify = await verifyDistribution({ target: combinedTarget });
+  assert.equal(combinedVerify.status, 'pass');
+  assert.deepEqual(combinedVerify.maintainedSkills, ['design-to-code', 'safe-change', 'specflow']);
+
+  await assert.rejects(
+    planDistribution({ target: optionalTarget, profile: 'missing' }),
+    (error) => error instanceof FoundationError && error.code === 'unknown-distribution-profile',
+  );
+  for (const includeSkills of [
+    ['missing'],
+    ['safe-change', 'safe-change'],
+    ['specflow'],
+  ]) {
+    await assert.rejects(
+      planDistribution({ target: combinedTarget, profile: 'core', includeSkills }),
+      (error) => error instanceof FoundationError && error.code === 'invalid-distribution-selection',
+    );
+  }
+  await assert.rejects(
+    planDistribution({ target: combinedTarget, profile: 'full', includeSkills: ['safe-change'] }),
+    (error) => error instanceof FoundationError && error.code === 'invalid-distribution-selection',
+  );
+});
+
+test('Skill 推荐契约拒绝重复、遗漏和未发布 Skill', async () => {
+  const root = await makeTemporaryRoot();
+  const fakeRepo = path.join(root, 'foundation');
+  await mkdir(path.join(fakeRepo, 'distribution'), { recursive: true });
+  await mkdir(path.join(fakeRepo, 'skills', 'alpha'), { recursive: true });
+  await writeFile(path.join(fakeRepo, 'skills', 'alpha', 'SKILL.md'), '---\nname: alpha\ndescription: 合成。\n---\n');
+  const alpha = (await discoverSkills({ repoRoot: fakeRepo }))[0];
+  await writeFile(
+    path.join(fakeRepo, 'distribution', 'manifest.yaml'),
+    [
+      'version: 1',
+      'skills:',
+      '  - name: alpha',
+      '    source: skills/alpha',
+      '    version:',
+      '      type: content-hash',
+      `      value: ${alpha.digest}`,
+      '    distributable: true',
+      '    required_files:',
+      '      - SKILL.md',
+      '    optional_resources: []',
+      '',
+    ].join('\n'),
+  );
+  const recommendationsPath = path.join(fakeRepo, 'distribution', 'recommendations.json');
+  const base = {
+    version: 1,
+    defaultProfile: 'core',
+    profiles: [
+      { name: 'core', description: '最小集合。', skills: ['alpha'] },
+      { name: 'full', description: '完整集合。', skills: ['alpha'] },
+    ],
+    skills: [{
+      name: 'alpha',
+      tier: 'core',
+      defaultSelected: true,
+      requiredWhen: '采用合成治理时。',
+      reason: '用于合成测试。',
+      when: '合成场景。',
+    }],
+  };
+
+  await writeFile(
+    recommendationsPath,
+    `${JSON.stringify({ ...base, profiles: [...base.profiles, base.profiles[0]] }, null, 2)}\n`,
+  );
+  await assert.rejects(
+    recommendSkills({ repoRoot: fakeRepo }),
+    (error) => error instanceof FoundationError && error.code === 'invalid-skill-recommendations',
+  );
+
+  await writeFile(
+    recommendationsPath,
+    `${JSON.stringify({
+      ...base,
+      skills: [{
+        name: 'missing',
+        tier: 'optional',
+        defaultSelected: false,
+        requiredWhen: '合成场景。',
+        reason: '用于合成测试。',
+        when: '合成场景。',
+      }],
+    }, null, 2)}\n`,
+  );
+  await assert.rejects(
+    recommendSkills({ repoRoot: fakeRepo }),
+    (error) => error instanceof FoundationError && error.code === 'invalid-skill-recommendations',
+  );
+
+  await writeFile(recommendationsPath, `${JSON.stringify({ ...base, skills: [] }, null, 2)}\n`);
+  await assert.rejects(
+    recommendSkills({ repoRoot: fakeRepo }),
+    (error) => error instanceof FoundationError && error.code === 'invalid-skill-recommendations',
+  );
+
+  await writeFile(
+    recommendationsPath,
+    `${JSON.stringify({
+      ...base,
+      skills: [{ ...base.skills[0], defaultSelected: false }],
+    }, null, 2)}\n`,
+  );
+  await assert.rejects(
+    recommendSkills({ repoRoot: fakeRepo }),
+    (error) => error instanceof FoundationError && error.code === 'invalid-skill-recommendations',
+  );
+});
+
+test('存量项目显式 full Profile 串联 Starter、Knowledge、完整 Skill Distribution 与 Context', async () => {
   const root = await makeTemporaryRoot();
   const target = path.join(root, 'project');
   await initProject(target);
@@ -1458,17 +1678,18 @@ test('存量项目采用闭环串联 Starter、Knowledge、完整 Skill Distribu
   );
 
   const availableSkills = await discoverSkills();
-  const distributionPlan = await planDistribution({ target });
+  const distributionPlan = await planDistribution({ target, profile: 'full' });
   assert.equal(distributionPlan.ok, true);
   assert.deepEqual(
     distributionPlan.items.map(({ name }) => name),
     availableSkills.map(({ name }) => name),
   );
   assert.ok(distributionPlan.items.every(({ action }) => action === 'add'));
-  assert.equal((await applyDistribution({ target })).status, 'applied');
-  assert.equal((await verifyDistribution({ target })).status, 'pass');
+  assert.equal((await applyDistribution({ target, profile: 'full' })).status, 'applied');
+  assert.equal((await verifyDistribution({ target, profile: 'full' })).status, 'pass');
   const state = JSON.parse(await readFile(path.join(target, '.agent-foundation', 'installed-skills.json'), 'utf8'));
   assert.equal(state.foundationVersion, JSON.parse(await readFile(path.resolve('package.json'), 'utf8')).version);
+  assert.equal(state.distributionProfile, 'full');
   assert.deepEqual(Object.keys(state.records).sort(), availableSkills.map(({ name }) => name));
   const record = state.records['project-context-bootstrap'];
   assert.equal(record.host, 'open-agent');
@@ -1595,7 +1816,7 @@ test('Distribution Manifest 以内容摘要执行 Plan、Apply 和 Verify', asyn
   await writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`);
   const legacyVerification = await verifyDistribution({ target, repoRoot: fakeRepo });
   assert.ok(legacyVerification.errors.some(({ code }) => code === 'distribution-foundation-version-mismatch'));
-  assert.equal((await applyDistribution({ target, repoRoot: fakeRepo })).status, 'unchanged');
+  assert.equal((await applyDistribution({ target, repoRoot: fakeRepo })).status, 'applied');
   assert.equal((await verifyDistribution({ target, repoRoot: fakeRepo })).status, 'pass');
 
   const skillPath = path.join(fakeRepo, 'skills', 'demo-skill', 'SKILL.md');
@@ -1781,8 +2002,18 @@ test('Foundation 生产者 Source Link 即时读取源码且不改变采用方�
 
   const initialPlan = await planDistribution({ target: sourceRepo, repoRoot: sourceRepo });
   assert.equal(initialPlan.runtimeMode, 'source-link');
+  assert.equal(initialPlan.profile, 'full');
+  assert.equal(initialPlan.profileSource, 'source-runtime');
   assert.equal(initialPlan.sourceLinkAction, 'add');
+  await assert.rejects(
+    planDistribution({ target: sourceRepo, repoRoot: sourceRepo, profile: 'core' }),
+    (error) => error instanceof FoundationError && error.code === 'source-runtime-profile-not-supported',
+  );
   assert.equal((await applyDistribution({ target: sourceRepo, repoRoot: sourceRepo })).status, 'applied');
+  const sourceState = JSON.parse(
+    await readFile(path.join(sourceRepo, '.agent-foundation', 'installed-skills.json'), 'utf8'),
+  );
+  assert.equal(sourceState.distributionProfile, 'full');
   const runtimeRoot = path.join(sourceRepo, '.agents', 'skills');
   assert.equal((await lstat(runtimeRoot)).isSymbolicLink(), true);
   assert.equal(await readlink(runtimeRoot), '../skills');
@@ -1985,6 +2216,38 @@ test('CLI 暴露初始化、Doctor、Skill 列表和参数错误退出码', asyn
   assert.equal(listed.status, 0, listed.stderr);
   assert.ok(listed.json.skills.some((skill) => skill.name === 'specflow'));
 
+  const recommended = runCli(['skill', 'recommend']);
+  assert.equal(recommended.status, 0, recommended.stderr);
+  assert.equal(recommended.json.defaultProfile, 'core');
+
+  const fullPlan = runCli(['distribution', 'plan', '--profile', 'full', '--target', target]);
+  assert.equal(fullPlan.status, 0, fullPlan.stderr);
+  assert.equal(fullPlan.json.profile, 'full');
+  assert.equal(fullPlan.json.profileSource, 'explicit');
+
+  const unknownProfile = runCli(['distribution', 'plan', '--profile', 'missing', '--target', target]);
+  assert.equal(unknownProfile.status, 1);
+  assert.equal(unknownProfile.json.error.code, 'unknown-distribution-profile');
+
+  const firstApplyWithoutSelection = runCli(['distribution', 'apply', '--target', target]);
+  assert.equal(firstApplyWithoutSelection.status, 1);
+  assert.equal(firstApplyWithoutSelection.json.error.code, 'skill-selection-required');
+
+  const combinedPlan = runCli([
+    'distribution',
+    'plan',
+    '--profile',
+    'core',
+    '--include-skill',
+    'safe-change',
+    '--include-skill',
+    'design-to-code',
+    '--target',
+    target,
+  ]);
+  assert.equal(combinedPlan.status, 0, combinedPlan.stderr);
+  assert.deepEqual(combinedPlan.json.includedSkills, ['design-to-code', 'safe-change']);
+
   const repository = runCli(['repository', 'check']);
   assert.equal(repository.status, 0, repository.stderr);
   assert.equal(repository.json.status, 'pass');
@@ -1993,8 +2256,20 @@ test('CLI 暴露初始化、Doctor、Skill 列表和参数错误退出码', asyn
   assert.equal(upgradeBeforeInstall.status, 1);
   assert.ok(upgradeBeforeInstall.json.conflicts.some(({ type }) => type === 'foundation-not-installed'));
 
-  const distributed = runCli(['distribution', 'apply', '--target', target]);
+  const distributed = runCli([
+    'distribution',
+    'apply',
+    '--profile',
+    'core',
+    '--include-skill',
+    'safe-change',
+    '--include-skill',
+    'design-to-code',
+    '--target',
+    target,
+  ]);
   assert.equal(distributed.status, 0, distributed.stderr);
+  assert.deepEqual(distributed.json.includedSkills, ['design-to-code', 'safe-change']);
   const statePath = path.join(target, '.agent-foundation', 'installed-skills.json');
   const oldState = JSON.parse(await readFile(statePath, 'utf8'));
   oldState.foundationVersion = '0.0.1';
@@ -2036,6 +2311,7 @@ test('npm pack 产物可在源码仓外独立完成治理命令闭环', async ()
   assert.equal(packResult[0].files.some(({ path: packedPath }) => /\/evals\//u.test(packedPath)), false);
   assert.equal(packResult[0].files.some(({ path: packedPath }) => /\/tests\//u.test(packedPath)), false);
   assert.ok(packResult[0].files.some(({ path: packedPath }) => packedPath === 'skills/specflow/scripts/archive-receipt.mjs'));
+  assert.ok(packResult[0].files.some(({ path: packedPath }) => packedPath === 'distribution/recommendations.json'));
   const tarball = path.join(packRoot, packResult[0].filename);
   runCommand(
     'npm',
@@ -2057,15 +2333,40 @@ test('npm pack 产物可在源码仓外独立完成治理命令闭环', async ()
   assert.equal(initialized.status, 0, initialized.stderr);
   assert.equal(initialized.json.status, 'initialized');
 
-  const distributed = run(['distribution', 'apply', '--target', target]);
+  const recommended = run(['skill', 'recommend']);
+  assert.equal(recommended.status, 0, recommended.stderr);
+  assert.equal(recommended.json.defaultProfile, 'core');
+  assert.deepEqual(
+    recommended.json.profiles.find(({ name }) => name === 'core').skills,
+    ['specflow'],
+  );
+  assert.equal(recommended.json.firstApplyRequiresExplicitSelection, true);
+  assert.match(
+    recommended.json.skills.find(({ name }) => name === 'specflow').reason,
+    /不是无条件依赖/u,
+  );
+
+  const fullPlan = run(['distribution', 'plan', '--profile', 'full', '--target', target]);
+  assert.equal(fullPlan.status, 0, fullPlan.stderr);
+  assert.equal(fullPlan.json.profile, 'full');
+  assert.equal(fullPlan.json.items.length, recommended.json.skills.length);
+
+  const rejected = run(['distribution', 'apply', '--target', target]);
+  assert.equal(rejected.status, 1);
+  assert.equal(rejected.json.error.code, 'skill-selection-required');
+
+  const distributed = run(['distribution', 'apply', '--profile', 'core', '--target', target]);
   assert.equal(distributed.status, 0, distributed.stderr);
   assert.equal(distributed.json.status, 'applied');
-  assert.equal(distributed.json.results.length, 9);
+  assert.equal(distributed.json.profile, 'core');
+  assert.equal(distributed.json.results.length, 1);
   assert.equal(distributed.json.foundationVersion, packageVersion);
   const installedState = JSON.parse(
     await readFile(path.join(target, '.agent-foundation', 'installed-skills.json'), 'utf8'),
   );
   assert.equal(installedState.foundationVersion, packageVersion);
+  assert.equal(installedState.distributionProfile, 'core');
+  assert.deepEqual(Object.keys(installedState.records), ['specflow']);
 
   const upgradePlan = run(['upgrade', 'plan', '--target', target]);
   assert.equal(upgradePlan.status, 0, upgradePlan.stderr);

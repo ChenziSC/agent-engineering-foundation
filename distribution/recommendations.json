@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "defaultProfile": "core",
+  "profiles": [
+    {
+      "name": "core",
+      "description": "日常 Agent 工程治理的最小推荐集合，只安装跨项目稳定且有直接 Starter 消费者的基础 Skill。",
+      "skills": [
+        "specflow"
+      ]
+    },
+    {
+      "name": "full",
+      "description": "完整公开能力目录，适合明确希望让 Host 发现全部领域 Skill 的采用项目。",
+      "skills": [
+        "design-to-code",
+        "project-component-governance",
+        "project-context-bootstrap",
+        "refactor-natural-language-content",
+        "safe-change",
+        "specflow",
+        "tracking-governance",
+        "web-first-screen-prefetch",
+        "web-performance-review"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "name": "design-to-code",
+      "tier": "optional",
+      "defaultSelected": false,
+      "requiredWhen": "仅当项目需要从设计输入实现或验收 UI 时需要。",
+      "reason": "提供设计版本、响应式、状态、交互、无障碍和视觉验收闭环。",
+      "when": "项目需要根据设计稿、图片或交互说明实现和验收 UI。"
+    },
+    {
+      "name": "project-component-governance",
+      "tier": "optional",
+      "defaultSelected": false,
+      "requiredWhen": "仅当项目需要作组件复用、分层、迁移或废弃决策时需要。",
+      "reason": "把组件决策绑定到仓库证据、分层准入和维护计划。",
+      "when": "项目需要基于真实组件证据作复用、分层、迁移或废弃决策。"
+    },
+    {
+      "name": "project-context-bootstrap",
+      "tier": "onboarding",
+      "defaultSelected": false,
+      "requiredWhen": "存量项目首次接入且缺少可审核的项目规则、Knowledge 或代码入口时需要。",
+      "reason": "从真实仓库证据生成接入候选；完成接入后日常任务不重复运行。",
+      "when": "存量项目首次接入或长期项目上下文明显缺失、过期时使用；日常任务不重复触发。"
+    },
+    {
+      "name": "refactor-natural-language-content",
+      "tier": "optional",
+      "defaultSelected": false,
+      "requiredWhen": "仅当自然语言工程内容出现跨章节冲突、重复或术语漂移时需要。",
+      "reason": "对 Spec、Skill、Prompt 和规范执行有边界的一致性审计与重构。",
+      "when": "仓库长期维护大量 Spec、Skill、Prompt 或规范，并需要整体一致性治理。"
+    },
+    {
+      "name": "safe-change",
+      "tier": "optional",
+      "defaultSelected": false,
+      "requiredWhen": "仅当项目需要显式的影响分析、回滚点或高风险变更复核时需要。",
+      "reason": "把变更范围、风险、验证和回滚证据组织成可复核闭环。",
+      "when": "项目需要影响分析、增量验证、回滚点或高风险变更复核。"
+    },
+    {
+      "name": "specflow",
+      "tier": "core",
+      "defaultSelected": true,
+      "requiredWhen": "项目采用本仓完整治理流程，以 Spec、Plan、Tasks 和验证证据管理研发事项时必须安装。",
+      "reason": "Starter、上下文恢复和交付追溯直接消费 Specflow；只单独使用某个领域 Skill 时不是无条件依赖。",
+      "when": "项目采用本仓 Spec、Plan、Tasks、验证证据和跨会话恢复契约。"
+    },
+    {
+      "name": "tracking-governance",
+      "tier": "optional",
+      "defaultSelected": false,
+      "requiredWhen": "仅当项目需要设计、迁移、评审或排查产品行为埋点时需要。",
+      "reason": "统一事件目的、触发语义、属性来源、隐私分类和验证场景。",
+      "when": "项目需要设计、迁移、评审或排查产品行为埋点。"
+    },
+    {
+      "name": "web-first-screen-prefetch",
+      "tier": "optional",
+      "defaultSelected": false,
+      "requiredWhen": "仅当 Web 项目已有首屏关键只读请求发送过晚的专项证据时需要。",
+      "reason": "评估请求是否可安全提前，并设计接入点和验证闭环。",
+      "when": "Web 项目已有首屏关键只读请求发送过晚的专项证据。"
+    },
+    {
+      "name": "web-performance-review",
+      "tier": "optional",
+      "defaultSelected": false,
+      "requiredWhen": "仅当 Web 项目需要基于实际性能证据定位瓶颈时需要。",
+      "reason": "区分事实与推断，并把 Lighthouse、Trace 或 HAR 结论映射到实现位置。",
+      "when": "Web 项目需要基于 URL、Lighthouse、Trace 或 HAR 做性能评审。"
+    }
+  ]
+}

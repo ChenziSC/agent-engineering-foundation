@@ -2323,6 +2323,7 @@ async function readInstallState(projectRoot) {
   if (
     state.schemaVersion !== 1 ||
     (state.foundationVersion !== undefined && typeof state.foundationVersion !== 'string') ||
+    (state.distributionProfile !== undefined && typeof state.distributionProfile !== 'string') ||
     !state.records ||
     typeof state.records !== 'object' ||
     Array.isArray(state.records)
@@ -2330,6 +2331,154 @@ async function readInstallState(projectRoot) {
     throw new FoundationError('invalid-install-state', 'Skill 安装状态结构不受支持', { path: statePath });
   }
   return state;
+}
+
+async function readSkillRecommendations(
+  repoRoot,
+  distribution,
+  recommendationsPath = 'distribution/recommendations.json',
+) {
+  const root = path.resolve(repoRoot);
+  const absolute = path.resolve(root, recommendationsPath);
+  relativeInside(root, absolute);
+  await assertNoSymlinkSegments(root, absolute);
+  const stat = await statOrNull(absolute);
+  const publishedNames = distribution.manifest.skills.map(({ name }) => name).sort();
+  if (!stat) {
+    return {
+      path: null,
+      defaultProfile: 'full',
+      profiles: [{ name: 'full', description: 'Distribution Manifest 中的完整公开 Skill 集合。', skills: publishedNames }],
+      skills: publishedNames.map((name) => ({
+        name,
+        tier: 'optional',
+        defaultSelected: true,
+        requiredWhen: '兼容旧 Distribution，按既有完整集合继续维护。',
+        reason: '当前来源没有独立推荐契约，因此保持历史完整集合语义。',
+        when: '由采用方按任务边界决定。',
+      })),
+      implicit: true,
+    };
+  }
+  if (!stat.isFile() || stat.isSymbolicLink()) {
+    throw new FoundationError('invalid-skill-recommendations', 'Skill 推荐契约必须是仓库内的普通文件', {
+      path: recommendationsPath,
+    });
+  }
+  const recommendations = await readJson(absolute, 'Skill 推荐契约');
+  assertExactObjectKeys(
+    recommendations,
+    ['version', 'defaultProfile', 'profiles', 'skills'],
+    'Skill 推荐契约',
+    'invalid-skill-recommendations',
+  );
+  if (recommendations.version !== 1 || !Array.isArray(recommendations.profiles) || !recommendations.profiles.length) {
+    throw new FoundationError('invalid-skill-recommendations', 'Skill 推荐契约必须使用 version 1 且至少声明一个 Profile');
+  }
+  if (!Array.isArray(recommendations.skills) || recommendations.skills.length !== publishedNames.length) {
+    throw new FoundationError('invalid-skill-recommendations', 'Skill 推荐契约必须覆盖全部可发布 Skill');
+  }
+  const profileNames = new Set();
+  const profiles = recommendations.profiles.map((profile) => {
+    assertExactObjectKeys(
+      profile,
+      ['name', 'description', 'skills'],
+      'Skill 推荐 Profile',
+      'invalid-skill-recommendations',
+    );
+    assertSimpleName(profile.name, 'Skill 推荐 Profile 名称');
+    if (profileNames.has(profile.name)) {
+      throw new FoundationError('invalid-skill-recommendations', 'Skill 推荐 Profile 不能重名', { name: profile.name });
+    }
+    profileNames.add(profile.name);
+    if (typeof profile.description !== 'string' || !profile.description.trim()) {
+      throw new FoundationError('invalid-skill-recommendations', 'Skill 推荐 Profile 必须提供非空说明', { name: profile.name });
+    }
+    if (!stringArray(profile.skills) || !profile.skills.length || new Set(profile.skills).size !== profile.skills.length) {
+      throw new FoundationError('invalid-skill-recommendations', 'Skill 推荐 Profile 必须声明非空且不重复的 Skill 集合', {
+        name: profile.name,
+      });
+    }
+    for (const name of profile.skills) {
+      if (!publishedNames.includes(name)) {
+        throw new FoundationError('invalid-skill-recommendations', 'Skill 推荐 Profile 引用了未发布 Skill', {
+          profile: profile.name,
+          name,
+        });
+      }
+    }
+    return { ...profile, skills: [...profile.skills].sort() };
+  });
+  if (!profileNames.has(recommendations.defaultProfile)) {
+    throw new FoundationError('invalid-skill-recommendations', '默认 Skill 推荐 Profile 不存在', {
+      name: recommendations.defaultProfile,
+    });
+  }
+  if (recommendations.defaultProfile !== 'core') {
+    throw new FoundationError('invalid-skill-recommendations', 'version 1 推荐契约必须以 core 作为默认 Profile');
+  }
+  const full = profiles.find(({ name }) => name === 'full');
+  if (!full || full.skills.length !== publishedNames.length || full.skills.some((name, index) => name !== publishedNames[index])) {
+    throw new FoundationError('invalid-skill-recommendations', 'full Profile 必须精确覆盖 Distribution Manifest 全集');
+  }
+  const recommendationNames = new Set();
+  const skillRecommendations = recommendations.skills.map((item) => {
+    assertExactObjectKeys(
+      item,
+      ['name', 'tier', 'defaultSelected', 'requiredWhen', 'reason', 'when'],
+      'Skill 推荐条目',
+      'invalid-skill-recommendations',
+    );
+    assertSimpleName(item.name, 'Skill 推荐条目名称');
+    if (recommendationNames.has(item.name) || !publishedNames.includes(item.name)) {
+      throw new FoundationError('invalid-skill-recommendations', 'Skill 推荐条目未知或重复', { name: item.name });
+    }
+    if (
+      !['core', 'onboarding', 'optional'].includes(item.tier) ||
+      typeof item.defaultSelected !== 'boolean' ||
+      typeof item.requiredWhen !== 'string' ||
+      !item.requiredWhen.trim() ||
+      typeof item.reason !== 'string' ||
+      !item.reason.trim() ||
+      typeof item.when !== 'string' ||
+      !item.when.trim()
+    ) {
+      throw new FoundationError('invalid-skill-recommendations', 'Skill 推荐条目必须声明有效层级和适用条件', {
+        name: item.name,
+      });
+    }
+    recommendationNames.add(item.name);
+    return item;
+  });
+  if (publishedNames.some((name) => !recommendationNames.has(name))) {
+    throw new FoundationError('invalid-skill-recommendations', 'Skill 推荐条目遗漏可发布 Skill');
+  }
+  const core = profiles.find(({ name }) => name === 'core');
+  const coreRecommendations = skillRecommendations
+    .filter(({ tier }) => tier === 'core')
+    .map(({ name }) => name)
+    .sort();
+  if (
+    !core ||
+    core.skills.length !== coreRecommendations.length ||
+    core.skills.some((name, index) => name !== coreRecommendations[index])
+  ) {
+    throw new FoundationError('invalid-skill-recommendations', 'core Profile 必须精确覆盖 tier=core 的 Skill');
+  }
+  for (const item of skillRecommendations) {
+    if (item.defaultSelected !== core.skills.includes(item.name)) {
+      throw new FoundationError('invalid-skill-recommendations', 'defaultSelected 必须与 core Profile 精确一致', {
+        name: item.name,
+      });
+    }
+  }
+  return {
+    path: path.relative(root, absolute).split(path.sep).join('/'),
+    defaultProfile: recommendations.defaultProfile,
+    profiles,
+    skills: skillRecommendations.sort((left, right) => left.name.localeCompare(right.name)),
+    implicit: false,
+  };
 }
 
 async function readFoundationVersion(repoRoot = REPO_ROOT) {
@@ -2832,13 +2981,132 @@ async function readDistributionManifest(repoRoot, manifestPath) {
   };
 }
 
+function selectDistributionProfile({
+  distribution,
+  recommendations,
+  state,
+  requestedProfile,
+  requestedIncludes = [],
+  sourceRuntime,
+}) {
+  let name;
+  let source;
+  if (sourceRuntime) {
+    if (requestedProfile && requestedProfile !== 'full') {
+      throw new FoundationError(
+        'source-runtime-profile-not-supported',
+        'Foundation 生产者 Source Link 固定暴露完整 Skill 源目录，只支持 full Profile',
+        { requestedProfile },
+      );
+    }
+    name = 'full';
+    source = 'source-runtime';
+  } else if (requestedProfile) {
+    assertSimpleName(requestedProfile, 'Distribution Profile');
+    name = requestedProfile;
+    source = 'explicit';
+  } else if (state.distributionProfile) {
+    name = state.distributionProfile;
+    source = 'installed-state';
+  } else if (state.foundationVersion) {
+    name = 'full';
+    source = 'legacy-full';
+  } else {
+    name = recommendations.defaultProfile;
+    source = 'default';
+  }
+  const profile = recommendations.profiles.find((item) => item.name === name);
+  if (!profile) {
+    throw new FoundationError('unknown-distribution-profile', '未知 Distribution Profile', {
+      requested: name,
+      available: recommendations.profiles.map((item) => item.name),
+    });
+  }
+  const published = new Set(distribution.manifest.skills.map((entry) => entry.name));
+  if (!stringArray(requestedIncludes) || new Set(requestedIncludes).size !== requestedIncludes.length) {
+    throw new FoundationError('invalid-distribution-selection', 'include-skill 必须是非重复的 Skill 名称集合');
+  }
+  for (const includedName of requestedIncludes) {
+    assertSimpleName(includedName, 'include-skill');
+    if (!published.has(includedName)) {
+      throw new FoundationError('invalid-distribution-selection', 'include-skill 引用了未发布 Skill', {
+        name: includedName,
+      });
+    }
+    if (profile.skills.includes(includedName)) {
+      throw new FoundationError('invalid-distribution-selection', 'include-skill 已包含在所选 Profile 中', {
+        profile: name,
+        name: includedName,
+      });
+    }
+  }
+  const maintainedNames = new Set(profile.skills);
+  for (const includedName of requestedIncludes) maintainedNames.add(includedName);
+  for (const installedName of Object.keys(state.records)) {
+    if (published.has(installedName)) maintainedNames.add(installedName);
+  }
+  const entries = distribution.manifest.skills.filter((entry) => maintainedNames.has(entry.name));
+  return {
+    name,
+    source,
+    description: profile.description,
+    minimumSkills: profile.skills,
+    includedSkills: [...requestedIncludes].sort(),
+    maintainedSkills: entries.map((entry) => entry.name),
+    entries,
+  };
+}
+
+export async function recommendSkills({
+  manifestPath = 'distribution/manifest.yaml',
+  recommendationsPath = 'distribution/recommendations.json',
+  repoRoot = REPO_ROOT,
+} = {}) {
+  const distribution = await readDistributionManifest(repoRoot, manifestPath);
+  const recommendations = await readSkillRecommendations(repoRoot, distribution, recommendationsPath);
+  return {
+    ok: true,
+    command: 'skill-recommend',
+    manifest: distribution.path,
+    recommendations: recommendations.path,
+    defaultProfile: recommendations.defaultProfile,
+    firstApplyRequiresExplicitSelection: true,
+    selectionOptions: [
+      {
+        id: 'core',
+        profile: 'core',
+        includeSkillsAllowed: false,
+        description: '安装默认核心集合。',
+      },
+      {
+        id: 'core-plus-optional',
+        profile: 'core',
+        includeSkillsAllowed: true,
+        description: '安装核心集合，并通过一个或多个 include-skill 增加接入期或可选能力。',
+      },
+      {
+        id: 'full',
+        profile: 'full',
+        includeSkillsAllowed: false,
+        description: '安装完整公开能力目录。',
+      },
+    ],
+    profiles: recommendations.profiles,
+    skills: recommendations.skills,
+  };
+}
+
 export async function planDistribution({
   target,
   manifestPath = 'distribution/manifest.yaml',
+  recommendationsPath = 'distribution/recommendations.json',
+  profile,
+  includeSkills = [],
   repoRoot = REPO_ROOT,
   adapterRegistry = defaultAdapterRegistry,
 } = {}) {
   const distribution = await readDistributionManifest(repoRoot, manifestPath);
+  const recommendations = await readSkillRecommendations(repoRoot, distribution, recommendationsPath);
   const foundationVersion = await readFoundationVersion(repoRoot);
   const projectRoot = path.resolve(target);
   const installState = await readInstallState(projectRoot);
@@ -2846,8 +3114,16 @@ export async function planDistribution({
   const hostIntegration = projectManifest.integrations.find((integration) => integration.capability === 'host');
   const hostAdapter = resolveHost(adapterRegistry, hostIntegration.adapterId);
   const sourceRuntime = resolveProjectSourceRuntime(hostAdapter, projectRoot, hostIntegration, repoRoot);
+  const selection = selectDistributionProfile({
+    distribution,
+    recommendations,
+    state: installState,
+    requestedProfile: profile,
+    requestedIncludes: includeSkills,
+    sourceRuntime,
+  });
   const items = [];
-  for (const entry of distribution.manifest.skills) {
+  for (const entry of selection.entries) {
     const source = distribution.runtimeSkills.get(entry.name);
     if (source.digest !== entry.version.value) {
       throw new FoundationError('distribution-source-mismatch', 'Distribution Manifest 的版本摘要与 Skill 内容不一致', {
@@ -2886,7 +3162,11 @@ export async function planDistribution({
           entry,
         }));
       sourceLinkAction =
-        recordsCurrent && installState.foundationVersion === foundationVersion ? 'noop' : 'refresh-state';
+        recordsCurrent &&
+        installState.foundationVersion === foundationVersion &&
+        installState.distributionProfile === selection.name
+          ? 'noop'
+          : 'refresh-state';
     } else if (
       link.status === 'not-link' &&
       (await inspectReplaceableRuntimeDirectory(
@@ -2916,6 +3196,13 @@ export async function planDistribution({
       },
       manifest: distribution.path,
       manifestDigest: distribution.digest,
+      recommendations: recommendations.path,
+      profile: selection.name,
+      profileSource: selection.source,
+      profileMinimumSkills: selection.minimumSkills,
+      includedSkills: selection.includedSkills,
+      maintainedSkills: selection.maintainedSkills,
+      firstApplyRequiresExplicitSelection: false,
       foundationVersion,
       installedFoundationVersion: installState.foundationVersion || null,
       target: projectRoot,
@@ -2935,6 +3222,16 @@ export async function planDistribution({
     runtimeMode: 'copy',
     manifest: distribution.path,
     manifestDigest: distribution.digest,
+    recommendations: recommendations.path,
+    profile: selection.name,
+    profileSource: selection.source,
+    profileMinimumSkills: selection.minimumSkills,
+    includedSkills: selection.includedSkills,
+    maintainedSkills: selection.maintainedSkills,
+    firstApplyRequiresExplicitSelection:
+      !recommendations.implicit &&
+      installState.foundationVersion === undefined &&
+      Object.keys(installState.records).length === 0,
     foundationVersion,
     installedFoundationVersion: installState.foundationVersion || null,
     target: projectRoot,
@@ -2945,6 +3242,19 @@ export async function planDistribution({
 
 export async function applyDistribution(options = {}) {
   const plan = await planDistribution(options);
+  if (
+    plan.firstApplyRequiresExplicitSelection &&
+    !options.profile
+  ) {
+    throw new FoundationError(
+      'skill-selection-required',
+      '首次 Distribution Apply 必须在用户确认后显式传入 --profile core 或 --profile full',
+      {
+        recommendCommand: 'agent-foundation skill recommend',
+        planCommand: 'agent-foundation distribution plan --profile <core|full> [--include-skill <name>]',
+      },
+    );
+  }
   if (!plan.ok) {
     throw new FoundationError('distribution-conflict', 'Distribution 计划存在冲突，未开始写入', { plan });
   }
@@ -2977,6 +3287,7 @@ export async function applyDistribution(options = {}) {
         createdLink = true;
       }
       state.foundationVersion = plan.foundationVersion;
+      state.distributionProfile = plan.profile;
       state.records = Object.fromEntries(
         distribution.manifest.skills.map((entry) => {
           const previous = beforeState.records[entry.name];
@@ -3007,6 +3318,8 @@ export async function applyDistribution(options = {}) {
         runtimeMode: 'source-link',
         manifest: plan.manifest,
         manifestDigest: plan.manifestDigest,
+        profile: plan.profile,
+        includedSkills: plan.includedSkills,
         foundationVersion: plan.foundationVersion,
         target: plan.target,
         sourceLink: plan.sourceLink,
@@ -3042,8 +3355,12 @@ export async function applyDistribution(options = {}) {
     );
   }
   const installState = await readInstallState(plan.target);
-  if (installState.foundationVersion !== plan.foundationVersion) {
+  const installStateChanged =
+    installState.foundationVersion !== plan.foundationVersion ||
+    installState.distributionProfile !== plan.profile;
+  if (installStateChanged) {
     installState.foundationVersion = plan.foundationVersion;
+    installState.distributionProfile = plan.profile;
     await writeInstallState(plan.target, installState);
   }
   const verification = await verifyDistribution(options);
@@ -3055,10 +3372,12 @@ export async function applyDistribution(options = {}) {
   return {
     ok: true,
     command: 'distribution-apply',
-    status: results.every((result) => result.status === 'unchanged') ? 'unchanged' : 'applied',
+    status: results.every((result) => result.status === 'unchanged') && !installStateChanged ? 'unchanged' : 'applied',
     runtimeMode: 'copy',
     manifest: plan.manifest,
     manifestDigest: plan.manifestDigest,
+    profile: plan.profile,
+    includedSkills: plan.includedSkills,
     foundationVersion: plan.foundationVersion,
     target: plan.target,
     results,
@@ -3068,10 +3387,14 @@ export async function applyDistribution(options = {}) {
 export async function verifyDistribution({
   target,
   manifestPath = 'distribution/manifest.yaml',
+  recommendationsPath = 'distribution/recommendations.json',
+  profile,
+  includeSkills = [],
   repoRoot = REPO_ROOT,
   adapterRegistry = defaultAdapterRegistry,
 } = {}) {
   const distribution = await readDistributionManifest(repoRoot, manifestPath);
+  const recommendations = await readSkillRecommendations(repoRoot, distribution, recommendationsPath);
   const foundationVersion = await readFoundationVersion(repoRoot);
   const projectRoot = path.resolve(target);
   const state = await readInstallState(projectRoot);
@@ -3080,6 +3403,14 @@ export async function verifyDistribution({
   const hostAdapter = resolveHost(adapterRegistry, hostIntegration.adapterId);
   const skillsRoot = resolveHostSkillsDirectory(hostAdapter, projectRoot, hostIntegration);
   const sourceRuntime = resolveProjectSourceRuntime(hostAdapter, projectRoot, hostIntegration, repoRoot);
+  const selection = selectDistributionProfile({
+    distribution,
+    recommendations,
+    state,
+    requestedProfile: profile,
+    requestedIncludes: includeSkills,
+    sourceRuntime,
+  });
   const errors = [];
   const checks = [];
   if (state.foundationVersion !== foundationVersion) {
@@ -3106,7 +3437,7 @@ export async function verifyDistribution({
         status: 'pass',
       });
     }
-    for (const entry of distribution.manifest.skills) {
+    for (const entry of selection.entries) {
       const source = distribution.runtimeSkills.get(entry.name);
       if (source.digest !== entry.version.value) {
         errors.push({
@@ -3138,13 +3469,19 @@ export async function verifyDistribution({
       runtimeMode: 'source-link',
       manifest: distribution.path,
       manifestDigest: distribution.digest,
+      recommendations: recommendations.path,
+      profile: selection.name,
+      profileSource: selection.source,
+      profileMinimumSkills: selection.minimumSkills,
+      includedSkills: selection.includedSkills,
+      maintainedSkills: selection.maintainedSkills,
       foundationVersion,
       target: projectRoot,
       errors,
       checks,
     };
   }
-  for (const entry of distribution.manifest.skills) {
+  for (const entry of selection.entries) {
     const source = distribution.runtimeSkills.get(entry.name);
     if (source.digest !== entry.version.value) {
       errors.push({ code: 'distribution-source-mismatch', name: entry.name, declared: entry.version.value, actual: source.digest });
@@ -3182,6 +3519,12 @@ export async function verifyDistribution({
     runtimeMode: 'copy',
     manifest: distribution.path,
     manifestDigest: distribution.digest,
+    recommendations: recommendations.path,
+    profile: selection.name,
+    profileSource: selection.source,
+    profileMinimumSkills: selection.minimumSkills,
+    includedSkills: selection.includedSkills,
+    maintainedSkills: selection.maintainedSkills,
     foundationVersion,
     target: projectRoot,
     errors,
@@ -3599,6 +3942,22 @@ export async function checkRepository({ repoRoot = REPO_ROOT, denyTerms = [], gi
         skills: distribution.manifest.skills.length,
         digest: distribution.digest,
         status: errors.length === mismatchStart ? 'pass' : 'fail',
+      });
+      const recommendations = await readSkillRecommendations(
+        root,
+        distribution,
+        'distribution/recommendations.json',
+      );
+      if (recommendations.implicit) {
+        errors.push({ code: 'skill-recommendations-missing' });
+      }
+      checks.push({
+        code: 'skill-recommendations',
+        path: recommendations.path,
+        defaultProfile: recommendations.defaultProfile,
+        profiles: recommendations.profiles.length,
+        skills: recommendations.skills.length,
+        status: recommendations.implicit ? 'fail' : 'pass',
       });
     }
   } catch (error) {
