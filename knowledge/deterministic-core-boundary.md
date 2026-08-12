@@ -93,7 +93,7 @@ Harness 内已有多个真实消费者的统一错误、项目内路径与 Symli
 - `distribution/manifest.yaml` 只作为本仓运行时发布白名单和声明文件摘要；默认分发不包含 Eval、Trace、Replay、运行报告或测试，也不演进为通用安装协议或运行时能力协商层。
 - Skill 内脚本必须自包含，或通过宿主原生机制声明外部命令、MCP、Package 或 Plugin 依赖；不能依赖本仓未随包发布的相对路径。
 - 跨宿主差异优先通过相同内容兼容；只有经过真实宿主验证且无法消除的差异才增加薄 Adapter。
-- 现有项目级 `skill install/update`、`distribution apply` 与精确版本驱动的 `upgrade plan/apply` 是参考兼容实现，可以维护受管摘要、版本方向、安全迁移和回归测试；Upgrade 只组合调用者已选择版本中的 Distribution，不联网查询 Registry、选择 `latest` 或修改项目依赖。它们只清理未被采用方修改的旧受管文件，不继续扩展用户级安装、动态插件、通用 Hook、权限、Sandbox 或 Capability Registry。
+- 现有项目级 `skill install/update`、显式 Profile/可选项驱动的 `distribution apply` 与精确版本驱动的 `upgrade plan/apply` 是参考兼容实现，可以维护受管摘要、版本方向、安全迁移和回归测试；发布白名单与推荐信息独立，Agent Host 负责向用户展示和询问，CLI 只对首次 Apply 强制显式选择，不建设 TTY 对话。Upgrade 只组合调用者已选择版本中的记录 Profile 和已有受管集合，不联网查询 Registry、选择 `latest` 或修改项目依赖。Profile 缩小不授权卸载；这些实现只清理未被采用方修改且新 Manifest 已移除的旧受管文件，不继续扩展用户级安装、自动项目分类、依赖求解、动态插件、通用 Hook、权限、Sandbox 或 Capability Registry。
 - Foundation 源码仓可通过 Open Agent 薄 Adapter 声明生产者 Source Link；Harness 只允许当前源码根的 `.agents/skills -> ../skills`，并继续以 Distribution Manifest 校验发布摘要。该特例不允许采用项目直接读取 Foundation 工作区，也不放宽其他 Symlink 或构成通用 Runtime。
 
 ## 成熟度与名称

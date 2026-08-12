@@ -1,0 +1,43 @@
+id: "2026-08-11-skill-install-recommendation-profiles"
+title: "Skill 推荐安装 Profile 与增量 Distribution"
+status: "in-progress"
+created_at: "2026-08-11"
+updated_at: "2026-08-12"
+scope:
+  - ".agent-foundation/"
+  - "Install.md"
+  - "README.md"
+  - "package.json"
+  - "distribution/"
+  - "packages/harness/"
+  - "blueprints/skill-runtime/"
+  - "templates/ai-friendly-repository/"
+  - "skills/project-context-bootstrap/"
+  - "docs/"
+  - "knowledge/"
+  - "specs/2026-08-11-skill-install-recommendation-profiles/"
+relations:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+artifacts:
+  spec: "./spec.md"
+  plan: "./plan.md"
+  tasks: "./tasks.md"
+  research: null
+  validation_report: "./validation-report.md"
+  archive_receipt: null
+  lifecycle_dir: "./lifecycle"
+freshness:
+  status: "current"
+  last_reviewed_at: "2026-08-12"
+  refresh_triggers:
+    - "Distribution Manifest、安装状态或 Upgrade 契约变化"
+    - "公开 Skill 集合或默认推荐集合变化"
+    - "Agent Host 的项目级 Skill 发现和上下文成本边界变化"
+active_context:
+  summary: "推荐 Profile、首次显式选择门禁与 core+可选组合闭环已实现并通过验证；事项保持 Active，等待维护者决定是否收口。"
+  next_task_id: null
+authorization:
+  terminal_transition_confirmed: false

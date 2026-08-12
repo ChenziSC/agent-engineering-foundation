@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | Skill 源目录 | 触发描述、领域工作流、References、Assets、Evals 和必要的自包含脚本 | 安装状态、权限和宿主生命周期 |
 | `distribution/manifest.yaml` | 发布白名单、源路径、必需文件、资源集合和内容摘要 | 运行时能力协商和用户环境配置 |
+| `distribution/recommendations.json` | 默认/完整 Profile、默认选择、条件性必需说明、推荐理由和适用条件 | 用户确认、自动项目分类、依赖求解和卸载决策 |
 | Agent Host | Skill/Plugin 的发现、安装、更新、权限、Sandbox、Hook、MCP 和会话行为 | 本仓领域契约的正确性 |
 | Harness | 本仓内容检查、项目级兼容安装与摘要验证 | 通用多宿主 Runtime |
 
@@ -52,15 +53,17 @@ Manifest 示例见[模板](../../templates/skill-runtime/manifest.example.yaml)�
 
 ## 当前兼容实现
 
-仓库已有 `skill list/check/plan/install/update` 和 `distribution plan/apply/verify`，用于合成项目和不具备原生发布流程的项目级兼容场景。它们提供内容摘要、冲突与 Symlink 阻断、受管副本校验和失败回滚。
+仓库已有 `skill list/recommend/check/plan/install/update` 和 `distribution plan/apply/verify`，用于合成项目和不具备原生发布流程的项目级兼容场景。它们提供内容摘要、推荐 Profile、冲突与 Symlink 阻断、受管副本校验和失败回滚。
 
 ```bash
-node packages/harness/bin/agent-foundation.mjs distribution plan --target <project-root>
-node packages/harness/bin/agent-foundation.mjs distribution apply --target <project-root>
+node packages/harness/bin/agent-foundation.mjs skill recommend
+node packages/harness/bin/agent-foundation.mjs distribution plan --profile core --include-skill safe-change --target <project-root>
+node packages/harness/bin/agent-foundation.mjs distribution plan --profile full --target <project-root>
+node packages/harness/bin/agent-foundation.mjs distribution apply --profile core --target <project-root>
 node packages/harness/bin/agent-foundation.mjs distribution verify --target <project-root>
 ```
 
-`plan` 与 `verify` 只读；`apply` 只处理明确目标项目中的受管副本。该实现可以修复安全缺陷并保持回归兼容，但不继续扩展为：
+`plan` 与 `verify` 只读；`apply` 只处理明确目标项目中的受管副本。Agent 负责根据 `skill recommend` 与用户对话；CLI 不实现 TTY 问答，但首次 Apply 缺少显式 Profile 时失败关闭。新项目默认推荐 `core`，`--include-skill` 增加接入期或可选能力，显式 `full` 安装完整白名单；已有受管 Skill 始终加入维护集合，因此 Profile 缩小不产生隐式卸载。该实现可以修复安全缺陷并保持回归兼容，但不继续扩展为：
 
 - 用户级或全局 Skill 安装器；
 - Marketplace、远端动态来源或通用 Plugin 管理器；

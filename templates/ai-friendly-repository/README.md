@@ -37,7 +37,7 @@
 
 | 阶段 | 目的 | 主要命令 | 写入边界 |
 | --- | --- | --- | --- |
-| Bootstrap | 首次建立项目规则、Knowledge、Specflow 和运行时 Skill | `init plan`、经授权的 `init`、`distribution apply`、`doctor`、`context resolve` | 只有 `init` 和 `distribution apply` 写入明确受管路径 |
+| Bootstrap | 首次建立项目规则、Knowledge、Specflow 和推荐运行时 Skill | `init plan`、`skill recommend`、显式选择后的 `distribution plan`、经授权的 `init`/`distribution apply`、`doctor`、`context resolve` | Agent 先询问 `core`/`full`/`core + 可选项`；首次 Apply 必须显式 Profile，且与选择确认分开授权 |
 | Continuous | 日常任务或普通 CI 持续发现结构、摘要和路由漂移 | `doctor`、`knowledge check`、`specflow check`、`distribution verify`、`git diff --exit-code` | 全部只读 |
 | Delivery | 对不可变 Git 候选复核 Spec Scope、Receipt、Projection、最终差异与平台外部检查 | Continuous 全部命令，加 `change gate check --phase delivery`；Remote 自动选择已注册 Provider | 全部只读，不猜测 Required Checks，也不推断终态授权、Branch Protection 或外部发布成功 |
 

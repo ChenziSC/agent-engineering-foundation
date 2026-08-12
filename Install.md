@@ -34,6 +34,7 @@ npm exec --yes --package=agent-engineering-foundation@0.1.0 -- agent-foundation 
 
 - 保持幂等：所有写操作之前先运行对应 Plan，重复执行不得损坏已有接入；
 - `init` 与 `distribution apply` 是两个独立写阶段，分别取得授权；
+- 首次 Distribution 写入前，先向用户展示推荐信息并取得明确的 Skill 选择；选择确认不等于 Apply 写入授权；
 - 冲突时停止并保留目标内容，不自动合并项目规则、Knowledge 或用户修改过的 Skill；
 - 不读取或输出 `.env`、Token、凭证、生产数据和无关敏感配置；
 - 不使用 `sudo`，不安装系统包，不更改全局 npm Registry；
@@ -73,23 +74,47 @@ npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
 
 若 Plan 曾有冲突，不要把 `init` 当作自动合并器。写入后重新查看实际差异，确认业务路径没有被修改。
 
-### 4. 独立计划并安装完整 Skill 集合
+### 4. 选择并安装推荐 Skill 集合
 
-先只读运行：
-
-```bash
-npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
-  agent-foundation distribution plan --target /absolute/path/to/target-project
-```
-
-存在冲突时停止。只有维护者再次明确授权后，才运行：
+Agent 先只读查看当前版本的推荐层级和 Profile：
 
 ```bash
 npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
-  agent-foundation distribution apply --target /absolute/path/to/target-project
+  agent-foundation skill recommend
 ```
 
-完整接入默认使用 Distribution；不要用若干单项 `skill install` 冒充完整底座。
+Agent 必须把输出整理为用户可读清单，逐项说明 `defaultSelected`、`requiredWhen`、`reason` 和 `when`，然后询问以下三种互斥选择：
+
+1. `core`：只安装 `specflow`。它只在项目采用本仓完整治理流程，以 Spec、Plan、Tasks 和验证证据管理研发事项时必须安装；只单独使用某个领域 Skill 时不是无条件依赖。
+2. `core + 可选项`：在 `core` 上增加一个或多个 onboarding/optional Skill，例如 `safe-change`。
+3. `full`：安装完整公开能力目录。
+
+`project-context-bootstrap` 属于首次接入或长期上下文重建时使用的 onboarding 能力，完成接入后日常任务不重复运行。其他领域 Skill 按真实任务选择，不因出现在发布白名单中自动安装。
+
+用户确认选择后，才只读运行对应 Plan。默认 `core`：
+
+```bash
+npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
+  agent-foundation distribution plan --profile core --target /absolute/path/to/target-project
+```
+
+`core + 可选项` 使用可重复参数：
+
+```bash
+npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
+  agent-foundation distribution plan --profile core \
+  --include-skill safe-change \
+  --target /absolute/path/to/target-project
+```
+
+完整目录使用 `--profile full`。存在冲突时停止。Plan 通过后，只有维护者再次明确授权写入，才用完全相同的 `--profile` 和 `--include-skill` 选择运行 Apply：
+
+```bash
+npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
+  agent-foundation distribution apply --profile core --target /absolute/path/to/target-project
+```
+
+首次普通项目 Apply 没有显式 `--profile` 时必须以 `skill-selection-required` 停止。Distribution 维护“所选 Profile + 显式可选项 + 仍在 Manifest 中的既有受管 Skill”，切换到较小 Profile 不表示卸载或停止升级已有可选 Skill。单项 `skill install` 仍可用于局部维护，但首次组合接入优先使用同一次 Distribution Plan/Apply，以便完整展示和验证维护集合。
 
 ### 5. 验证确定性接入状态
 
@@ -115,7 +140,7 @@ npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
 
 ## Upgrade Existing Adoption
 
-本节只适用于已经成功执行过完整 Distribution 的项目。CLI 版本选择仍由维护者或 Agent Host 负责：先确认一个已经发布、经过批准的精确版本，再用该版本执行 Upgrade。命令不会查询 npm `latest`、修改项目依赖或配置 Hook。
+本节只适用于已经成功执行过 Distribution 的项目。CLI 版本选择仍由维护者或 Agent Host 负责：先确认一个已经发布、经过批准的精确版本，再用该版本执行 Upgrade。命令不会查询 npm `latest`、修改项目依赖或配置 Hook。
 
 以下以当前固定版本演示；升级到后续版本时，把两处 `0.1.0` 同时替换为批准的目标版本：
 
@@ -124,7 +149,7 @@ npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
   agent-foundation upgrade plan --target /absolute/path/to/target-project
 ```
 
-Plan 只读报告已安装 Foundation 版本、目标 CLI 版本、整套 Skill 的动作与冲突。出现以下任一情况时停止，不运行 Apply：
+Plan 只读报告已安装 Foundation 版本、目标 CLI 版本、记录的 Profile、已有受管 Skill 的动作与冲突。没有显式 `--profile` 时复用安装状态；旧状态缺少 Profile 时按历史 `full` 兼容。出现以下任一情况时停止，不运行 Apply：
 
 - 项目尚未通过 Distribution 安装 Foundation；
 - 目标版本低于已安装版本；
@@ -145,6 +170,9 @@ Apply 复用 Distribution 的临时目录、摘要检查和冲突保护，并在
 - [ ] 确认目标项目和固定包版本
 - [ ] 运行只读 `init plan`
 - [ ] 对存量项目完成 Bootstrap 候选审核
+- [ ] Agent 展示 `skill recommend` 的必需条件、理由和简介
+- [ ] 用户确认 `core`、`full` 或 `core + 可选项`
+- [ ] 用确认后的显式参数运行只读 Distribution Plan
 - [ ] 分别取得 Init 与 Distribution Apply 授权
 - [ ] 运行 Verify、Doctor 和 Host 新会话观察
 - [ ] 输出分层状态与下一动作，然后停止

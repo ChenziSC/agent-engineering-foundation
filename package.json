@@ -28,6 +28,7 @@
     "Install.md",
     "adapters/**/*.mjs",
     "distribution/manifest.yaml",
+    "distribution/recommendations.json",
     "frameworks/*/scripts/**/*.mjs",
     "packages/harness/bin",
     "packages/harness/src",

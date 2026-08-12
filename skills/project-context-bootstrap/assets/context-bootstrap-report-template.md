@@ -76,7 +76,7 @@
 | --- | --- | --- | --- | --- | --- |
 |  | `ready | needs-project-config | needs-adapter | not-applicable | unresolved` |  |  | AGENTS / Knowledge / 领域配置 / Adapter / 当前 Spec | 是 / 否 |
 
-- Skill 集合来源：`Distribution Manifest | 受管安装记录`
+- Skill 集合来源：`推荐 Profile + 受管安装记录 | 显式 full Distribution`
 - 集合完整性检查：
 - 合并后的最少维护者问题：
 - 仅在具体任务触发时再收集的输入：

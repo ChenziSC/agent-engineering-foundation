@@ -26,7 +26,7 @@
 - 项目自有基建通过 Integration Manifest 和显式 Registry 接入；公共核心不动态加载私有代码；
 - 组织专有词表保存在公开 Git 之外，由发布检查时显式注入且不在结果中回显；
 - 领域 Skill 可以选装，不应成为核心 Harness 的强制依赖；
-- Skill 的原生安装、更新、权限、Sandbox、Hook、MCP 和会话行为由目标 Host 负责；本仓兼容 Distribution 对采用项目只写入 Manifest 声明的运行时副本，对 Foundation 源码根只允许 `.agents/skills -> ../skills` 的生产者 Source Link。`upgrade plan/apply` 只由调用者选定的精确版本 CLI 比较项目版本并复用 Distribution，不查询 Registry 或选择 `latest`。Manifest 与 Verify 证明发布白名单、内容摘要和运行时入口一致性，不证明项目配置、外部 Adapter、Host 缓存或业务行为就绪。
+- Skill 的原生安装、更新、权限、Sandbox、Hook、MCP、会话与用户询问由目标 Host 负责；本仓兼容 Distribution 对采用项目只写入 Manifest 声明的运行时副本，独立推荐契约提供默认选择、条件性必需说明、理由和适用场景。首次 Apply 要求显式 Profile，`--include-skill` 表达 `core + 可选项`，实际维护集合保留已有受管 Skill 且不隐式卸载。Foundation 源码根只允许 `.agents/skills -> ../skills` 的生产者 Source Link，并固定使用 `full`。`upgrade plan/apply` 只由调用者选定的精确版本 CLI 比较项目版本并复用记录 Profile 与已有受管集合，不查询 Registry 或选择 `latest`。Manifest、推荐契约与 Verify 证明发布白名单、推荐选择、内容摘要和运行时入口一致性，不证明项目配置、外部 Adapter、Host 缓存或业务行为就绪。
 - 新能力必须证明相对宿主基线的增量价值、直接消费者和验证方式；通用代码探索、计划、测试和权限遵循不能单独包装成仓库能力。
 
 ## 设计原因
@@ -54,6 +54,7 @@
 | 仓库上下文与规则 | AGENTS、Knowledge | Agent、维护者 | 影响任务路由和安全边界 |
 | 当前交付状态 | Specflow Meta 与产物 | Agent、CI、维护者 | 影响执行、恢复和归档 |
 | Skill 内容 | Skill 源目录 | Harness、Agent Host | 影响发现、安装和行为 |
+| Skill 安装建议 | Distribution 推荐契约 | Agent Host、维护者、采用项目、兼容 Harness | Agent 展示并询问，CLI 校验显式 Profile/可选项；不产生自动分类、依赖求解或卸载授权 |
 | Foundation 与 Skill 发布版本 | 根 Package 版本、不可变 Source Revision、Release Manifest、Distribution 安装状态、Manifest 与源目录摘要 | 维护者、采用项目、Host 原生发布流程、兼容 Harness | 影响工具来源、制品摘要、发布白名单和内容可复核版本；构建器与 Workflow 存在不代表正式发布已执行 |
 | Skill 外部依赖 | Skill 自包含脚本或 Host 原生依赖声明 | Agent Host、Skill | 影响安装后是否可执行，不由本仓发明通用协商协议 |
 | 行为评估证据 | Case、Rubric、脱敏 Trace 与 Replay | Runner、评审者 | 影响成熟度和回归判断，不选择调用模型 |
@@ -67,7 +68,7 @@
 | 失败模式 | 原因 | 正确做法 |
 | --- | --- | --- |
 | 只有大量 Markdown，没有快速接入路径 | 把设计完成误当成交付完成 | 为核心治理提供 Starter 和最小 Harness |
-| 所有领域 Skill 默认安装 | 没有区分核心与可选能力 | 通过 Preset 和 Manifest 选择能力 |
+| 所有领域 Skill 默认安装 | 没有区分核心、接入期与可选能力 | Manifest 只定义发布白名单；Agent 展示推荐理由并询问 `core`、`full` 或 `core + 可选项`，CLI 阻止静默首次 Apply |
 | 核心依赖某个公司平台 | Adapter 边界缺失 | 核心只认识公开契约和 Provider 接口 |
 | 工具存在但没有设计原因 | 只沉淀 HOW | Framework 和 Knowledge 同步说明 WHY 与边界 |
 | Docs 为每项能力复制完整契约 | 把读者导航变成第二事实来源 | Docs 直接链接 Framework、Skill、Template 和 Blueprint |

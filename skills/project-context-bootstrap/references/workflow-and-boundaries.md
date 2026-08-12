@@ -69,7 +69,9 @@ init plan 或等价只读结构盘点
 → Bootstrap 推导项目特有候选
 → 维护者审核规则、Knowledge、入口和冲突
 → 明确授权后执行 init 或人工合并
-→ 独立授权后执行 Distribution Plan / Apply / Verify，安装完整公开 Skill 集合
+→ Agent 展示必需条件、理由和可选能力，维护者确认 core / full / core + 可选项
+→ 用显式 Profile 与可选项执行只读 Distribution Plan
+→ 独立写入授权后执行 Distribution Apply / Verify
 → 启用 Doctor / Knowledge / Specflow 等门禁
 → 后续新会话使用 context resolve
 ```
@@ -78,8 +80,9 @@ init plan 或等价只读结构盘点
 - Bootstrap 只补充通用 Starter 无法知道的项目事实，不写入目标项目；
 - 维护者分别批准候选内容和写入动作，报告完成不能推断两者已授权；
 - `init` 或人工合并属于后续 Harness 化动作，不由本 Skill 自动执行；
-- 完整底座默认安装 Manifest 中全部公开 Skill，使 Host 可以按任务发现；安装不表示项目配置、工具、Adapter 或外部基建已经就绪；
-- Distribution 写入与结构初始化分别计划和授权；局部 `skill install` 只用于维护者明确选择的有限采用，不作为完整接入的默认路径；
+- 新项目默认推荐契约的 `core` 最小集合；`specflow` 只在采用本仓完整治理流程时是核心必需，不是所有领域 Skill 用法的无条件依赖。`project-context-bootstrap` 属于接入期能力，领域 Skill 按任务增加，只有维护者明确需要完整公开目录时才选择 `full`；
+- Agent 负责询问用户，CLI 不做 TTY 对话；首次 Apply 必须显式 Profile。`--include-skill` 表达 `core + 可选项`；安装不表示项目配置、工具、Adapter 或外部基建已经就绪；
+- Distribution 写入与结构初始化分别计划和授权；Profile、显式可选项与已有受管 Skill 取并集，缩小 Profile 不表示卸载；
 - 完成接入后，日常任务和新会话不重复 Bootstrap。
 
 ## 复用现有导航
@@ -104,7 +107,7 @@ Agent Host 原生发现和本仓 Harness 命令是两个独立验证面：
 
 ## 能力就绪矩阵
 
-完整 Distribution 安装后，动态读取 Manifest 或受管安装记录，不手写 Skill 名称与数量。逐项读取 Skill 的触发、开始条件、硬性门禁和项目扩展点，再用项目规则、Knowledge、包清单、配置入口、测试和公开 Adapter 证据填写矩阵。
+动态读取推荐契约、Manifest 和受管安装记录，不手写 Skill 名称与数量。默认矩阵覆盖所选或默认 Profile 与仍在 Manifest 中的已有受管 Skill；维护者明确要求完整目录评估或安装状态为 `full` 时才覆盖 Manifest 全集。逐项读取 Skill 的触发、开始条件、硬性门禁和项目扩展点，再用项目规则、Knowledge、包清单、配置入口、测试和公开 Adapter 证据填写矩阵。
 
 | 状态 | 使用条件 |
 | --- | --- |

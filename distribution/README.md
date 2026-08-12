@@ -1,16 +1,21 @@
 # Skill 发布白名单
 
-`manifest.yaml` 记录当前仓库允许发布的 Skill、运行时资源集合和这些文件的 SHA-256 摘要。默认集合只包含 `SKILL.md` 及其执行所需的 `agents`、`references`、`assets`、`scripts`，不复制上游 Eval、Trace、Replay、运行报告或测试。它证明发布候选与声明的运行时源内容一致，不是独立 Runtime、通用安装协议或 Host Capability Registry。
+`manifest.yaml` 记录当前仓库允许发布的 Skill、运行时资源集合和这些文件的 SHA-256 摘要。`recommendations.json` 独立记录安装建议、Profile 和每个 Skill 的适用条件；发布白名单不等于默认安装集合。默认运行时内容只包含 `SKILL.md` 及其执行所需的 `agents`、`references`、`assets`、`scripts`，不复制上游 Eval、Trace、Replay、运行报告或测试。这些契约证明发布候选与声明内容一致，不是独立 Runtime、通用安装协议或 Host Capability Registry。
 
 ```bash
-node packages/harness/bin/agent-foundation.mjs distribution plan --target <project-root>
-node packages/harness/bin/agent-foundation.mjs distribution apply --target <project-root>
+node packages/harness/bin/agent-foundation.mjs skill recommend
+node packages/harness/bin/agent-foundation.mjs distribution plan --profile core --include-skill safe-change --target <project-root>
+node packages/harness/bin/agent-foundation.mjs distribution plan --profile full --target <project-root>
+node packages/harness/bin/agent-foundation.mjs distribution apply --profile core --target <project-root>
 node packages/harness/bin/agent-foundation.mjs distribution verify --target <project-root>
 ```
 
 - `plan` 在任何写入前校验全部条目和目标冲突；
 - `apply` 只服务现有项目级兼容安装，不处理用户级目录；
 - `verify` 独立比较 Manifest、安装状态和目标内容；
+- 新项目默认推荐 `core`，但首次 Apply 必须显式选择 `core` 或 `full`；`full` 精确覆盖 Manifest 全集；
+- `--include-skill` 可重复表达 `core + 可选项`；实际维护集合是所选 Profile、显式可选项与仍在 Manifest 中的已有受管 Skill 的并集，Profile 缩小不触发卸载；
+- 旧 Distribution 状态缺少 Profile 时按历史 `full` 兼容；Foundation 源码仓的 Source Link 固定使用 `full`；
 - 旧受管版本升级时，只清理仍与旧摘要一致且新 Manifest 不再声明的文件；采用方修改或未知文件不会被静默覆盖或删除；
 - 修改 Skill 后必须重新计算对应摘要，并通过仓库检查；
 - 多 Skill Apply 可重入，但不宣称跨目录写入具有绝对原子性。

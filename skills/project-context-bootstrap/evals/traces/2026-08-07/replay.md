@@ -14,7 +14,7 @@
 
 ## Case 03
 
-- [C03-A] 在未接入项目中先消费只读初始化计划，再从 README、包清单、公开出口和契约测试形成 draft 候选；把审核后的候选、Knowledge 导航和完整 Skill 分发作为后续独立授权输入。
+- [C03-A] 在未接入项目中先消费只读初始化计划，再从 README、包清单、公开出口和契约测试形成 draft 候选；展示 `specflow` 的条件性必需理由、接入期和可选能力，要求维护者在 `core`、`full` 或 `core + 可选项` 中确认，再把显式选择的只读 Plan 与后续独立 Apply 授权分开。
 - [C03-B] 未要求目标项目预装 Harness，未执行 init 或 Distribution Apply，未虚构 Registry、Active Spec 或批准状态。
 
 ## Case 04

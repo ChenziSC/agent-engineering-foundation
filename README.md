@@ -22,7 +22,9 @@ npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
 
 面向 Coding Agent 的完整接入决策树、安全边界、授权点和成功标准见 [`Install.md`](Install.md)。对既有项目先运行只读 `init plan`，审阅待新增、复用和冲突文件；Harness 不自动合并同路径的未知内容。
 
-已经完成 Distribution 接入的项目升级时，先由维护者选择一个已发布的精确版本，再使用该版本 CLI 计划和应用整套受管 Skill 更新：
+Skill 发布白名单与默认安装建议相互独立。首次接入时，Agent 先运行 `agent-foundation skill recommend`，向用户说明条件性必需理由、接入期和可选能力，并询问 `core`、`full` 或 `core + 可选项`。用户确认后才使用 `--profile` 与可重复的 `--include-skill` 运行只读 Plan；另行取得写入授权后，以相同选择 Apply。首次 Apply 未显式选择 Profile 会失败关闭。
+
+已经完成 Distribution 接入的项目升级时，先由维护者选择一个已发布的精确版本，再使用该版本 CLI 计划和应用记录 Profile 与已有受管 Skill 的更新：
 
 ```bash
 npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
@@ -41,6 +43,7 @@ npm exec --yes --package=agent-engineering-foundation@0.1.0 -- \
 npm test
 npm run check
 node packages/harness/bin/agent-foundation.mjs skill list
+node packages/harness/bin/agent-foundation.mjs skill recommend
 node packages/harness/bin/agent-foundation.mjs init plan --target /path/to/existing-project
 node packages/harness/bin/agent-foundation.mjs init --target /path/to/project
 node packages/harness/bin/agent-foundation.mjs doctor --target /path/to/project
