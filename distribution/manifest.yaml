@@ -4,7 +4,7 @@ skills:
     source: skills/design-to-code
     version:
       type: content-hash
-      value: sha256:d5022977c8def96cf45e40da52d20b280b33bf957a95c5ade1c2a3f50f0d5a48
+      value: sha256:61a471bdf54480b115906ae735553b6d87d1104bf60f283a7285a2bb01e34692
     distributable: true
     required_files:
       - SKILL.md
@@ -16,7 +16,7 @@ skills:
     source: skills/project-component-governance
     version:
       type: content-hash
-      value: sha256:9377ec98756a001489e1796115740c5330fcf908d4e3d7030e3c26a73b54f811
+      value: sha256:dfb6ea03dc01d0ccef93e31080238a1c62cec433c4a8b8b54785aaaa2da890c9
     distributable: true
     required_files:
       - SKILL.md
@@ -29,7 +29,7 @@ skills:
     source: skills/project-context-bootstrap
     version:
       type: content-hash
-      value: sha256:71cc95724efa7f5ffde8b251bf7e2c64119d4d5c92fa4e9f2d9f27f7c0500d0e
+      value: sha256:0b1fa36b793dbd02efff457e14b8bdcf9f669915ae53d672b6ccc71822e0c23e
     distributable: true
     required_files:
       - SKILL.md
@@ -41,7 +41,7 @@ skills:
     source: skills/refactor-natural-language-content
     version:
       type: content-hash
-      value: sha256:40e18fb192ca24e33c6eee7facfa32ec55c32041adc3041ea060d527089ee130
+      value: sha256:c98ecbdb830d48111c793514f7dbff0a8bc8aefb58b0156bf0b8c8a6cdb947b3
     distributable: true
     required_files:
       - SKILL.md
@@ -52,7 +52,7 @@ skills:
     source: skills/safe-change
     version:
       type: content-hash
-      value: sha256:e88ba5f99bba0a7005ad3fb4d5f96fb742dd2ee07a473d1bbd0fadce0f162195
+      value: sha256:83b427f879aa3dded97a74d41f434c999aa28207617199cf65c511ab81911236
     distributable: true
     required_files:
       - SKILL.md
@@ -64,7 +64,7 @@ skills:
     source: skills/specflow
     version:
       type: content-hash
-      value: sha256:03a0c9d461fe301d8582d456134f69fb9c7cdcc5890aab92de73442ce2b2c644
+      value: sha256:53c4ba0f48df07040f9eb538267ab635ad4dc8ace7e31401658cf373a1b45ec2
     distributable: true
     required_files:
       - SKILL.md
@@ -77,7 +77,7 @@ skills:
     source: skills/tracking-governance
     version:
       type: content-hash
-      value: sha256:6bfdbe7db6264041a1307f0a1d01dc2f1a9568d213ed0b9125a419fb3189f7be
+      value: sha256:bc615fa7884ab86d9f4c29f42416c084fe065ea12c3a8904a527d71e721d901f
     distributable: true
     required_files:
       - SKILL.md
@@ -89,7 +89,7 @@ skills:
     source: skills/web-first-screen-prefetch
     version:
       type: content-hash
-      value: sha256:88dbc4ef72fd378055cc01dd2f1de0f8e7ab06c6cf6e4764d3eebad1cdb92209
+      value: sha256:05299ac2845c168fbf34cb8be331d517dd20e65f4a9d0e81235f569818d9590f
     distributable: true
     required_files:
       - SKILL.md
@@ -101,7 +101,7 @@ skills:
     source: skills/web-performance-review
     version:
       type: content-hash
-      value: sha256:68af605cb4fb1278f01687329b145fd90d4faa46c9425de732ad3b8c4a9d20af
+      value: sha256:6eb736d8e1250ebe77c74be890535d70ff027f0218f36f6a60e3b341d18ff145
     distributable: true
     required_files:
       - SKILL.md

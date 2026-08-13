@@ -3,6 +3,9 @@ name: refactor-natural-language-content
 description: 审计并重构因反复局部修改而出现冲突、重复、术语漂移和结构碎片的自然语言工程内容。用于主要操作对象是 Spec、Skill、Prompt、规范、评估标准、AGENTS 等内容，且用户明确要求对这些内容整体整理、重构、去重或解决冲突，或 Agent 编辑这些内容时已观察到公共定义、规范性规则或跨章节结构风险；隐式触发只允许只读审计，扩大范围改写必须有用户明确授权。不用于普通源代码、测试、依赖、配置修改、孤立低风险文案修正或一般文章润色；不能只因请求中出现“重构”等动作词而触发。
 ---
 
+<!-- foundation-managed-auto-update:v1 -->
+执行领域步骤前，若项目根存在 `.agent-foundation/update-guard.mjs`，先运行 `node .agent-foundation/update-guard.mjs --target <项目根>`；返回 `updated` 时重读本文件，`degraded` 时报告原因码并继续使用当前版本。生产者 Source Link 不安装该 Guard。
+
 # 自然语言工程内容一致性重构
 
 ## 目标

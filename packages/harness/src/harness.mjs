@@ -53,6 +53,11 @@ import {
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const STARTER_ROOT = path.join(REPO_ROOT, 'starter', 'minimal');
 const STATE_RELATIVE_PATH = path.join('.agent-foundation', 'installed-skills.json');
+const UPDATE_GUARD_RELATIVE_PATH = path.join('.agent-foundation', 'update-guard.mjs');
+const UPDATE_GUARD_SOURCE_RELATIVE_PATH = path.join('packages', 'harness', 'src', 'runtime', 'update-guard.mjs');
+const MANAGED_UPDATE_MARKER = '<!-- foundation-managed-auto-update:v1 -->';
+const MANAGED_UPDATE_DECLARATION = `${MANAGED_UPDATE_MARKER}
+执行领域步骤前，若项目根存在 \`.agent-foundation/update-guard.mjs\`，先运行 \`node .agent-foundation/update-guard.mjs --target <项目根>\`；返回 \`updated\` 时重读本文件，\`degraded\` 时报告原因码并继续使用当前版本。生产者 Source Link 不安装该 Guard。`;
 const REQUIRED_STARTER_FILES = [
   'AGENTS.md',
   'agent-foundation.json',
@@ -2324,6 +2329,7 @@ async function readInstallState(projectRoot) {
     state.schemaVersion !== 1 ||
     (state.foundationVersion !== undefined && typeof state.foundationVersion !== 'string') ||
     (state.distributionProfile !== undefined && typeof state.distributionProfile !== 'string') ||
+    (state.updateGuardDigest !== undefined && !/^sha256:[a-f0-9]{64}$/u.test(state.updateGuardDigest)) ||
     !state.records ||
     typeof state.records !== 'object' ||
     Array.isArray(state.records)
@@ -2331,6 +2337,96 @@ async function readInstallState(projectRoot) {
     throw new FoundationError('invalid-install-state', 'Skill 安装状态结构不受支持', { path: statePath });
   }
   return state;
+}
+
+async function digestFile(filePath) {
+  return `sha256:${createHash('sha256').update(await readFile(filePath)).digest('hex')}`;
+}
+
+async function planManagedUpdateGuard({ projectRoot, installState, producer }) {
+  const sourcePath = path.join(REPO_ROOT, UPDATE_GUARD_SOURCE_RELATIVE_PATH);
+  const sourceStat = await statOrNull(sourcePath);
+  if (!sourceStat?.isFile() || sourceStat.isSymbolicLink()) {
+    throw new FoundationError('invalid-update-guard-source', '共享 Skill Update Guard 源文件缺失或不安全');
+  }
+  const sourceDigest = await digestFile(sourcePath);
+  const destination = path.join(projectRoot, UPDATE_GUARD_RELATIVE_PATH);
+  await assertNoSymlinkSegments(projectRoot, path.dirname(destination));
+  const destinationStat = await statOrNull(destination);
+  if (producer) {
+    if (!destinationStat && !installState.updateGuardDigest) {
+      return {
+        action: 'producer-skip',
+        path: UPDATE_GUARD_RELATIVE_PATH.split(path.sep).join('/'),
+        sourceDigest,
+        targetDigest: null,
+        conflicts: [],
+      };
+    }
+    const targetDigest = destinationStat?.isFile() && !destinationStat.isSymbolicLink()
+      ? await digestFile(destination)
+      : null;
+    if (targetDigest && targetDigest === installState.updateGuardDigest) {
+      return {
+        action: 'remove-managed',
+        path: UPDATE_GUARD_RELATIVE_PATH.split(path.sep).join('/'),
+        sourceDigest,
+        targetDigest,
+        conflicts: [],
+      };
+    }
+    return {
+      action: 'blocked',
+      path: UPDATE_GUARD_RELATIVE_PATH.split(path.sep).join('/'),
+      sourceDigest,
+      targetDigest,
+      conflicts: [{ type: 'producer-update-guard-conflict', path: UPDATE_GUARD_RELATIVE_PATH }],
+    };
+  }
+  if (!destinationStat) {
+    return {
+      action: 'add',
+      path: UPDATE_GUARD_RELATIVE_PATH.split(path.sep).join('/'),
+      sourceDigest,
+      targetDigest: null,
+      conflicts: [],
+    };
+  }
+  if (!destinationStat.isFile() || destinationStat.isSymbolicLink()) {
+    return {
+      action: 'blocked',
+      path: UPDATE_GUARD_RELATIVE_PATH.split(path.sep).join('/'),
+      sourceDigest,
+      targetDigest: null,
+      conflicts: [{ type: 'unsafe-update-guard-target', path: UPDATE_GUARD_RELATIVE_PATH }],
+    };
+  }
+  const targetDigest = await digestFile(destination);
+  if (targetDigest === sourceDigest) {
+    return {
+      action: 'noop',
+      path: UPDATE_GUARD_RELATIVE_PATH.split(path.sep).join('/'),
+      sourceDigest,
+      targetDigest,
+      conflicts: [],
+    };
+  }
+  if (installState.updateGuardDigest && targetDigest === installState.updateGuardDigest) {
+    return {
+      action: 'update',
+      path: UPDATE_GUARD_RELATIVE_PATH.split(path.sep).join('/'),
+      sourceDigest,
+      targetDigest,
+      conflicts: [],
+    };
+  }
+  return {
+    action: 'blocked',
+    path: UPDATE_GUARD_RELATIVE_PATH.split(path.sep).join('/'),
+    sourceDigest,
+    targetDigest,
+    conflicts: [{ type: 'user-modified-update-guard', path: UPDATE_GUARD_RELATIVE_PATH }],
+  };
 }
 
 async function readSkillRecommendations(
@@ -3122,6 +3218,11 @@ export async function planDistribution({
     requestedIncludes: includeSkills,
     sourceRuntime,
   });
+  const updateGuard = await planManagedUpdateGuard({
+    projectRoot,
+    installState,
+    producer: Boolean(sourceRuntime),
+  });
   const items = [];
   for (const entry of selection.entries) {
     const source = distribution.runtimeSkills.get(entry.name);
@@ -3151,7 +3252,7 @@ export async function planDistribution({
   if (sourceRuntime) {
     const link = await inspectProjectSourceLink(projectRoot, sourceRuntime);
     let sourceLinkAction = 'blocked';
-    const conflicts = [];
+    const conflicts = [...updateGuard.conflicts];
     if (link.status === 'missing') sourceLinkAction = 'add';
     else if (link.status === 'valid') {
       const recordsCurrent = distribution.manifest.skills.every((entry) =>
@@ -3164,7 +3265,8 @@ export async function planDistribution({
       sourceLinkAction =
         recordsCurrent &&
         installState.foundationVersion === foundationVersion &&
-        installState.distributionProfile === selection.name
+        installState.distributionProfile === selection.name &&
+        updateGuard.action === 'producer-skip'
           ? 'noop'
           : 'refresh-state';
     } else if (
@@ -3211,10 +3313,14 @@ export async function planDistribution({
         version: entry.version.value,
         action: sourceLinkAction,
       })),
+      updateGuard,
       conflicts,
     };
   }
-  const conflicts = items.flatMap(({ entry, plan }) => plan.conflicts.map((conflict) => ({ name: entry.name, ...conflict })));
+  const conflicts = [
+    ...items.flatMap(({ entry, plan }) => plan.conflicts.map((conflict) => ({ name: entry.name, ...conflict }))),
+    ...updateGuard.conflicts,
+  ];
   return {
     ok: conflicts.length === 0,
     command: 'distribution-plan',
@@ -3236,8 +3342,66 @@ export async function planDistribution({
     installedFoundationVersion: installState.foundationVersion || null,
     target: projectRoot,
     items: items.map(({ entry, plan }) => ({ name: entry.name, version: entry.version.value, action: plan.action, plan })),
+    updateGuard,
     conflicts,
   };
+}
+
+async function applyManagedUpdateGuard(projectRoot, guardPlan) {
+  if (guardPlan.action === 'noop') {
+    const state = await readInstallState(projectRoot);
+    if (state.updateGuardDigest !== guardPlan.sourceDigest) {
+      state.updateGuardDigest = guardPlan.sourceDigest;
+      await writeInstallState(projectRoot, state);
+      return 'recorded';
+    }
+    return 'unchanged';
+  }
+  if (!['add', 'update'].includes(guardPlan.action)) {
+    throw new FoundationError('invalid-update-guard-plan', '消费者 Update Guard 计划不可写入', { action: guardPlan.action });
+  }
+  const source = path.join(REPO_ROOT, UPDATE_GUARD_SOURCE_RELATIVE_PATH);
+  if ((await digestFile(source)) !== guardPlan.sourceDigest) {
+    throw new FoundationError('update-guard-source-changed', 'Update Guard 源在计划后发生变化');
+  }
+  const destination = path.join(projectRoot, UPDATE_GUARD_RELATIVE_PATH);
+  const directory = path.dirname(destination);
+  await assertNoSymlinkSegments(projectRoot, directory);
+  await mkdir(directory, { recursive: true });
+  const temporary = `${destination}.tmp-${randomUUID()}`;
+  const backup = `${destination}.backup-${randomUUID()}`;
+  const beforeState = await readInstallState(projectRoot);
+  const state = structuredClone(beforeState);
+  let movedExisting = false;
+  let completed = false;
+  try {
+    await cp(source, temporary, { errorOnExist: true, force: false });
+    if ((await digestFile(temporary)) !== guardPlan.sourceDigest) {
+      throw new FoundationError('update-guard-copy-mismatch', 'Update Guard 复制摘要不一致');
+    }
+    if (guardPlan.action === 'update') {
+      await rename(destination, backup);
+      movedExisting = true;
+    }
+    await rename(temporary, destination);
+    state.updateGuardDigest = guardPlan.sourceDigest;
+    await writeInstallState(projectRoot, state);
+    completed = true;
+    if (movedExisting) await rm(backup, { force: true });
+    return guardPlan.action === 'add' ? 'installed' : 'updated';
+  } catch (error) {
+    if (movedExisting) {
+      await rm(destination, { force: true }).catch(() => {});
+      await rename(backup, destination).catch(() => {});
+    } else {
+      await rm(destination, { force: true }).catch(() => {});
+    }
+    await writeInstallState(projectRoot, beforeState).catch(() => {});
+    throw error;
+  } finally {
+    await rm(temporary, { force: true }).catch(() => {});
+    if (completed) await rm(backup, { force: true }).catch(() => {});
+  }
 }
 
 export async function applyDistribution(options = {}) {
@@ -3273,8 +3437,12 @@ export async function applyDistribution(options = {}) {
     const state = await readInstallState(projectRoot);
     const beforeState = structuredClone(state);
     const backup = `${sourceRuntime.skillsRoot}.backup-${randomUUID()}`;
+    const updateGuardPath = path.join(projectRoot, UPDATE_GUARD_RELATIVE_PATH);
+    const updateGuardBackup = `${updateGuardPath}.backup-${randomUUID()}`;
     let createdLink = false;
     let movedManagedCopy = false;
+    let movedManagedUpdateGuard = false;
+    let completed = false;
     const now = new Date().toISOString();
     try {
       if (plan.sourceLinkAction === 'replace-managed-copy') {
@@ -3286,8 +3454,13 @@ export async function applyDistribution(options = {}) {
         await symlink(sourceRuntime.linkTarget, sourceRuntime.skillsRoot, 'dir');
         createdLink = true;
       }
+      if (plan.updateGuard.action === 'remove-managed') {
+        await rename(updateGuardPath, updateGuardBackup);
+        movedManagedUpdateGuard = true;
+      }
       state.foundationVersion = plan.foundationVersion;
       state.distributionProfile = plan.profile;
+      delete state.updateGuardDigest;
       state.records = Object.fromEntries(
         distribution.manifest.skills.map((entry) => {
           const previous = beforeState.records[entry.name];
@@ -3305,16 +3478,20 @@ export async function applyDistribution(options = {}) {
           ];
         }),
       );
-      if (plan.sourceLinkAction !== 'noop') await writeInstallState(projectRoot, state);
+      if (plan.sourceLinkAction !== 'noop' || movedManagedUpdateGuard) {
+        await writeInstallState(projectRoot, state);
+      }
       const verification = await verifyDistribution(options);
       if (!verification.ok) {
         throw new FoundationError('distribution-verification-failed', 'Source Link 应用后校验失败', { verification });
       }
       if (movedManagedCopy) await rm(backup, { recursive: true, force: true });
+      if (movedManagedUpdateGuard) await rm(updateGuardBackup, { force: true });
+      completed = true;
       return {
         ok: true,
         command: 'distribution-apply',
-        status: plan.sourceLinkAction === 'noop' ? 'unchanged' : 'applied',
+        status: plan.sourceLinkAction === 'noop' && !movedManagedUpdateGuard ? 'unchanged' : 'applied',
         runtimeMode: 'source-link',
         manifest: plan.manifest,
         manifestDigest: plan.manifestDigest,
@@ -3323,14 +3500,17 @@ export async function applyDistribution(options = {}) {
         foundationVersion: plan.foundationVersion,
         target: plan.target,
         sourceLink: plan.sourceLink,
+        updateGuard: plan.updateGuard,
       };
     } catch (error) {
       if (createdLink) await rm(sourceRuntime.skillsRoot, { force: true }).catch(() => {});
       if (movedManagedCopy) await rename(backup, sourceRuntime.skillsRoot).catch(() => {});
+      if (movedManagedUpdateGuard) await rename(updateGuardBackup, updateGuardPath).catch(() => {});
       await writeInstallState(projectRoot, beforeState).catch(() => {});
       throw error;
     } finally {
       await rm(backup, { recursive: true, force: true }).catch(() => {});
+      if (completed) await rm(updateGuardBackup, { force: true }).catch(() => {});
     }
   }
   const results = [];
@@ -3354,6 +3534,10 @@ export async function applyDistribution(options = {}) {
       }),
     );
   }
+  const updateGuardStatus = await applyManagedUpdateGuard(
+    path.resolve(plan.target),
+    plan.updateGuard,
+  );
   const installState = await readInstallState(plan.target);
   const installStateChanged =
     installState.foundationVersion !== plan.foundationVersion ||
@@ -3372,7 +3556,12 @@ export async function applyDistribution(options = {}) {
   return {
     ok: true,
     command: 'distribution-apply',
-    status: results.every((result) => result.status === 'unchanged') && !installStateChanged ? 'unchanged' : 'applied',
+    status:
+      results.every((result) => result.status === 'unchanged') &&
+      !installStateChanged &&
+      updateGuardStatus === 'unchanged'
+        ? 'unchanged'
+        : 'applied',
     runtimeMode: 'copy',
     manifest: plan.manifest,
     manifestDigest: plan.manifestDigest,
@@ -3380,6 +3569,7 @@ export async function applyDistribution(options = {}) {
     includedSkills: plan.includedSkills,
     foundationVersion: plan.foundationVersion,
     target: plan.target,
+    updateGuard: { ...plan.updateGuard, status: updateGuardStatus },
     results,
   };
 }
@@ -3423,6 +3613,12 @@ export async function verifyDistribution({
     checks.push({ code: 'distribution-foundation-version', version: foundationVersion, status: 'pass' });
   }
   if (sourceRuntime) {
+    const producerGuard = await statOrNull(path.join(projectRoot, UPDATE_GUARD_RELATIVE_PATH));
+    if (producerGuard || state.updateGuardDigest) {
+      errors.push({ code: 'distribution-producer-update-guard-present', path: UPDATE_GUARD_RELATIVE_PATH });
+    } else {
+      checks.push({ code: 'distribution-update-guard', mode: 'producer-skip', status: 'pass' });
+    }
     const link = await inspectProjectSourceLink(projectRoot, sourceRuntime);
     if (link.status !== 'valid') {
       errors.push({
@@ -3480,6 +3676,28 @@ export async function verifyDistribution({
       errors,
       checks,
     };
+  }
+  const updateGuardPath = path.join(projectRoot, UPDATE_GUARD_RELATIVE_PATH);
+  try {
+    await assertNoSymlinkSegments(projectRoot, updateGuardPath);
+    const updateGuardStat = await statOrNull(updateGuardPath);
+    const updateGuardSource = path.join(REPO_ROOT, UPDATE_GUARD_SOURCE_RELATIVE_PATH);
+    const expectedGuardDigest = await digestFile(updateGuardSource);
+    const actualGuardDigest = updateGuardStat?.isFile() && !updateGuardStat.isSymbolicLink()
+      ? await digestFile(updateGuardPath)
+      : null;
+    if (actualGuardDigest !== expectedGuardDigest || state.updateGuardDigest !== expectedGuardDigest) {
+      errors.push({
+        code: 'distribution-update-guard-mismatch',
+        expected: expectedGuardDigest,
+        actual: actualGuardDigest,
+        recorded: state.updateGuardDigest || null,
+      });
+    } else {
+      checks.push({ code: 'distribution-update-guard', mode: 'consumer-copy', digest: actualGuardDigest, status: 'pass' });
+    }
+  } catch (error) {
+    errors.push({ code: error.code || 'distribution-update-guard-invalid', message: error.message });
   }
   for (const entry of selection.entries) {
     const source = distribution.runtimeSkills.get(entry.name);
@@ -3539,7 +3757,7 @@ function distributionHasManagedState(plan) {
 
 function distributionNeedsApply(plan) {
   if (plan.runtimeMode === 'source-link') return plan.sourceLinkAction !== 'noop';
-  return plan.items.some(({ action }) => action !== 'noop');
+  return plan.updateGuard.action !== 'noop' || plan.items.some(({ action }) => action !== 'noop');
 }
 
 export async function planUpgrade(options = {}) {
@@ -3880,6 +4098,12 @@ export async function checkRepository({ repoRoot = REPO_ROOT, denyTerms = [], gi
   try {
     const skills = await discoverSkills({ repoRoot: root });
     for (const skill of skills) {
+      const skillMarkdown = await readFile(path.join(root, 'skills', skill.name, 'SKILL.md'), 'utf8');
+      if (!skillMarkdown.includes(MANAGED_UPDATE_DECLARATION)) {
+        errors.push({ code: 'skill-managed-update-marker-missing', name: skill.name });
+      } else {
+        checks.push({ code: 'skill-managed-update', name: skill.name, status: 'pass' });
+      }
       const evalRoot = path.join(root, 'skills', skill.name, 'evals');
       if (!(await statOrNull(evalRoot))?.isDirectory()) {
         warnings.push({ code: 'skill-evals-missing', name: skill.name });

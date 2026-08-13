@@ -1,6 +1,6 @@
 # Agent Foundation 安装与接入
 
-本文件专供 Coding Agent 使用：把公开 npm 包 `agent-engineering-foundation@0.2.0` 接入一个目标项目。它不是当前 Foundation 源码仓的依赖安装教程，也不授权修改业务代码、Git 历史、CI 或外部系统。
+本文件专供 Coding Agent 使用：把公开 npm 包 `agent-engineering-foundation@0.3.0` 接入一个目标项目。它不是当前 Foundation 源码仓的依赖安装教程，也不授权修改业务代码、Git 历史、CI 或外部系统。
 
 ## Goal
 
@@ -9,17 +9,17 @@
 ## Required Inputs
 
 - 目标项目经 `realpath` 解析后的规范化绝对路径；目标不得是当前 Foundation 源码仓；
-- 固定版本 `0.2.0`，不得用 `latest` 替代；
+- 固定版本 `0.3.0`，不得用 `latest` 替代；
 - 目标项目是新项目还是已有真实内容的存量项目；
 - 当前用户对目标目录的写入权限，以及后续每个写阶段的明确授权。
 
 首先只读确认公开 CLI：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- agent-foundation --version
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- agent-foundation --version
 ```
 
-期望输出：`agent-foundation 0.2.0`。失败时停止，不切换到内部 Registry，不使用 `sudo`，也不安装未固定版本。
+期望输出：`agent-foundation 0.3.0`。失败时停止，不切换到内部 Registry，不使用 `sudo`，也不安装未固定版本。
 
 ## Success Criteria
 
@@ -48,7 +48,7 @@ npm exec --yes --package=agent-engineering-foundation@0.2.0 -- agent-foundation 
 ### 1. 只读盘点目标结构
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation init plan --target /absolute/path/to/target-project
 ```
 
@@ -68,7 +68,7 @@ Bootstrap 输出 `ready-for-review` 只表示材料可供裁决，不表示已�
 只有维护者明确批准 Starter 新增内容或人工合并方案后，才运行：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation init --target /absolute/path/to/target-project
 ```
 
@@ -79,7 +79,7 @@ npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
 Agent 先只读查看当前版本的推荐层级和 Profile：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation skill recommend
 ```
 
@@ -94,14 +94,14 @@ Agent 必须把输出整理为用户可读清单，逐项说明 `defaultSelected
 用户确认选择后，才只读运行对应 Plan。默认 `core`：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation distribution plan --profile core --target /absolute/path/to/target-project
 ```
 
 `core + 可选项` 使用可重复参数：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation distribution plan --profile core \
   --include-skill safe-change \
   --target /absolute/path/to/target-project
@@ -110,7 +110,7 @@ npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
 完整目录使用 `--profile full`。存在冲突时停止。Plan 通过后，只有维护者再次明确授权写入，才用完全相同的 `--profile` 和 `--include-skill` 选择运行 Apply：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation distribution apply --profile core --target /absolute/path/to/target-project
 ```
 
@@ -119,9 +119,9 @@ npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
 ### 5. 验证确定性接入状态
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation distribution verify --target /absolute/path/to/target-project
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation doctor --target /absolute/path/to/target-project
 ```
 
@@ -142,10 +142,10 @@ npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
 
 本节只适用于已经成功执行过 Distribution 的项目。CLI 版本选择仍由维护者或 Agent Host 负责：先确认一个已经发布、经过批准的精确版本，再用该版本执行 Upgrade。命令不会查询 npm `latest`、修改项目依赖或配置 Hook。
 
-以下以当前固定版本演示；升级到后续版本时，把两处 `0.2.0` 同时替换为批准的目标版本：
+以下以当前固定版本演示；升级到后续版本时，把两处 `0.3.0` 同时替换为批准的目标版本：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation upgrade plan --target /absolute/path/to/target-project
 ```
 
@@ -159,11 +159,22 @@ Plan 只读报告已安装 Foundation 版本、目标 CLI 版本、记录的 Pro
 只有维护者审核 Plan 并明确批准本次升级写入后，才执行：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation upgrade apply --target /absolute/path/to/target-project
 ```
 
 Apply 复用 Distribution 的临时目录、摘要检查和冲突保护，并在写入后执行 Verify。`upgraded`、`migrated`、`refreshed` 或 `unchanged` 只证明 Foundation 受管内容一致；升级后仍应开启新的 Host 会话确认 Skill 发现，并按项目风险运行自身测试。命令不自动 Commit、Push、修改 CI 或发布项目。
+
+## Managed Skill Auto Update
+
+普通消费项目完成 Distribution 后会获得唯一共享 `.agent-foundation/update-guard.mjs`。每个受管 Skill 在执行领域步骤前调用它；24 小时内只读取本地检查状态，TTL 过期才访问 npmjs.org。发现更高稳定版本时，Guard 使用该精确版本执行既有 `upgrade apply`，成功后 Agent 必须重读当前 Skill，使新版用于本次任务。
+
+- 普通触发只承担本地 Node.js 启动成本，通常约 60～100ms；
+- TTL 过期但无需更新时，npm 查询在常见网络下约增加 1 秒；
+- 实际更新通常增加数秒，冷缓存或慢网络下可能更久；
+- Registry、npm 或 Upgrade 冲突失败时返回 `degraded`，保留旧版并继续当前领域流程；
+- Guard 只保存检查时间、公开版本与状态码，不保存项目名、路径、Prompt、工具输入输出或个人标识；
+- Foundation 源码仓是生产者模式，只使用严格 Source Link，不安装 Guard、不查询 npm、不自更新。
 
 ## TODO
 

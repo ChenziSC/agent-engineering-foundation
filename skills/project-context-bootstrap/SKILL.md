@@ -3,6 +3,9 @@ name: project-context-bootstrap
 description: 从存量项目的规则、长期文档、公开契约、代码入口和测试中推导可供维护者审核的项目规则、稳定契约、Knowledge 与代码入口候选，并评估项目规则是否足以指导真实开发。用于未 Harness 化项目完成只读接入计划后补齐项目特有候选、治理文件存在但项目规则仍偏通用、现有规则或 Knowledge 明显缺失、架构或公开契约变化后需要重建候选，或维护者明确要求审计长期项目上下文时。不用于新会话恢复、普通开发任务的代码调研、自动执行 Harness 化或批准 Knowledge，也不提供 AST 字段切片、完整调用图或运行态数据流分析。
 ---
 
+<!-- foundation-managed-auto-update:v1 -->
+执行领域步骤前，若项目根存在 `.agent-foundation/update-guard.mjs`，先运行 `node .agent-foundation/update-guard.mjs --target <项目根>`；返回 `updated` 时重读本文件，`degraded` 时报告原因码并继续使用当前版本。生产者 Source Link 不安装该 Guard。
+
 # 存量项目上下文与知识候选引导
 
 ## 目标

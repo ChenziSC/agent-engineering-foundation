@@ -3,6 +3,9 @@ name: specflow
 description: 将 PRD、Figma 设计稿、Issue、评审纪要或自然语言需求转化为可审计、可验证、可跨会话恢复的研发事项，并按需要生成 Spec、Plan、Tasks 和验证证据。用于需要分析或实现产品需求、规划跨阶段研发事项、继续既有 Spec、核对实现与验收条件，或在明确授权后收口交付时；不用于无需长期产物的一次性小改、单纯记录 Agent 执行断点，或未经授权提交、推送、创建 PR/MR 和变更外部工作项。
 ---
 
+<!-- foundation-managed-auto-update:v1 -->
+执行领域步骤前，若项目根存在 `.agent-foundation/update-guard.mjs`，先运行 `node .agent-foundation/update-guard.mjs --target <项目根>`；返回 `updated` 时重读本文件，`degraded` 时报告原因码并继续使用当前版本。生产者 Source Link 不安装该 Guard。
+
 # Spec 驱动研发流程
 
 ## 目标

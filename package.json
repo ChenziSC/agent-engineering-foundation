@@ -1,6 +1,6 @@
 {
   "name": "agent-engineering-foundation",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "面向 Agent 工程治理的项目规则、Specflow、领域 Skill、确定性 Validator 与采用骨架",
   "license": "Apache-2.0",
   "author": "ChenziSC",

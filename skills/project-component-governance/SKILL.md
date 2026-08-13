@@ -3,6 +3,9 @@ name: project-component-governance
 description: 基于可访问的代码仓库和组件证据，评估项目组件的复用、薄封装、扩展、新建、分层准入、历史迁移与废弃方案。用于新增或修改 UI 组件前的复用判断、组件放置决策、共享或标准组件准入、组件治理评审以及维护计划；不用于脱离仓库证据猜测组件能力、单纯生成视觉代码或未经授权直接迁移和发布组件。
 ---
 
+<!-- foundation-managed-auto-update:v1 -->
+执行领域步骤前，若项目根存在 `.agent-foundation/update-guard.mjs`，先运行 `node .agent-foundation/update-guard.mjs --target <项目根>`；返回 `updated` 时重读本文件，`degraded` 时报告原因码并继续使用当前版本。生产者 Source Link 不安装该 Guard。
+
 # 项目组件治理与维护
 
 ## 目标

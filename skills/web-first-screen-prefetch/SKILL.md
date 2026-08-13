@@ -3,6 +3,9 @@ name: web-first-screen-prefetch
 description: 分析并设计 Web 首屏关键只读请求的安全预请求方案。用于用户希望定位首屏请求瀑布、判断某个请求能否提前发送、设计预请求接入点，或验证已有预请求优化时；需要明确页面场景、当前实现和可见完成条件。不用于通用性能体检、写请求、部署或发布。
 ---
 
+<!-- foundation-managed-auto-update:v1 -->
+执行领域步骤前，若项目根存在 `.agent-foundation/update-guard.mjs`，先运行 `node .agent-foundation/update-guard.mjs --target <项目根>`；返回 `updated` 时重读本文件，`degraded` 时报告原因码并继续使用当前版本。生产者 Source Link 不安装该 Guard。
+
 # Web 首屏预请求
 
 ## 目标
