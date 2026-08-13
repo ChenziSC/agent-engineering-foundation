@@ -1,6 +1,6 @@
 id: "2026-08-12-managed-skill-auto-update"
 title: "受管 Skill 触发时自动更新"
-status: "in-progress"
+status: "archived"
 created_at: "2026-08-12"
 updated_at: "2026-08-13"
 scope:
@@ -25,7 +25,7 @@ artifacts:
   tasks: "./tasks.md"
   research: null
   validation_report: "./validation-report.md"
-  archive_receipt: null
+  archive_receipt: "./archive-receipt.yaml"
   lifecycle_dir: "./lifecycle"
 freshness:
   status: "current"
@@ -37,4 +37,4 @@ active_context:
   summary: "共享 Guard、Distribution、现存及未来 Skill 契约已形成 0.3.0 发布候选并通过全量验证；维护者已授权归档、发布和合并。"
   next_task_id: null
 authorization:
-  terminal_transition_confirmed: false
+  terminal_transition_confirmed: true

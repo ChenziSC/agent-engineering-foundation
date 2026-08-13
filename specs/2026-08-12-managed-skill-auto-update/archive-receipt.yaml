@@ -1,0 +1,101 @@
+schema_version: 1
+receipt_id: "2026-08-12-managed-skill-auto-update:first-terminal"
+spec_id: "2026-08-12-managed-skill-auto-update"
+created_at: "2026-08-13T04:31:31Z"
+transition:
+  from: "in-progress"
+  to: "archived"
+authorization:
+  confirmed: true
+  confirmed_at: "2026-08-13T04:31:31Z"
+  authority: "maintainer"
+  evidence_ref: "conversation:2026-08-13:archive-publish-0.3.0-merge-main"
+snapshot:
+  source_revision: "dc2f5c553aa7c418201a5c3b356d35dff5e99b41"
+  base_revision: "6020990fd86f73aa0c97c4ef54855f8bdf87ec83"
+  change:
+    algorithm: "sha256"
+    scope: "merge-candidate"
+    digest: "sha256:e60c5e0ba0be12f19d09fe88f79a5640a3f44c760c73d3816c900f92cef6d214"
+    excludes:
+      - "specs/2026-08-12-managed-skill-auto-update"
+  artifacts:
+    - role: "spec"
+      path: "./spec.md"
+      digest: "sha256:2f2a1bc93848113f30b8b2b993821f8342f6928a6a6c037693e28b33b14866b3"
+    - role: "plan"
+      path: "./plan.md"
+      digest: "sha256:8b3ba278007f4804123aad6a4a731eae3763626677d07a8bed3daaabfb536a76"
+    - role: "tasks"
+      path: "./tasks.md"
+      digest: "sha256:b1873209897affd1a48d68fba2d16fc5a05743d072743a2d6855ee2888f79e35"
+    - role: "validation-report"
+      path: "./validation-report.md"
+      digest: "sha256:6e7ee27257d689883b6162be92eaa44391cea8cc1839e724762bb42fdc293baf"
+validation:
+  result: "pass"
+  completed_conditions:
+    - "AC-001"
+    - "AC-002"
+    - "AC-003"
+    - "AC-004"
+    - "AC-005"
+    - "AC-006"
+    - "AC-007"
+    - "AC-008"
+  unresolved_blockers: []
+  evidence_refs:
+    - "commit:dc2f5c553aa7c418201a5c3b356d35dff5e99b41"
+    - "change-gate:sha256:09deee06e9b3fa1d4a00f1732d9e560f23d7df6814b6f1460c47f10520bccd71"
+    - "test:npm-test-129-pass"
+    - "test:npm-test-scale-2-pass"
+    - "check:repository-doctor-distribution"
+    - "check:knowledge-specflow-projection"
+    - "package:agent-engineering-foundation-0.3.0"
+knowledge_projection:
+  impact: "reviewed"
+  decisions:
+    - action: "update"
+      knowledge_id: "repository-positioning"
+      target_knowledge_id: null
+      reason: "消费项目通过唯一共享 Guard 获得受管 Skill 触发时更新；生产者 Source Link 明确不安装 Guard、不联网检查、不自更新。"
+      evidence_refs:
+        - "README.md"
+        - "Install.md"
+        - "packages/harness/src/runtime/update-guard.mjs"
+        - "packages/harness/src/harness.mjs"
+        - "knowledge/repository-positioning.md"
+    - action: "update"
+      knowledge_id: "deterministic-core-boundary"
+      target_knowledge_id: null
+      reason: "自动更新绑定本仓既有 Distribution 与 Upgrade 领域契约，不扩张为用户级安装器、常驻 Runtime 或通用 Host Hook。"
+      evidence_refs:
+        - "distribution/README.md"
+        - "packages/harness/src/runtime/update-guard.mjs"
+        - "packages/harness/src/harness.mjs"
+        - "knowledge/deterministic-core-boundary.md"
+    - action: "update"
+      knowledge_id: "self-hosted-governance"
+      target_knowledge_id: null
+      reason: "全部现存 Skill 使用统一前置标记，Repository Check 约束未来 Skill，Distribution 对消费者复制 Guard、对生产者验证跳过。"
+      evidence_refs:
+        - "skills/"
+        - "distribution/manifest.yaml"
+        - "packages/harness/test/update-guard.test.mjs"
+        - "knowledge/self-hosted-governance.md"
+    - action: "still-valid"
+      knowledge_id: "public-generalization-policy"
+      target_knowledge_id: null
+      reason: "Guard 只持久化检查时间、公开版本与状态码，不采集项目身份、Prompt、工具输入输出、个人标识或业务内容，未改变公开泛化和权属边界。"
+      evidence_refs:
+        - "packages/harness/src/runtime/update-guard.mjs"
+        - "knowledge/public-generalization-policy.md"
+relations_snapshot:
+  parent: null
+  children: []
+  supersedes: []
+  superseded_by: null
+integrity:
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  payload_digest: "sha256:029e61d53217be5f023c266df76e567b7fa2dc5a92388f2844300b7d44777305"
