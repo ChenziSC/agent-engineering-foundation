@@ -19,7 +19,7 @@ entries:
       - "repository-positioning"
       - "agent-harness"
       - "content-layering"
-    last_reviewed_at: "2026-08-12"
+    last_reviewed_at: "2026-08-13"
     authoritative_sources:
       - "AGENTS.md"
       - "README.md"
@@ -27,11 +27,11 @@ entries:
       - "specs/2026-08-05-self-hosted-agent-governance/spec.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
+        digest: "sha256:96a400cd0faba454eb33bdc658595dbdf45cbd98b758aa4cc33c30c74b488e2d"
       - path: "README.md"
-        digest: "sha256:2aaf3ca788f20db69e553e6150e9c77221dd17e33e2378ddacf09173795a955c"
+        digest: "sha256:a6367c22500f3afb79bc820141b0717becec4bc9d5e25675f9dfb55b6a0cbb18"
       - path: "packages/harness/README.md"
-        digest: "sha256:71cd019796e075cf9b4b03209e2de97b70187cc66a93924fcd2fc2cb8e0bd4f7"
+        digest: "sha256:b436dd98eb1e53c310a592d8f1b2f5e195823f63cee33fb9e4fb910443f5796f"
       - path: "specs/2026-08-05-self-hosted-agent-governance/spec.md"
         digest: "sha256:3b103a2a88c45ad4789d0b20b56064d27fa7aed69035503619e07010b95e9039"
     refresh_triggers:
@@ -45,10 +45,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-skill-install-recommendation-profiles"
+      spec_id: "2026-08-12-managed-skill-auto-update"
       action: "update"
-      reviewed_at: "2026-08-12"
-      decision_digest: "sha256:6d043866f5699b600daf0961a9e2c22d49366f66d358feb9955359a53f704873"
+      reviewed_at: "2026-08-13"
+      decision_digest: "sha256:d20aeb6cdf66faeda8058bf25affd585b41f0ab29f2dee5c32f89604dbe84b63"
   - id: "deterministic-core-boundary"
     title: "能力准入、宿主边界与确定性代码依赖"
     path: "./deterministic-core-boundary.md"
@@ -65,7 +65,7 @@ entries:
       - "host-boundary"
       - "skill-publication"
       - "dependency-direction"
-    last_reviewed_at: "2026-08-12"
+    last_reviewed_at: "2026-08-13"
     authoritative_sources:
       - "AGENTS.md"
       - "blueprints/skill-runtime/README.md"
@@ -73,13 +73,13 @@ entries:
       - "packages/harness/README.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
+        digest: "sha256:96a400cd0faba454eb33bdc658595dbdf45cbd98b758aa4cc33c30c74b488e2d"
       - path: "blueprints/skill-runtime/README.md"
         digest: "sha256:f7a440a019ff8fc23a16e2a8c3f21746fcb08a72736f9ee9ae07da41a2df32ae"
       - path: "distribution/README.md"
-        digest: "sha256:7472e43a23a41bd611f9dec2d8ccaf2edcfef20ddf488b2ddfe09228f1928451"
+        digest: "sha256:7bff6aaabb406de4ff405dd736449a0f8183333cfad6a45decc46c07dd69cdcd"
       - path: "packages/harness/README.md"
-        digest: "sha256:71cd019796e075cf9b4b03209e2de97b70187cc66a93924fcd2fc2cb8e0bd4f7"
+        digest: "sha256:b436dd98eb1e53c310a592d8f1b2f5e195823f63cee33fb9e4fb910443f5796f"
     refresh_triggers:
       - "主流 Agent Host 原生能力边界变化"
       - "Harness、Framework、Skill、Package 或 Adapter 依赖方向变化"
@@ -91,10 +91,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-skill-install-recommendation-profiles"
+      spec_id: "2026-08-12-managed-skill-auto-update"
       action: "update"
-      reviewed_at: "2026-08-12"
-      decision_digest: "sha256:a139b9ea95c30b8d2629e3130c3d0f32d70229d2347040ef68bd0856e62f00d0"
+      reviewed_at: "2026-08-13"
+      decision_digest: "sha256:c9dd7e85d5bd1aede0fbc7f56e9865596766eb3c3ce815ed95f3b9df7e35f3a8"
   - id: "self-hosted-governance"
     title: "仓库自举治理"
     path: "./self-hosted-governance.md"
@@ -113,7 +113,7 @@ entries:
       - "specflow"
       - "knowledge-governance"
       - "traceability"
-    last_reviewed_at: "2026-08-12"
+    last_reviewed_at: "2026-08-13"
     authoritative_sources:
       - "AGENTS.md"
       - "specs/README.md"
@@ -124,17 +124,17 @@ entries:
       - ".github/workflows/quality.yml"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
+        digest: "sha256:96a400cd0faba454eb33bdc658595dbdf45cbd98b758aa4cc33c30c74b488e2d"
       - path: "specs/README.md"
         digest: "sha256:73644e794c4892f909e6fe2e8768fe19995f78e863d057c5fc87b01b379dafd3"
       - path: "skills/specflow/SKILL.md"
-        digest: "sha256:52195d99740fc6b6fd7f884a22443c59b834f7b390ff68cbcbe8e8dd20a834f9"
+        digest: "sha256:a915a47ceec4078891e5a82b342c40996c9bd6110b9fc9feec5141ba2bfb2612"
       - path: "skills/specflow/scripts/archive-receipt.mjs"
         digest: "sha256:b720016ba682aa6a192ab3dbe6a4fc082d4344d9d27413ef7651ca78b8221103"
       - path: "agent-foundation.json"
         digest: "sha256:af758326649a79910904dce1397cc9b37652e65304c3775a136c27279ee19e72"
       - path: "distribution/manifest.yaml"
-        digest: "sha256:94533d99b1271cb132fb632b379295c772e9ae7a803e3b6e0b19f5229b0bf676"
+        digest: "sha256:e30686f4c6c119636f0676b9cd9870d0adb9df8963276af54c08b4a8294a354d"
       - path: ".github/workflows/quality.yml"
         digest: "sha256:f3eb7e0ea6c536d7215a545849c8dd8a0a5d412d510ccaff29af7a59f3cab473"
     refresh_triggers:
@@ -148,10 +148,10 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-skill-install-recommendation-profiles"
+      spec_id: "2026-08-12-managed-skill-auto-update"
       action: "update"
-      reviewed_at: "2026-08-12"
-      decision_digest: "sha256:b25f1a652509dac0d26749c059a496548d9c7668c9e9735717e8a7b4b2ef1251"
+      reviewed_at: "2026-08-13"
+      decision_digest: "sha256:a035b9a7c64217476a6987d6faec11e8ea7f3e039ae2582bfd6188beb4977f6a"
   - id: "public-generalization-policy"
     title: "通用能力的公开与脱敏复用"
     path: "./public-generalization-policy.md"
@@ -169,14 +169,14 @@ entries:
       - "public-generalization"
       - "rights-and-redaction"
       - "release-safety"
-    last_reviewed_at: "2026-08-12"
+    last_reviewed_at: "2026-08-13"
     authoritative_sources:
       - "AGENTS.md"
       - "docs/公开发布检查清单.md"
       - "docs/公开内容来源说明.md"
     source_evidence:
       - path: "AGENTS.md"
-        digest: "sha256:76d4936b878d3b18b7586cbf57baa30c95bae04452137305211f447cb2d873ed"
+        digest: "sha256:96a400cd0faba454eb33bdc658595dbdf45cbd98b758aa4cc33c30c74b488e2d"
       - path: "docs/公开发布检查清单.md"
         digest: "sha256:81c231f78fb99c459e9c0f257d1afb8e3bd4b3136d7878f9e08285b0bb28d6a3"
       - path: "docs/公开内容来源说明.md"
@@ -192,7 +192,7 @@ entries:
     status_reason: null
     superseded_by: null
     last_projection:
-      spec_id: "2026-08-11-skill-install-recommendation-profiles"
+      spec_id: "2026-08-12-managed-skill-auto-update"
       action: "still-valid"
-      reviewed_at: "2026-08-12"
-      decision_digest: "sha256:3e561a624d4dd18576ac395a0bbdb5be42551c297b54765689f285f1931e336f"
+      reviewed_at: "2026-08-13"
+      decision_digest: "sha256:09e7afeb9043b508eb2f8eb4a133d4b6431e64b9254882706e3f93950c3ab7fb"

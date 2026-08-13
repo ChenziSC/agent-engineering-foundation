@@ -36,7 +36,7 @@
 - Skill 行为成熟度使用 Case、Rubric、脱敏 Trace 和 Replay 配置形成可重算证据；Runner 动态读取真实目录并执行阻塞优先评分，但不把评分者的语义判断伪装成确定性事实，也不固定模型或推理强度。
 - 行为 Replay 与真实采用观察分层保存：Replay 决定所测行为是否达到行为成熟度门禁，真实样本对照补充外部有效性、上下文成本和适用范围。成本回归或覆盖不足必须保留为限制，但不能改写正式 Replay 已通过的事实，也不能被 `validated` 标签掩盖。
 - 高频 Skill 主入口使用渐进披露：普通 Spec/Plan 任务只加载核心工作流，归档、Lifecycle、关系事务和 Delivery Gate 的完整契约仅在对应终态场景触发时读取既有 Reference；固定治理输入缩减与端到端 Token 必须分层报告，不能用前者推断后者稳定下降。
-- Distribution Manifest 以运行时文件摘要声明允许分发的 Skill，独立推荐契约声明默认选择、条件性必需说明、理由和适用条件。Agent Host 负责询问用户；CLI 的 Plan/Verify 只读，首次 Apply 要求显式 Profile，`--include-skill` 表达 `core + 可选项`。Apply 只写所选 Profile、显式可选项与已有受管 Skill 的并集，升级时保护采用方修改和未知文件；Profile 缩小不产生卸载。`upgrade plan/apply` 由精确版本 CLI 比较安装记录中的 Foundation 版本，拒绝降级和未安装项目，复用记录的 Profile、Distribution Apply 与写后 Verify；它不替代 Host/npm 的版本选择。Foundation 生产者模式固定 `full`，只迁移摘要一致的受管副本，并严格校验 `.agents/skills -> ../skills`；源码修改可由 Host 下次读取直接可见，但发布检查仍要求 Manifest 摘要同步。
+- Distribution Manifest 以运行时文件摘要声明允许分发的 Skill，独立推荐契约声明默认选择、条件性必需说明、理由和适用条件。Agent Host 负责询问用户；CLI 的 Plan/Verify 只读，首次 Apply 要求显式 Profile，`--include-skill` 表达 `core + 可选项`。Apply 只写所选 Profile、显式可选项与已有受管 Skill 的并集，并为消费者安装唯一共享 Update Guard；九个现存 Skill 和未来 Skill 通过统一标记调用该 Guard，Repository Check 对遗漏失败关闭。Guard 以 24 小时 TTL 查询 npm 稳定版本，命中新版时复用精确版本 Upgrade；网络或冲突失败保留旧版。`upgrade plan/apply` 继续负责版本方向、Profile、采用方修改和写后 Verify。Foundation 生产者模式固定 `full`，只迁移摘要一致的受管副本，并严格校验 `.agents/skills -> ../skills`；不安装 Guard、不访问 Registry、不自更新，源码修改由 Host 下次读取直接可见，但发布检查仍要求 Manifest 摘要同步。
 
 ## 设计原因
 

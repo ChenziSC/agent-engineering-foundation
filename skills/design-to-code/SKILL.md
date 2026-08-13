@@ -3,6 +3,9 @@ name: design-to-code
 description: 将设计文件、图片或交互说明转化为项目代码时，建立设计版本、页面范围、现有组件复用、响应式、状态、交互、无障碍以及视觉和行为验证闭环。适用于设计稿还原、页面实现、UI 重构或视觉验收。
 ---
 
+<!-- foundation-managed-auto-update:v1 -->
+执行领域步骤前，若项目根存在 `.agent-foundation/update-guard.mjs`，先运行 `node .agent-foundation/update-guard.mjs --target <项目根>`；返回 `updated` 时重读本文件，`degraded` 时报告原因码并继续使用当前版本。生产者 Source Link 不安装该 Guard。
+
 # Design-to-Code
 
 1. 固定设计来源、版本、Frame 和目标代码范围；无法确认版本时不得宣称完整还原。

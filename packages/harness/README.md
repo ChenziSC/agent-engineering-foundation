@@ -55,7 +55,9 @@ node packages/harness/bin/agent-foundation.mjs upgrade plan --target /path/to/pr
 node packages/harness/bin/agent-foundation.mjs upgrade apply --target /path/to/project
 ```
 
-`list`、`recommend`、`check`、`plan` 和 `verify` 只读；`install`、`update` 和 Distribution `apply` 只操作 Manifest 明确纳管且未被采用方修改的内容。`skill recommend` 输出三种选择方式，以及每个 Skill 的默认选择、条件性必需说明、理由和适用场景。首次普通项目 Apply 必须显式传入 `--profile core|full`；`--include-skill` 可重复表达 `core + 可选项`。Agent 负责向用户询问，CLI 不做 TTY 对话，只机械阻止静默首次写入。Distribution 实际维护所选 Profile、显式可选项与仍在 Manifest 中的既有受管 Skill 的并集，不把较小 Profile 当作卸载授权。安装状态保存 Foundation 版本与 Profile；旧状态缺少 Profile 时按历史 `full` 兼容。`verify` 同时复核工具版本来源、Manifest、受管记录和目标内容。安装成功只证明这些内容一致，不证明项目配置、外部 Adapter 或运行环境已经就绪。确定性核心与可分发 Skill 的依赖方向见[长期依赖契约](../../knowledge/deterministic-core-boundary.md)。
+`list`、`recommend`、`check`、`plan` 和 `verify` 只读；`install`、`update` 和 Distribution `apply` 只操作 Manifest 明确纳管且未被采用方修改的内容。`skill recommend` 输出三种选择方式，以及每个 Skill 的默认选择、条件性必需说明、理由和适用场景。首次普通项目 Apply 必须显式传入 `--profile core|full`；`--include-skill` 可重复表达 `core + 可选项`。Agent 负责向用户询问，CLI 不做 TTY 对话，只机械阻止静默首次写入。Distribution 实际维护所选 Profile、显式可选项与仍在 Manifest 中的既有受管 Skill 的并集，不把较小 Profile 当作卸载授权。安装状态保存 Foundation 版本、Profile 和共享 Update Guard 摘要；旧状态缺少 Profile 时按历史 `full` 兼容。`verify` 同时复核工具版本来源、Manifest、受管记录、Guard 和目标内容。安装成功只证明这些内容一致，不证明项目配置、外部 Adapter 或运行环境已经就绪。确定性核心与可分发 Skill 的依赖方向见[长期依赖契约](../../knowledge/deterministic-core-boundary.md)。
+
+消费项目中的每个受管 Skill 在领域步骤前调用同一个 `.agent-foundation/update-guard.mjs`。Guard 默认使用 24 小时 TTL：命中 TTL 时只读本地状态；过期时查询 npmjs.org 的稳定 `latest`；发现更高版本后通过 `npx --package agent-engineering-foundation@<精确版本>` 调用既有 `upgrade apply`。成功返回 `updated` 和 `reloadSkill: true`，Agent 随即重读当前 `SKILL.md`；网络或冲突失败返回不含原始输出的 `degraded`，继续使用旧版。Foundation 生产者 Source Link 不安装 Guard、不联网检查、不自更新。
 
 `upgrade` 只面向已经完成项目级 Distribution 的采用项目。调用者先通过 npm 或 Host 选择一个精确目标版本，再由该版本 CLI 比较安装状态中的 Foundation 版本并复用记录的 Profile 与已有受管集合。`plan` 不写入；`apply` 拒绝降级、未安装状态、用户修改、未知文件和路径冲突，成功写入后再次 Verify。它不查询 Registry、不选择 `latest`，也不修改项目依赖、Git、CI 或 Host Hook。早期受管记录存在但缺少 Foundation 版本时，Plan 使用 `migrate` 显式补齐；旧 Distribution 状态缺少 Profile 时保持历史 `full`；已一致时 Apply 返回 `unchanged`。
 

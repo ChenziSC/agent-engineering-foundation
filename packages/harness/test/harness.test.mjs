@@ -1807,11 +1807,22 @@ test('Distribution Manifest 以内容摘要执行 Plan、Apply 和 Verify', asyn
   const plan = await planDistribution({ target, repoRoot: fakeRepo });
   assert.equal(plan.ok, true);
   assert.equal(plan.items[0].action, 'add');
-  assert.equal((await applyDistribution({ target, repoRoot: fakeRepo })).status, 'applied');
-  assert.equal((await verifyDistribution({ target, repoRoot: fakeRepo })).status, 'pass');
+  assert.equal(plan.updateGuard.action, 'add');
+  const applied = await applyDistribution({ target, repoRoot: fakeRepo });
+  assert.equal(applied.status, 'applied');
+  assert.equal(applied.updateGuard.status, 'installed');
+  const verification = await verifyDistribution({ target, repoRoot: fakeRepo });
+  assert.equal(verification.status, 'pass');
+  assert.ok(verification.checks.some(({ code, mode }) =>
+    code === 'distribution-update-guard' && mode === 'consumer-copy'));
   const statePath = path.join(target, '.agent-foundation', 'installed-skills.json');
   const state = JSON.parse(await readFile(statePath, 'utf8'));
   assert.equal(state.foundationVersion, '9.9.9');
+  assert.match(state.updateGuardDigest, /^sha256:[a-f0-9]{64}$/u);
+  assert.match(
+    await readFile(path.join(target, '.agent-foundation', 'update-guard.mjs'), 'utf8'),
+    /runManagedSkillUpdate/u,
+  );
   delete state.foundationVersion;
   await writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`);
   const legacyVerification = await verifyDistribution({ target, repoRoot: fakeRepo });
@@ -2088,8 +2099,17 @@ test('生产者 Source Link 只迁移摘要一致的既有受管副本', async (
   const clean = await prepare('clean');
   const cleanPlan = await planDistribution({ target: clean, repoRoot: clean });
   assert.equal(cleanPlan.sourceLinkAction, 'replace-managed-copy');
+  assert.equal(cleanPlan.updateGuard.action, 'remove-managed');
   assert.equal((await applyDistribution({ target: clean, repoRoot: clean })).status, 'applied');
   assert.equal((await lstat(path.join(clean, '.agents', 'skills'))).isSymbolicLink(), true);
+  await assert.rejects(readFile(path.join(clean, '.agent-foundation', 'update-guard.mjs')), { code: 'ENOENT' });
+  const cleanState = JSON.parse(
+    await readFile(path.join(clean, '.agent-foundation', 'installed-skills.json'), 'utf8'),
+  );
+  assert.equal(cleanState.updateGuardDigest, undefined);
+  const cleanVerification = await verifyDistribution({ target: clean, repoRoot: clean });
+  assert.ok(cleanVerification.checks.some(({ code, mode }) =>
+    code === 'distribution-update-guard' && mode === 'producer-skip'));
 
   const modified = await prepare('modified');
   await writeFile(
@@ -2476,6 +2496,14 @@ test('仓库检查支持私有词表且不在结果中回显词条', async () =>
   assert.equal(blocked.ok, false);
   assert.ok(blocked.errors.some((error) => error.code === 'denied-sensitive-term'));
   assert.equal(JSON.stringify(blocked).includes(privateTerm), false);
+});
+
+test('Repository Check 对缺少统一自动更新声明的新 Skill 失败关闭', async () => {
+  const root = await makeTemporaryRoot();
+  await makeCheckableRepository(root);
+  const result = await checkRepository({ repoRoot: root });
+  assert.ok(result.errors.some(({ code, name }) =>
+    code === 'skill-managed-update-marker-missing' && name === 'demo-skill'));
 });
 
 test('敏感扫描覆盖无扩展名文件、路径、暂存区和 Git 历史且不回显命中内容', async () => {

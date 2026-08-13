@@ -13,6 +13,8 @@ node packages/harness/bin/agent-foundation.mjs distribution verify --target <pro
 - `plan` 在任何写入前校验全部条目和目标冲突；
 - `apply` 只服务现有项目级兼容安装，不处理用户级目录；
 - `verify` 独立比较 Manifest、安装状态和目标内容；
+- 消费项目额外安装唯一共享 `.agent-foundation/update-guard.mjs`；所有受管 Skill 复用该 Guard，不各自维护更新代码；
+- Guard 默认 24 小时内只读本地状态，过期才查询 npm 稳定 `latest`；命中新版后以精确版本复用 Upgrade，失败保留旧版；
 - 新项目默认推荐 `core`，但首次 Apply 必须显式选择 `core` 或 `full`；`full` 精确覆盖 Manifest 全集；
 - `--include-skill` 可重复表达 `core + 可选项`；实际维护集合是所选 Profile、显式可选项与仍在 Manifest 中的已有受管 Skill 的并集，Profile 缩小不触发卸载；
 - 旧 Distribution 状态缺少 Profile 时按历史 `full` 兼容；Foundation 源码仓的 Source Link 固定使用 `full`；
@@ -20,7 +22,7 @@ node packages/harness/bin/agent-foundation.mjs distribution verify --target <pro
 - 修改 Skill 后必须重新计算对应摘要，并通过仓库检查；
 - 多 Skill Apply 可重入，但不宣称跨目录写入具有绝对原子性。
 
-Foundation 源码仓是唯一生产者特例：Integration 显式声明 `foundation-source://skills` 时，`apply` 可以把摘要一致且无用户修改的既有受管副本迁移为 `.agents/skills -> ../skills`。之后 Host 从 `skills/` 读取最新源码，`verify` 校验精确链接、安装记录与发布摘要；不需要为每次源码编辑复制运行时文件。该配置只在目标项目等于当前 Foundation 源码根时有效，采用项目、仓外目标和其他 Symlink 均拒绝。
+Foundation 源码仓是唯一生产者特例：Integration 显式声明 `foundation-source://skills` 时，`apply` 可以把摘要一致且无用户修改的既有受管副本迁移为 `.agents/skills -> ../skills`。之后 Host 从 `skills/` 读取最新源码，`verify` 校验精确链接、安装记录与发布摘要；不需要为每次源码编辑复制运行时文件。生产者不安装 Update Guard、不查询 npm，也不自更新。该配置只在目标项目等于当前 Foundation 源码根时有效，采用项目、仓外目标和其他 Symlink 均拒绝。
 
 Skill 的安装、更新、权限、Sandbox、Hook、MCP 和用户级状态由目标 Agent Host 的原生 Skill/Plugin 机制负责。Skill 脚本必须自包含，或通过宿主原生机制声明外部依赖；不能因为脚本在本仓可运行，就推断发布副本拥有未随包分发的相对路径。
 

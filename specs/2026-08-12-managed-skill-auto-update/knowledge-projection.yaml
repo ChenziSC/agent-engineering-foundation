@@ -1,0 +1,37 @@
+impact: reviewed
+decisions:
+  - knowledge_id: repository-positioning
+    action: update
+    target_knowledge_id: null
+    reason: 消费项目通过唯一共享 Guard 获得受管 Skill 触发时更新；生产者 Source Link 明确不安装 Guard、不联网检查、不自更新。
+    evidence_refs:
+      - README.md
+      - Install.md
+      - packages/harness/src/runtime/update-guard.mjs
+      - packages/harness/src/harness.mjs
+      - knowledge/repository-positioning.md
+  - knowledge_id: deterministic-core-boundary
+    action: update
+    target_knowledge_id: null
+    reason: 自动更新绑定本仓既有 Distribution 与 Upgrade 领域契约，不扩张为用户级安装器、常驻 Runtime 或通用 Host Hook。
+    evidence_refs:
+      - distribution/README.md
+      - packages/harness/src/runtime/update-guard.mjs
+      - packages/harness/src/harness.mjs
+      - knowledge/deterministic-core-boundary.md
+  - knowledge_id: self-hosted-governance
+    action: update
+    target_knowledge_id: null
+    reason: 全部现存 Skill 使用统一前置标记，Repository Check 约束未来 Skill，Distribution 对消费者复制 Guard、对生产者验证跳过。
+    evidence_refs:
+      - skills/
+      - distribution/manifest.yaml
+      - packages/harness/test/update-guard.test.mjs
+      - knowledge/self-hosted-governance.md
+  - knowledge_id: public-generalization-policy
+    action: still-valid
+    target_knowledge_id: null
+    reason: Guard 只持久化检查时间、公开版本与状态码，不采集项目身份、Prompt、工具输入输出、个人标识或业务内容，未改变公开泛化和权属边界。
+    evidence_refs:
+      - packages/harness/src/runtime/update-guard.mjs
+      - knowledge/public-generalization-policy.md

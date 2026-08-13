@@ -3,6 +3,9 @@ name: web-performance-review
 description: 基于 URL、Lighthouse、Performance Trace 或 HAR 评审 Web 性能，区分事实与推断，识别主要瓶颈，并在提供代码仓库时映射到可验证的实现位置。用于页面加载或交互性能分析、性能结论复核和改造优先级排序；不用于已经明确的首屏预请求专项、没有任何性能证据的猜测、自动改代码、部署或发布。
 ---
 
+<!-- foundation-managed-auto-update:v1 -->
+执行领域步骤前，若项目根存在 `.agent-foundation/update-guard.mjs`，先运行 `node .agent-foundation/update-guard.mjs --target <项目根>`；返回 `updated` 时重读本文件，`degraded` 时报告原因码并继续使用当前版本。生产者 Source Link 不安装该 Guard。
+
 # Web 性能评审
 
 ## 目标

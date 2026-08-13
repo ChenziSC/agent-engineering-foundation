@@ -15,8 +15,8 @@
 需要 Node.js 20+。采用项目固定使用明确版本，不依赖可变的 `latest`：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- agent-foundation --version
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- agent-foundation --version
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation init plan --target /path/to/existing-project
 ```
 
@@ -24,16 +24,18 @@ npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
 
 Skill 发布白名单与默认安装建议相互独立。首次接入时，Agent 先运行 `agent-foundation skill recommend`，向用户说明条件性必需理由、接入期和可选能力，并询问 `core`、`full` 或 `core + 可选项`。用户确认后才使用 `--profile` 与可重复的 `--include-skill` 运行只读 Plan；另行取得写入授权后，以相同选择 Apply。首次 Apply 未显式选择 Profile 会失败关闭。
 
-已经完成 Distribution 接入的项目升级时，先由维护者选择一个已发布的精确版本，再使用该版本 CLI 计划和应用记录 Profile 与已有受管 Skill 的更新：
+已经完成 Distribution 接入的消费项目会安装一个共享 Update Guard。任一受管 Skill 触发后、执行领域步骤前先运行该 Guard：24 小时 TTL 内只读本地状态，过期才查询 npm `latest`；发现更高稳定版本时用精确版本 CLI 复用安全 Upgrade，成功后重读当前 Skill。普通触发只增加一次本地 Node.js 启动；过期远端检查通常增加约 1 秒，实际更新通常增加数秒。Registry 或升级失败时保留旧版并继续。
+
+Foundation 源码仓属于生产者模式，只使用严格 `.agents/skills -> ../skills` Source Link，不安装 Guard、不查询 npm，也不自更新。手工升级仍可用于诊断、审核和自动更新的回退：
 
 ```bash
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation upgrade plan --target /path/to/adopted-project
-npm exec --yes --package=agent-engineering-foundation@0.2.0 -- \
+npm exec --yes --package=agent-engineering-foundation@0.3.0 -- \
   agent-foundation upgrade apply --target /path/to/adopted-project
 ```
 
-示例中的 `0.2.0` 应替换为维护者批准的目标版本。CLI 不自动追随 `latest`；Plan 只读，Apply 复用 Distribution 的用户修改保护并在写入后 Verify。
+示例中的 `0.3.0` 应替换为维护者批准的目标版本。显式 `upgrade plan/apply` 本身不查询 `latest`；只有消费者共享 Guard 以 24 小时 TTL 查询稳定版本。Plan 只读，Apply 复用 Distribution 的用户修改保护并在写入后 Verify。
 
 ### 从源码开发
 

@@ -3,6 +3,9 @@ name: safe-change
 description: 在修改代码、配置、依赖或公共契约前后，基于影响路径、风险、增量检查、浏览器关键场景、回滚点和证据矩阵规划与复核安全变更。适用于用户要求安全修改、影响分析、最小验证、回归防护或变更交付复核时。
 ---
 
+<!-- foundation-managed-auto-update:v1 -->
+执行领域步骤前，若项目根存在 `.agent-foundation/update-guard.mjs`，先运行 `node .agent-foundation/update-guard.mjs --target <项目根>`；返回 `updated` 时重读本文件，`degraded` 时报告原因码并继续使用当前版本。生产者 Source Link 不安装该 Guard。
+
 # 安全变更
 
 ## 目标

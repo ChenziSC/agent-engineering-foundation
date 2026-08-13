@@ -3,6 +3,9 @@ name: tracking-governance
 description: 为产品行为设计、生成或评审埋点时，建立事件目的、触发语义、属性来源、隐私分类、代码落点、重复触发防护和验证场景。适用于新增埋点、埋点迁移、事件口径评审、代码生成或数据质量排查。
 ---
 
+<!-- foundation-managed-auto-update:v1 -->
+执行领域步骤前，若项目根存在 `.agent-foundation/update-guard.mjs`，先运行 `node .agent-foundation/update-guard.mjs --target <项目根>`；返回 `updated` 时重读本文件，`degraded` 时报告原因码并继续使用当前版本。生产者 Source Link 不安装该 Guard。
+
 # 埋点治理
 
 1. 从分析问题或产品决策反推事件目的，不从现有 SDK 调用猜测口径。

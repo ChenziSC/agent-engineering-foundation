@@ -26,7 +26,7 @@
 - 项目自有基建通过 Integration Manifest 和显式 Registry 接入；公共核心不动态加载私有代码；
 - 组织专有词表保存在公开 Git 之外，由发布检查时显式注入且不在结果中回显；
 - 领域 Skill 可以选装，不应成为核心 Harness 的强制依赖；
-- Skill 的原生安装、更新、权限、Sandbox、Hook、MCP、会话与用户询问由目标 Host 负责；本仓兼容 Distribution 对采用项目只写入 Manifest 声明的运行时副本，独立推荐契约提供默认选择、条件性必需说明、理由和适用场景。首次 Apply 要求显式 Profile，`--include-skill` 表达 `core + 可选项`，实际维护集合保留已有受管 Skill 且不隐式卸载。Foundation 源码根只允许 `.agents/skills -> ../skills` 的生产者 Source Link，并固定使用 `full`。`upgrade plan/apply` 只由调用者选定的精确版本 CLI 比较项目版本并复用记录 Profile 与已有受管集合，不查询 Registry 或选择 `latest`。Manifest、推荐契约与 Verify 证明发布白名单、推荐选择、内容摘要和运行时入口一致性，不证明项目配置、外部 Adapter、Host 缓存或业务行为就绪。
+- Skill 的原生安装、权限、Sandbox、通用 Hook、MCP、会话与用户询问由目标 Host 负责；本仓兼容 Distribution 对采用项目写入 Manifest 声明的运行时副本和唯一共享 Update Guard，独立推荐契约提供默认选择、条件性必需说明、理由和适用场景。首次 Apply 要求显式 Profile，`--include-skill` 表达 `core + 可选项`，实际维护集合保留已有受管 Skill 且不隐式卸载。消费项目中的 Skill 触发后通过 24 小时 TTL Guard 查询 npm 稳定版本，精确复用 Upgrade 并在成功后重读当前 Skill；失败保留旧版。Foundation 源码根只允许 `.agents/skills -> ../skills` 的生产者 Source Link，并固定使用 `full`，不安装 Guard、不联网检查、不自更新。显式 `upgrade plan/apply` 本身不查询 Registry 或选择 `latest`。Manifest、推荐契约与 Verify 证明发布白名单、推荐选择、内容摘要、Guard 和运行时入口一致性，不证明项目配置、外部 Adapter、Host 缓存或业务行为就绪。
 - 新能力必须证明相对宿主基线的增量价值、直接消费者和验证方式；通用代码探索、计划、测试和权限遵循不能单独包装成仓库能力。
 
 ## 设计原因

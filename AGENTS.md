@@ -28,6 +28,7 @@
 - 分析、生成、评审、规划类 Skill 必须有行为评估用例。
 - 共享能力只实现一次，上层能力通过依赖复用。
 - 本仓作为 Skill 生产者时只编辑 `skills/`；`.agents/skills` 必须是由 Distribution 校验的严格仓内 Source Link，不能手工改为副本、其他目标或第二源码。采用项目仍使用摘要约束的受管副本。
+- 新增或修改 `skills/*/SKILL.md` 必须保留统一的 `foundation-managed-auto-update:v1` 前置声明；消费项目由 Distribution 安装唯一共享 Guard，生产者 Source Link 不安装 Guard、不联网检查、不自更新。Repository Check 对声明缺失或变形失败关闭。
 - 未经用户明确要求，不进行 commit 或 push。
 
 具体分级和公开边界见 [`knowledge/public-generalization-policy.md`](knowledge/public-generalization-policy.md)。
